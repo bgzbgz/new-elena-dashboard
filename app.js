@@ -190,7 +190,7 @@ class FastTrackApp {
             // Test basic connectivity first using CORS Proxy
             console.log('Testing basic connectivity via CORS Proxy...');
             try {
-                const targetUrl = `${this.supabaseUrl}/rest/v1/sprints?select=id&limit=1`;
+                const targetUrl = `${this.supabaseUrl}/rest/v1/sprints?select=id&limit=1&apikey=${this.supabaseKey}`;
                 const response = await fetch(`${this.corsProxyUrl}?url=${encodeURIComponent(targetUrl)}`, {
                     method: 'GET',
                     headers: {
