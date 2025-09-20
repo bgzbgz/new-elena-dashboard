@@ -191,13 +191,20 @@ class FastTrackApp {
             
             // First test if we can reach Supabase at all
             try {
+                console.log('Testing basic fetch to:', `${this.supabaseUrl}/rest/v1/`);
                 const response = await fetch(`${this.supabaseUrl}/rest/v1/`, {
+                    method: 'GET',
                     headers: {
                         'apikey': this.supabaseKey,
-                        'Authorization': `Bearer ${this.supabaseKey}`
+                        'Authorization': `Bearer ${this.supabaseKey}`,
+                        'Content-Type': 'application/json'
                     }
                 });
                 console.log('Basic fetch test result:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
             } catch (fetchError) {
                 console.error('Basic fetch failed:', fetchError);
                 throw new Error(`Cannot reach Supabase: ${fetchError.message}`);
