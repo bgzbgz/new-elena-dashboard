@@ -613,7 +613,9 @@ class FastTrackApp {
                     .select('name');
                 console.log('Available sprints:', allSprints);
                 
-                alert(`Error finding sprint "${sprintName}". Please check the console for available sprints.`);
+                // Show available sprints in the alert
+                const sprintNames = allSprints ? allSprints.map(s => s.name).join(', ') : 'No sprints found';
+                alert(`Error finding sprint "${sprintName}". Available sprints: ${sprintNames}`);
                 return;
             }
 
