@@ -182,6 +182,22 @@ class FastTrackApp {
     // Database initialization and schema setup
     async initializeDatabase() {
         try {
+            console.log('Testing Supabase connection...');
+            
+            // Test Supabase connection with a simple query
+            const { data: testData, error: testError } = await this.supabase
+                .from('sprints')
+                .select('count')
+                .limit(1);
+            
+            if (testError) {
+                console.error('Supabase connection test failed:', testError);
+                console.log('Falling back to local data');
+                return;
+            }
+            
+            console.log('Supabase connection successful!');
+            
             // Check if tables exist, if not create them
             await this.createTablesIfNotExist();
             await this.loadDataFromSupabase();
@@ -608,9 +624,11 @@ class FastTrackApp {
                 console.error('Sprint lookup error:', sprintError);
                 
                 // Try to find all sprints to debug
-                const { data: allSprints } = await this.supabase
+                const { data: allSprints, error: allSprintsError } = await this.supabase
                     .from('sprints')
                     .select('name');
+                
+                console.log('All sprints query result:', { allSprints, allSprintsError });
                 console.log('Available sprints:', allSprints);
                 
                 // Show available sprints in the alert
@@ -1581,9 +1599,9 @@ class FastTrackApp {
                     lastLogin: teamData.last_login
                 });
 
-                this.hideAllModals();
-                this.populateAdminDashboard();
-                alert(`Team "${values.name}" created successfully!\nAccess Code: ${newCode}`);
+        this.hideAllModals();
+        this.populateAdminDashboard();
+        alert(`Team "${values.name}" created successfully!\nAccess Code: ${newCode}`);
             }
         } catch (error) {
             console.error('Error creating team:', error);
