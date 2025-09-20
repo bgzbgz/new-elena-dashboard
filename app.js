@@ -186,14 +186,18 @@ class FastTrackApp {
             console.log('Supabase URL:', this.supabaseUrl);
             console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
-            // Test basic connectivity first
+            // Test basic connectivity first with CORS headers
             console.log('Testing basic connectivity...');
             try {
                 const response = await fetch(`${this.supabaseUrl}/rest/v1/sprints?select=id&limit=1`, {
+                    method: 'GET',
+                    mode: 'cors',
                     headers: {
                         'apikey': this.supabaseKey,
                         'Authorization': `Bearer ${this.supabaseKey}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
                     }
                 });
                 console.log('Direct fetch response:', response.status, response.statusText);
@@ -205,7 +209,7 @@ class FastTrackApp {
                 }
             } catch (fetchError) {
                 console.error('Direct fetch failed:', fetchError);
-                alert(`Network Error: ${fetchError.message}\n\nThis suggests a network/CORS issue.`);
+                alert(`CORS Error: ${fetchError.message}\n\nPlease check Supabase CORS settings and add:\nhttps://leadershipboardel.netlify.app\n\nOr contact Supabase support for REST API CORS configuration.`);
                 this.addIdsToHardcodedTeams();
                 return;
             }
