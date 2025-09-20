@@ -193,6 +193,7 @@ class FastTrackApp {
             if (testError) {
                 console.error('Supabase connection test failed:', testError);
                 console.log('Falling back to local data');
+                this.addIdsToHardcodedTeams();
                 return;
             }
             
@@ -205,7 +206,17 @@ class FastTrackApp {
             console.error('Database initialization error:', error);
             // Fallback to local data if Supabase fails
             console.log('Falling back to local data');
+            this.addIdsToHardcodedTeams();
         }
+    }
+
+    addIdsToHardcodedTeams() {
+        // Add UUID-like IDs to hardcoded teams so they can be used in forms
+        this.teams = this.teams.map((team, index) => ({
+            ...team,
+            id: `temp-id-${index + 1}` // Temporary ID for hardcoded teams
+        }));
+        console.log('Added temporary IDs to hardcoded teams:', this.teams);
     }
 
     async createTablesIfNotExist() {
@@ -342,6 +353,13 @@ class FastTrackApp {
         try {
             console.log('Creating subtask with:', { sprintId, teamId, title, description, createdBy });
             
+            // If using temporary ID, we can't create subtasks in database
+            if (teamId.startsWith('temp-id-')) {
+                console.log('Using hardcoded data - cannot create subtask in database');
+                alert('Database connection failed. Cannot create subtasks. Please check Supabase connection.');
+                return null;
+            }
+            
             const { data, error } = await this.supabase
                 .from('subtasks')
                 .insert([
@@ -357,6 +375,13 @@ class FastTrackApp {
 
             if (error) {
                 console.error('Supabase error creating subtask:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code
+                });
+                alert(`Database error: ${error.message}`);
                 return null;
             }
 
@@ -584,6 +609,8 @@ class FastTrackApp {
         }
 
         try {
+            console.log('Form data:', { teamId, sprintName, title, description });
+            
             let sprintId = null;
             
             // Only look up sprint if one is selected
