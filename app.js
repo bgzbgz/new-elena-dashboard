@@ -186,10 +186,27 @@ class FastTrackApp {
             console.log('Supabase URL:', this.supabaseUrl);
             console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
-            // Test Supabase connection with a simple query
+            // Test basic Supabase connection first
+            console.log('Testing basic connection...');
+            
+            // First test if we can reach Supabase at all
+            try {
+                const response = await fetch(`${this.supabaseUrl}/rest/v1/`, {
+                    headers: {
+                        'apikey': this.supabaseKey,
+                        'Authorization': `Bearer ${this.supabaseKey}`
+                    }
+                });
+                console.log('Basic fetch test result:', response.status, response.statusText);
+            } catch (fetchError) {
+                console.error('Basic fetch failed:', fetchError);
+                throw new Error(`Cannot reach Supabase: ${fetchError.message}`);
+            }
+            
+            // Try a simple query that should work
             const { data: testData, error: testError } = await this.supabase
                 .from('sprints')
-                .select('count')
+                .select('id')
                 .limit(1);
             
             console.log('Connection test result:', { testData, testError });
