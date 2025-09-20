@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Track - Team Leaderboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Landing Page / Login -->
+        <div id="loginPage" class="login-container">
+            <div class="login-card">
+                <div class="fast-track-logo">
+                    <h1>Fast Track</h1>
+                    <div class="logo-underline"></div>
+                </div>
+                <div class="login-form">
+                    <h2>Team Access Portal</h2>
+                    <p>Enter your team access code to view your progress</p>
+                    
+                    <div class="form-group">
+                        <label for="accessCode" class="form-label">Access Code</label>
+                        <input type="text" id="accessCode" class="form-control" placeholder="Enter your team code">
+                        <div id="loginError" class="error-message hidden"></div>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <button id="teamLoginBtn" class="btn btn--primary btn--full-width">Access Team Dashboard</button>
+                        <button id="adminLoginBtn" class="btn btn--outline btn--full-width">Admin Access</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Login Modal -->
+        <div id="adminModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Admin Authentication</h3>
+                    <button id="closeAdminModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="adminCode" class="form-label">Admin Access Code</label>
+                        <input type="password" id="adminCode" class="form-control" placeholder="Enter admin code">
+                        <div id="adminError" class="error-message hidden"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="adminAuthBtn" class="btn btn--primary">Authenticate</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Dashboard -->
+        <div id="teamDashboard" class="dashboard hidden">
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <div class="fast-track-brand">
+                        <h1>Fast Track</h1>
+                        <div class="brand-underline"></div>
+                    </div>
+                    <div class="user-info">
+                        <span id="currentTeam" class="team-name"></span>
+                        <button id="logoutBtn" class="btn btn--outline btn--sm">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="dashboard-main">
+                <div class="container">
+                    <!-- Team Progress Section -->
+                    <div class="team-progress-section">
+                        <h2>Team Progress Overview</h2>
+                        <div id="teamProgressCards" class="progress-cards">
+                            <!-- Progress cards will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Individual Team Modal Trigger -->
+                    <div class="team-details-section">
+                        <button id="viewTeamProgress" class="btn btn--primary">View Detailed Sprint Progress</button>
+                    </div>
+
+                    <!-- Team Ranking Section -->
+                    <div class="team-ranking-section">
+                        <h2>Your Team Ranking</h2>
+                        <div id="teamRankingContainer" class="team-ranking-container">
+                            <!-- Team ranking will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Current Sprint Subtasks -->
+                    <div class="subtasks-section">
+                        <h2>Current Sprint Tasks</h2>
+                        <div id="subtasksContainer" class="subtasks-container">
+                            <!-- Subtasks will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="dashboard hidden">
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <div class="fast-track-brand">
+                        <h1>Fast Track - Admin Panel</h1>
+                        <div class="brand-underline"></div>
+                    </div>
+                    <div class="admin-actions">
+                        <button id="uploadDocBtn" class="btn btn--secondary btn--sm">Upload Document</button>
+                        <button id="addTeamBtn" class="btn btn--primary btn--sm">Add Team</button>
+                        <button id="adminLogoutBtn" class="btn btn--outline btn--sm">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="dashboard-main">
+                <div class="container">
+                    <!-- Leaderboard Podium -->
+                    <div class="podium-section">
+                        <h2>Top Performers</h2>
+                        <div id="podiumContainer" class="podium-container">
+                            <!-- Podium will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard Table -->
+                    <div class="leaderboard-section">
+                        <h2>Team Leaderboard</h2>
+                        <div class="leaderboard-table-container">
+                            <table class="leaderboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Weekly Score</th>
+                                        <th>Team</th>
+                                        <th>Sprint</th>
+                                        <th>Speed</th>
+                                        <th>Quality Score</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody">
+                                    <!-- Table rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Team Analytics -->
+                    <div class="analytics-section">
+                        <h2>Team Performance Analytics</h2>
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <div class="analytics-label">Teams on Track</div>
+                                <div class="analytics-value" id="teamsOnTrack">-</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-label">Average Speed</div>
+                                <div class="analytics-value" id="averageSpeed">-</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-label">Teams in Delay</div>
+                                <div class="analytics-value" id="teamsInDelay">-</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-label">Graduation Rate</div>
+                                <div class="analytics-value" id="graduationRate">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Management Section -->
+                    <div class="code-management-section">
+                        <h2>Access Code Management</h2>
+                        <div class="code-list" id="codeList">
+                            <!-- Code list will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Subtasks Management Section -->
+                    <div class="subtasks-management-section">
+                        <h2>Subtasks Management</h2>
+                        <div class="subtasks-actions">
+                            <button id="createSubtaskBtn" class="btn btn--primary">Create New Subtask</button>
+                            <button id="viewAllSubtasksBtn" class="btn btn--secondary">View All Subtasks</button>
+                        </div>
+                        <div id="adminSubtasksContainer" class="admin-subtasks-container">
+                            <!-- Admin subtasks will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Team Activity Log Section -->
+                    <div class="activity-log-section">
+                        <h2>Team Activity Log</h2>
+                        <div id="activityLogContainer" class="activity-log-container">
+                            <!-- Activity log will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Enhanced Team Progress Modal -->
+        <div id="teamProgressModal" class="modal hidden">
+            <div class="modal-content modal-xl">
+                <div class="modal-header">
+                    <h3 id="modalTeamName">Team Progress</h3>
+                    <button id="closeProgressModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Key Metrics -->
+                    <div class="progress-metrics">
+                        <div class="metric-box">
+                            <div class="metric-label">Speed Score</div>
+                            <div class="metric-value" id="modalSpeed">87</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Graduation Timeline</div>
+                            <div class="metric-value" id="modalGraduation">Dec 2024</div>
+                        </div>
+                        <div class="metric-box delay-box">
+                            <div class="metric-label">In Delay Tracker</div>
+                            <div class="metric-value" id="modalDelay">0 days</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Assigned Guru</div>
+                            <div class="metric-value" id="modalGuru">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Current Sprint Highlight -->
+                    <div class="current-sprint-section">
+                        <h4>Current Sprint</h4>
+                        <div class="current-sprint-card">
+                            <div class="sprint-module">Module <span id="currentModuleNum">1</span></div>
+                            <div class="sprint-name" id="currentSprintName">Know Thyself</div>
+                            <div class="sprint-guru">Guru: <span id="currentSprintGuru">Diliara</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Module Timeline -->
+                    <div class="module-timeline-section">
+                        <h4>Complete Program Journey</h4>
+                        <div class="module-timeline" id="moduleTimeline">
+                            <!-- Timeline will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Sprint Progress Details -->
+                    <div class="sprint-details-section">
+                        <h4>Sprint Breakdown</h4>
+                        <div class="sprint-details-grid" id="sprintDetailsGrid">
+                            <!-- Sprint details will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Team Modal -->
+        <div id="addTeamModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add New Team</h3>
+                    <button id="closeAddTeamModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newTeamName" class="form-label">Team Name</label>
+                        <input type="text" id="newTeamName" class="form-control" placeholder="Enter team name">
+                    </div>
+                    <div class="form-group">
+                        <label for="newTeamSprint" class="form-label">Current Sprint</label>
+                        <input type="text" id="newTeamSprint" class="form-control" placeholder="e.g., Week 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="newTeamGuru" class="form-label">Assigned Guru</label>
+                        <input type="text" id="newTeamGuru" class="form-control" placeholder="Enter guru name">
+                    </div>
+                    <div class="form-group">
+                        <label for="newTeamStatus" class="form-label">Status</label>
+                        <select id="newTeamStatus" class="form-control">
+                            <option value="starting-soon">Starting Soon</option>
+                            <option value="on-time">On Time</option>
+                            <option value="progress-meeting">Progress Meeting</option>
+                            <option value="in-delay">In Delay</option>
+                            <option value="graduated">Graduated</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="createTeamBtn" class="btn btn--primary">Create Team</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Upload Modal -->
+        <div id="uploadModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Upload Team Document</h3>
+                    <button id="closeUploadModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <p>Drop files here or click to browse</p>
+                        <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt">
+                        <div class="file-list" id="fileList"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="uploadFilesBtn" class="btn btn--primary">Upload Files</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Subtask Modal -->
+        <div id="createSubtaskModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Create New Subtask</h3>
+                    <button id="closeCreateSubtaskModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="subtaskTeam" class="form-label">Team</label>
+                        <select id="subtaskTeam" class="form-control">
+                            <option value="">Select Team</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subtaskSprint" class="form-label">Sprint</label>
+                        <select id="subtaskSprint" class="form-control">
+                            <option value="">Select Sprint</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subtaskTitle" class="form-label">Task Title</label>
+                        <input type="text" id="subtaskTitle" class="form-control" placeholder="Enter task title">
+                    </div>
+                    <div class="form-group">
+                        <label for="subtaskDescription" class="form-label">Description</label>
+                        <textarea id="subtaskDescription" class="form-control" rows="3" placeholder="Enter task description"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="createSubtaskSubmitBtn" class="btn btn--primary">Create Subtask</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtask Details Modal -->
+        <div id="subtaskDetailsModal" class="modal hidden">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3 id="subtaskDetailsTitle">Subtask Details</h3>
+                    <button id="closeSubtaskDetailsModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="subtaskDetailsContent">
+                        <!-- Subtask details will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+</html>
