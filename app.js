@@ -526,9 +526,12 @@ class FastTrackApp {
                 this.teams.map(team => `<option value="${team.id}">${team.name}</option>`).join('');
         }
 
-        // Populate sprint dropdown from database
+        // Populate sprint dropdown from database (optional)
         const sprintSelect = document.getElementById('subtaskSprint');
         if (sprintSelect) {
+            // Start with default option
+            sprintSelect.innerHTML = '<option value="">No specific sprint</option>';
+            
             try {
                 const { data: sprints, error } = await this.supabase
                     .from('sprints')
@@ -537,20 +540,18 @@ class FastTrackApp {
 
                 if (error) {
                     console.error('Error loading sprints:', error);
-                    // Fallback to hardcoded data
-                    this.populateSprintDropdownFallback(sprintSelect);
+                    // Keep default option - sprints are optional
                     return;
                 }
 
                 if (sprints && sprints.length > 0) {
-                    sprintSelect.innerHTML = '<option value="">Select Sprint</option>' +
-                        sprints.map(sprint => `<option value="${sprint.name}">${sprint.name} (Module ${sprint.module_number})</option>`).join('');
-                } else {
-                    this.populateSprintDropdownFallback(sprintSelect);
+                    sprintSelect.innerHTML += sprints.map(sprint => 
+                        `<option value="${sprint.name}">${sprint.name} (Module ${sprint.module_number})</option>`
+                    ).join('');
                 }
             } catch (error) {
                 console.error('Error loading sprints:', error);
-                this.populateSprintDropdownFallback(sprintSelect);
+                // Keep default option - sprints are optional
             }
         }
     }
@@ -577,74 +578,36 @@ class FastTrackApp {
         const title = document.getElementById('subtaskTitle').value.trim();
         const description = document.getElementById('subtaskDescription').value.trim();
 
-        if (!teamId || !sprintName || !title) {
-            alert('Please fill in all required fields');
+        if (!teamId || !title) {
+            alert('Please fill in Team and Task Title');
             return;
         }
 
         try {
-            console.log('Looking for sprint:', sprintName);
+            let sprintId = null;
             
-            // Get the actual sprint ID from the database
-            // First try exact match
-            let { data: sprintData, error: sprintError } = await this.supabase
-                .from('sprints')
-                .select('id, name')
-                .eq('name', sprintName)
-                .single();
-
-            // If exact match fails, try trimming whitespace
-            if (sprintError) {
-                console.log('Exact match failed, trying trimmed match...');
-                const trimmedName = sprintName.trim();
-                const result = await this.supabase
+            // Only look up sprint if one is selected
+            if (sprintName && sprintName !== '') {
+                console.log('Looking for sprint:', sprintName);
+                
+                // Get the actual sprint ID from the database
+                const { data: sprintData, error: sprintError } = await this.supabase
                     .from('sprints')
                     .select('id, name')
-                    .eq('name', trimmedName)
+                    .eq('name', sprintName)
                     .single();
-                
-                sprintData = result.data;
-                sprintError = result.error;
-            }
 
-            // If still fails, try case-insensitive match
-            if (sprintError) {
-                console.log('Trimmed match failed, trying case-insensitive match...');
-                const result = await this.supabase
-                    .from('sprints')
-                    .select('id, name')
-                    .ilike('name', sprintName)
-                    .single();
-                
-                sprintData = result.data;
-                sprintError = result.error;
+                if (sprintError) {
+                    console.error('Sprint lookup error:', sprintError);
+                    alert(`Error finding sprint "${sprintName}". Task will be created without sprint assignment.`);
+                    // Continue without sprint - it's optional
+                } else if (sprintData) {
+                    sprintId = sprintData.id;
+                    console.log('Found sprint:', sprintData);
+                }
+            } else {
+                console.log('No sprint selected - creating task without sprint assignment');
             }
-
-            if (sprintError) {
-                console.error('Sprint lookup error:', sprintError);
-                
-                // Try to find all sprints to debug
-                const { data: allSprints, error: allSprintsError } = await this.supabase
-                    .from('sprints')
-                    .select('name');
-                
-                console.log('All sprints query result:', { allSprints, allSprintsError });
-                console.log('Available sprints:', allSprints);
-                
-                // Show available sprints in the alert
-                const sprintNames = allSprints ? allSprints.map(s => s.name).join(', ') : 'No sprints found';
-                alert(`Error finding sprint "${sprintName}". Available sprints: ${sprintNames}`);
-                return;
-            }
-
-            if (!sprintData) {
-                console.error('No sprint found with name:', sprintName);
-                alert(`No sprint found with name "${sprintName}". Please try again.`);
-                return;
-            }
-
-            console.log('Found sprint:', sprintData);
-            const sprintId = sprintData.id;
 
             const subtask = await this.createSubtask(sprintId, teamId, title, description);
             
