@@ -2,8 +2,9 @@
 class FastTrackApp {
     constructor() {
         // Initialize Supabase
-        this.supabaseUrl = 'https://xkapxnhwubhfbatkqhz.supabase.co';
+        this.supabaseUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co';
         this.supabaseKey = 'sb_publishable_zbyOOid4oxNdNgu7YsZt6w_UokoU-wN';
+        this.edgeFunctionUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co/functions/v1/api-proxy';
         this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
         
         // Enhanced team data with detailed sprint information
@@ -186,30 +187,26 @@ class FastTrackApp {
             console.log('Supabase URL:', this.supabaseUrl);
             console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
-            // Test basic connectivity first with CORS headers
-            console.log('Testing basic connectivity...');
+            // Test basic connectivity first using Edge Function
+            console.log('Testing basic connectivity via Edge Function...');
             try {
-                const response = await fetch(`${this.supabaseUrl}/rest/v1/sprints?select=id&limit=1`, {
+                const response = await fetch(`${this.edgeFunctionUrl}/sprints?select=id&limit=1`, {
                     method: 'GET',
-                    mode: 'cors',
                     headers: {
-                        'apikey': this.supabaseKey,
                         'Authorization': `Bearer ${this.supabaseKey}`,
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+                        'Content-Type': 'application/json'
                     }
                 });
-                console.log('Direct fetch response:', response.status, response.statusText);
+                console.log('Edge Function response:', response.status, response.statusText);
                 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Direct fetch error:', errorText);
+                    console.error('Edge Function error:', errorText);
                     throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
                 }
             } catch (fetchError) {
-                console.error('Direct fetch failed:', fetchError);
-                alert(`CORS Error: ${fetchError.message}\n\nPlease check Supabase CORS settings and add:\nhttps://leadershipboardel.netlify.app\n\nOr contact Supabase support for REST API CORS configuration.`);
+                console.error('Edge Function failed:', fetchError);
+                alert(`Edge Function Error: ${fetchError.message}\n\nPlease create the api-proxy Edge Function in Supabase first.\n\nGo to Edge Functions → Create Function → api-proxy`);
                 this.addIdsToHardcodedTeams();
                 return;
             }
