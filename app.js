@@ -186,12 +186,42 @@ class FastTrackApp {
             console.log('Supabase URL:', this.supabaseUrl);
             console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
+            // Test basic connectivity first
+            console.log('Testing basic connectivity...');
+            try {
+                const response = await fetch(`${this.supabaseUrl}/rest/v1/sprints?select=id&limit=1`, {
+                    headers: {
+                        'apikey': this.supabaseKey,
+                        'Authorization': `Bearer ${this.supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log('Direct fetch response:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Direct fetch error:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+                }
+            } catch (fetchError) {
+                console.error('Direct fetch failed:', fetchError);
+                alert(`Network Error: ${fetchError.message}\n\nThis suggests a network/CORS issue.`);
+                this.addIdsToHardcodedTeams();
+                return;
+            }
+            
             // Test a simple query first
             console.log('Testing simple query...');
+            console.log('Supabase client:', this.supabase);
+            console.log('Supabase URL:', this.supabaseUrl);
+            console.log('Supabase Key:', this.supabaseKey);
+            
             const { data: testData, error: testError } = await this.supabase
                 .from('sprints')
                 .select('id')
                 .limit(1);
+            
+            console.log('Query result:', { testData, testError });
             
             if (testError) {
                 console.error('Supabase query failed:', testError);
@@ -202,11 +232,8 @@ class FastTrackApp {
                     code: testError.code
                 });
                 
-                if (testError.message.includes('CORS') || testError.message.includes('fetch')) {
-                    alert(`CORS Error: ${testError.message}\n\nPlease check Supabase CORS settings and add:\nhttps://leadershipboardel.netlify.app`);
-                } else {
-                    alert(`Supabase Error: ${testError.message}`);
-                }
+                // Show detailed error in alert
+                alert(`Supabase Error: ${testError.message}\n\nDetails: ${JSON.stringify(testError, null, 2)}`);
                 
                 this.addIdsToHardcodedTeams();
                 return;
