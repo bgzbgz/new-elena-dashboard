@@ -324,6 +324,8 @@ class FastTrackApp {
     // Subtasks management methods
     async createSubtask(sprintId, teamId, title, description, createdBy = 'admin') {
         try {
+            console.log('Creating subtask with:', { sprintId, teamId, title, description, createdBy });
+            
             const { data, error } = await this.supabase
                 .from('subtasks')
                 .insert([
@@ -338,16 +340,18 @@ class FastTrackApp {
                 .select();
 
             if (error) {
-                console.error('Error creating subtask:', error);
+                console.error('Supabase error creating subtask:', error);
                 return null;
             }
 
+            console.log('Subtask created successfully:', data);
+            
             if (data && data.length > 0) {
                 this.subtasks.push(data[0]);
                 return data[0];
             }
         } catch (error) {
-            console.error('Error creating subtask:', error);
+            console.error('Exception creating subtask:', error);
         }
         return null;
     }
@@ -510,20 +514,37 @@ class FastTrackApp {
             return;
         }
 
-        // Find the sprint ID (for now, we'll use the sprint name as ID)
-        const sprintId = sprintName; // In a real implementation, you'd have sprint IDs
+        try {
+            // Get the actual sprint ID from the database
+            const { data: sprintData, error: sprintError } = await this.supabase
+                .from('sprints')
+                .select('id')
+                .eq('name', sprintName)
+                .single();
 
-        const subtask = await this.createSubtask(sprintId, teamId, title, description);
-        
-        if (subtask) {
-            alert('Subtask created successfully!');
-            this.hideAllModals();
-            this.populateAdminDashboard();
+            if (sprintError || !sprintData) {
+                console.error('Error finding sprint:', sprintError);
+                alert('Error finding sprint. Please try again.');
+                return;
+            }
+
+            const sprintId = sprintData.id;
+
+            const subtask = await this.createSubtask(sprintId, teamId, title, description);
             
-            // Log activity
-            await this.logTeamActivity(teamId, 'subtask_created', `New subtask created: ${title}`, { subtaskId: subtask.id });
-        } else {
-            alert('Error creating subtask. Please try again.');
+            if (subtask) {
+                alert('Subtask created successfully!');
+                this.hideAllModals();
+                this.populateAdminDashboard();
+                
+                // Log activity
+                await this.logTeamActivity(teamId, 'subtask_created', `New subtask created: ${title}`, { subtaskId: subtask.id });
+            } else {
+                alert('Error creating subtask. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error in createSubtaskFromForm:', error);
+            alert('Error creating subtask. Please check the console for details.');
         }
     }
 
