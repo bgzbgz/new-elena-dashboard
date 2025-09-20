@@ -3,7 +3,7 @@ class FastTrackApp {
     constructor() {
         // Initialize Supabase
         this.supabaseUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co';
-        this.supabaseKey = 'sb_publishable_zby001d4oxNdNgu7YsZt6w_UokoU-wN';
+        this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYXB4bmh3dWJoZmJhdGVrcWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDE1MTEsImV4cCI6MjA3MzkxNzUxMX0.8GWh7P8ENNZqbH4P0ho6tVspG9tkonS559LoB0t0yjQ';
         this.edgeFunctionUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co/functions/v1/api-proxy';
         this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
         
