@@ -4,7 +4,7 @@ class FastTrackApp {
         // Initialize Supabase
         this.supabaseUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co';
         this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYXB4bmh3dWJoZmJhdGVrcWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDE1MTEsImV4cCI6MjA3MzkxNzUxMX0.8GWh7P8ENNZqbH4P0ho6tVspG9tkonS559LoB0t0yjQ';
-        this.edgeFunctionUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co/functions/v1/api-proxy';
+        this.corsProxyUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co/functions/v1/cors-proxy';
         this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
         
         // Enhanced team data with detailed sprint information
@@ -187,26 +187,27 @@ class FastTrackApp {
             console.log('Supabase URL:', this.supabaseUrl);
             console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
-            // Test basic connectivity first using Edge Function
-            console.log('Testing basic connectivity via Edge Function...');
+            // Test basic connectivity first using CORS Proxy
+            console.log('Testing basic connectivity via CORS Proxy...');
             try {
-                const response = await fetch(`${this.edgeFunctionUrl}/sprints?select=id&limit=1`, {
+                const targetUrl = `${this.supabaseUrl}/rest/v1/sprints?select=id&limit=1`;
+                const response = await fetch(`${this.corsProxyUrl}?url=${encodeURIComponent(targetUrl)}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${this.supabaseKey}`,
                         'Content-Type': 'application/json'
                     }
                 });
-                console.log('Edge Function response:', response.status, response.statusText);
+                console.log('CORS Proxy response:', response.status, response.statusText);
                 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Edge Function error:', errorText);
+                    console.error('CORS Proxy error:', errorText);
                     throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
                 }
             } catch (fetchError) {
-                console.error('Edge Function failed:', fetchError);
-                alert(`Edge Function Error: ${fetchError.message}\n\nPlease create the api-proxy Edge Function in Supabase first.\n\nGo to Edge Functions → Create Function → api-proxy`);
+                console.error('CORS Proxy failed:', fetchError);
+                alert(`CORS Proxy Error: ${fetchError.message}\n\nPlease deploy the cors-proxy Edge Function in Supabase first.\n\nGo to Edge Functions → Create Function → cors-proxy`);
                 this.addIdsToHardcodedTeams();
                 return;
             }
