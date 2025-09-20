@@ -499,7 +499,7 @@ class FastTrackApp {
         }
     }
 
-    async createSubtask() {
+    async createSubtaskFromForm() {
         const teamId = document.getElementById('subtaskTeam').value;
         const sprintName = document.getElementById('subtaskSprint').value;
         const title = document.getElementById('subtaskTitle').value.trim();
@@ -527,7 +527,7 @@ class FastTrackApp {
         }
     }
 
-    async updateSubtaskStatus(subtaskId, status, completionPercentage = 0) {
+    async updateSubtaskStatusFromUI(subtaskId, status, completionPercentage = 0) {
         const success = await this.updateSubtaskStatus(subtaskId, status, completionPercentage);
         
         if (success) {
@@ -555,7 +555,7 @@ class FastTrackApp {
         if (percentage !== null) {
             const percentageNum = parseInt(percentage);
             if (percentageNum >= 0 && percentageNum <= 100) {
-                this.updateSubtaskStatus(subtaskId, 'in_progress', percentageNum);
+                this.updateSubtaskStatusFromUI(subtaskId, 'in_progress', percentageNum);
             } else {
                 alert('Please enter a valid percentage between 0 and 100');
             }
@@ -833,7 +833,7 @@ class FastTrackApp {
         
         const createSubtaskSubmitBtn = document.getElementById('createSubtaskSubmitBtn');
         if (createSubtaskSubmitBtn) {
-            createSubtaskSubmitBtn.onclick = () => this.createSubtask();
+            createSubtaskSubmitBtn.onclick = () => this.createSubtaskFromForm();
         }
         
         const closeCreateSubtaskModal = document.getElementById('closeCreateSubtaskModal');
@@ -1100,7 +1100,7 @@ class FastTrackApp {
                 
                 <div class="subtask-actions">
                     ${subtask.status === 'pending' ? `
-                        <button class="btn btn--primary btn--sm" onclick="app.updateSubtaskStatus('${subtask.id}', 'in_progress', 0)">
+                        <button class="btn btn--primary btn--sm" onclick="app.updateSubtaskStatusFromUI('${subtask.id}', 'in_progress', 0)">
                             Start Task
                         </button>
                     ` : ''}
@@ -1109,7 +1109,7 @@ class FastTrackApp {
                         <button class="btn btn--secondary btn--sm" onclick="app.showSubtaskProgressModal('${subtask.id}')">
                             Update Progress
                         </button>
-                        <button class="btn btn--primary btn--sm" onclick="app.updateSubtaskStatus('${subtask.id}', 'completed', 100)">
+                        <button class="btn btn--primary btn--sm" onclick="app.updateSubtaskStatusFromUI('${subtask.id}', 'completed', 100)">
                             Mark Complete
                         </button>
                     ` : ''}
