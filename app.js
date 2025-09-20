@@ -183,6 +183,8 @@ class FastTrackApp {
     async initializeDatabase() {
         try {
             console.log('Testing Supabase connection...');
+            console.log('Supabase URL:', this.supabaseUrl);
+            console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
             // Test Supabase connection with a simple query
             const { data: testData, error: testError } = await this.supabase
@@ -190,9 +192,17 @@ class FastTrackApp {
                 .select('count')
                 .limit(1);
             
+            console.log('Connection test result:', { testData, testError });
+            
             if (testError) {
                 console.error('Supabase connection test failed:', testError);
-                console.log('Falling back to local data');
+                console.error('Error details:', {
+                    message: testError.message,
+                    details: testError.details,
+                    hint: testError.hint,
+                    code: testError.code
+                });
+                alert(`Supabase connection failed: ${testError.message}\n\nPlease check:\n1. Supabase URL and API key\n2. RLS policies\n3. Network connection`);
                 this.addIdsToHardcodedTeams();
                 return;
             }
@@ -204,6 +214,7 @@ class FastTrackApp {
             await this.loadDataFromSupabase();
         } catch (error) {
             console.error('Database initialization error:', error);
+            alert(`Database initialization error: ${error.message}`);
             // Fallback to local data if Supabase fails
             console.log('Falling back to local data');
             this.addIdsToHardcodedTeams();
