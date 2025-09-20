@@ -471,8 +471,34 @@ class FastTrackApp {
     async showCreateSubtaskModal() {
         const modal = document.getElementById('createSubtaskModal');
         if (modal) {
+            // Debug: Check what sprints are in the database
+            await this.debugSprints();
+            
             await this.populateSubtaskForm();
             modal.classList.remove('hidden');
+        }
+    }
+
+    // Debug function to check database sprints
+    async debugSprints() {
+        try {
+            const { data: sprints, error } = await this.supabase
+                .from('sprints')
+                .select('*')
+                .order('module_number', { ascending: true });
+
+            console.log('=== DEBUG: All Sprints in Database ===');
+            console.log('Error:', error);
+            console.log('Sprints:', sprints);
+            
+            if (sprints) {
+                console.log('Sprint names:', sprints.map(s => s.name));
+            }
+            
+            return sprints;
+        } catch (error) {
+            console.error('Debug sprints error:', error);
+            return null;
         }
     }
 
@@ -544,11 +570,39 @@ class FastTrackApp {
             console.log('Looking for sprint:', sprintName);
             
             // Get the actual sprint ID from the database
-            const { data: sprintData, error: sprintError } = await this.supabase
+            // First try exact match
+            let { data: sprintData, error: sprintError } = await this.supabase
                 .from('sprints')
                 .select('id, name')
                 .eq('name', sprintName)
                 .single();
+
+            // If exact match fails, try trimming whitespace
+            if (sprintError) {
+                console.log('Exact match failed, trying trimmed match...');
+                const trimmedName = sprintName.trim();
+                const result = await this.supabase
+                    .from('sprints')
+                    .select('id, name')
+                    .eq('name', trimmedName)
+                    .single();
+                
+                sprintData = result.data;
+                sprintError = result.error;
+            }
+
+            // If still fails, try case-insensitive match
+            if (sprintError) {
+                console.log('Trimmed match failed, trying case-insensitive match...');
+                const result = await this.supabase
+                    .from('sprints')
+                    .select('id, name')
+                    .ilike('name', sprintName)
+                    .single();
+                
+                sprintData = result.data;
+                sprintError = result.error;
+            }
 
             if (sprintError) {
                 console.error('Sprint lookup error:', sprintError);
