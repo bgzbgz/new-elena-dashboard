@@ -186,14 +186,38 @@ class FastTrackApp {
             console.log('Supabase URL:', this.supabaseUrl);
             console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
-            // Skip complex connection test for now - go straight to data loading
-            console.log('Attempting to load data from Supabase...');
+            // Test a simple query first
+            console.log('Testing simple query...');
+            const { data: testData, error: testError } = await this.supabase
+                .from('sprints')
+                .select('id')
+                .limit(1);
+            
+            if (testError) {
+                console.error('Supabase query failed:', testError);
+                console.error('Error details:', {
+                    message: testError.message,
+                    details: testError.details,
+                    hint: testError.hint,
+                    code: testError.code
+                });
+                
+                if (testError.message.includes('CORS') || testError.message.includes('fetch')) {
+                    alert(`CORS Error: ${testError.message}\n\nPlease check Supabase CORS settings and add:\nhttps://leadershipboardel.netlify.app`);
+                } else {
+                    alert(`Supabase Error: ${testError.message}`);
+                }
+                
+                this.addIdsToHardcodedTeams();
+                return;
+            }
+            
+            console.log('Supabase connection successful!');
             
             // Check if tables exist, if not create them
             await this.createTablesIfNotExist();
             await this.loadDataFromSupabase();
             
-            console.log('Supabase connection successful!');
         } catch (error) {
             console.error('Database initialization error:', error);
             console.log('Falling back to local data');
