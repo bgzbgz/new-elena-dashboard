@@ -468,15 +468,15 @@ class FastTrackApp {
     }
 
     // Subtasks UI methods
-    showCreateSubtaskModal() {
+    async showCreateSubtaskModal() {
         const modal = document.getElementById('createSubtaskModal');
         if (modal) {
-            this.populateSubtaskForm();
+            await this.populateSubtaskForm();
             modal.classList.remove('hidden');
         }
     }
 
-    populateSubtaskForm() {
+    async populateSubtaskForm() {
         // Populate team dropdown
         const teamSelect = document.getElementById('subtaskTeam');
         if (teamSelect) {
@@ -484,23 +484,49 @@ class FastTrackApp {
                 this.teams.map(team => `<option value="${team.id}">${team.name}</option>`).join('');
         }
 
-        // Populate sprint dropdown
+        // Populate sprint dropdown from database
         const sprintSelect = document.getElementById('subtaskSprint');
         if (sprintSelect) {
-            const sprints = [];
-            this.moduleStructure.forEach(module => {
-                module.sprints.forEach(sprint => {
-                    sprints.push({
-                        name: sprint,
-                        module: module.number,
-                        moduleTitle: module.title
-                    });
+            try {
+                const { data: sprints, error } = await this.supabase
+                    .from('sprints')
+                    .select('*')
+                    .order('module_number', { ascending: true });
+
+                if (error) {
+                    console.error('Error loading sprints:', error);
+                    // Fallback to hardcoded data
+                    this.populateSprintDropdownFallback(sprintSelect);
+                    return;
+                }
+
+                if (sprints && sprints.length > 0) {
+                    sprintSelect.innerHTML = '<option value="">Select Sprint</option>' +
+                        sprints.map(sprint => `<option value="${sprint.name}">${sprint.name} (Module ${sprint.module_number})</option>`).join('');
+                } else {
+                    this.populateSprintDropdownFallback(sprintSelect);
+                }
+            } catch (error) {
+                console.error('Error loading sprints:', error);
+                this.populateSprintDropdownFallback(sprintSelect);
+            }
+        }
+    }
+
+    populateSprintDropdownFallback(sprintSelect) {
+        const sprints = [];
+        this.moduleStructure.forEach(module => {
+            module.sprints.forEach(sprint => {
+                sprints.push({
+                    name: sprint,
+                    module: module.number,
+                    moduleTitle: module.title
                 });
             });
-            
-            sprintSelect.innerHTML = '<option value="">Select Sprint</option>' +
-                sprints.map(sprint => `<option value="${sprint.name}">${sprint.name} (Module ${sprint.module})</option>`).join('');
-        }
+        });
+        
+        sprintSelect.innerHTML = '<option value="">Select Sprint</option>' +
+            sprints.map(sprint => `<option value="${sprint.name}">${sprint.name} (Module ${sprint.module})</option>`).join('');
     }
 
     async createSubtaskFromForm() {
@@ -515,19 +541,35 @@ class FastTrackApp {
         }
 
         try {
+            console.log('Looking for sprint:', sprintName);
+            
             // Get the actual sprint ID from the database
             const { data: sprintData, error: sprintError } = await this.supabase
                 .from('sprints')
-                .select('id')
+                .select('id, name')
                 .eq('name', sprintName)
                 .single();
 
-            if (sprintError || !sprintData) {
-                console.error('Error finding sprint:', sprintError);
-                alert('Error finding sprint. Please try again.');
+            if (sprintError) {
+                console.error('Sprint lookup error:', sprintError);
+                
+                // Try to find all sprints to debug
+                const { data: allSprints } = await this.supabase
+                    .from('sprints')
+                    .select('name');
+                console.log('Available sprints:', allSprints);
+                
+                alert(`Error finding sprint "${sprintName}". Please check the console for available sprints.`);
                 return;
             }
 
+            if (!sprintData) {
+                console.error('No sprint found with name:', sprintName);
+                alert(`No sprint found with name "${sprintName}". Please try again.`);
+                return;
+            }
+
+            console.log('Found sprint:', sprintData);
             const sprintId = sprintData.id;
 
             const subtask = await this.createSubtask(sprintId, teamId, title, description);
