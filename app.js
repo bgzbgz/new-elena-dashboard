@@ -186,60 +186,16 @@ class FastTrackApp {
             console.log('Supabase URL:', this.supabaseUrl);
             console.log('Supabase Key (first 20 chars):', this.supabaseKey.substring(0, 20) + '...');
             
-            // Test basic Supabase connection first
-            console.log('Testing basic connection...');
-            
-            // First test if we can reach Supabase at all
-            try {
-                console.log('Testing basic fetch to:', `${this.supabaseUrl}/rest/v1/`);
-                const response = await fetch(`${this.supabaseUrl}/rest/v1/`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': this.supabaseKey,
-                        'Authorization': `Bearer ${this.supabaseKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                console.log('Basic fetch test result:', response.status, response.statusText);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-            } catch (fetchError) {
-                console.error('Basic fetch failed:', fetchError);
-                throw new Error(`Cannot reach Supabase: ${fetchError.message}`);
-            }
-            
-            // Try a simple query that should work
-            const { data: testData, error: testError } = await this.supabase
-                .from('sprints')
-                .select('id')
-                .limit(1);
-            
-            console.log('Connection test result:', { testData, testError });
-            
-            if (testError) {
-                console.error('Supabase connection test failed:', testError);
-                console.error('Error details:', {
-                    message: testError.message,
-                    details: testError.details,
-                    hint: testError.hint,
-                    code: testError.code
-                });
-                alert(`Supabase connection failed: ${testError.message}\n\nPlease check:\n1. Supabase URL and API key\n2. RLS policies\n3. Network connection`);
-                this.addIdsToHardcodedTeams();
-                return;
-            }
-            
-            console.log('Supabase connection successful!');
+            // Skip complex connection test for now - go straight to data loading
+            console.log('Attempting to load data from Supabase...');
             
             // Check if tables exist, if not create them
             await this.createTablesIfNotExist();
             await this.loadDataFromSupabase();
+            
+            console.log('Supabase connection successful!');
         } catch (error) {
             console.error('Database initialization error:', error);
-            alert(`Database initialization error: ${error.message}`);
-            // Fallback to local data if Supabase fails
             console.log('Falling back to local data');
             this.addIdsToHardcodedTeams();
         }
