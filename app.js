@@ -2998,16 +2998,17 @@ class FastTrackApp {
             this.performanceChart.destroy();
         }
 
+        // Sort teams by position for better visualization
+        const sortedTeams = [...this.teams].sort((a, b) => a.position - b.position);
+        
         // Prepare data for the chart
-        const chartData = this.teams.map(team => ({
-            x: team.speed,
-            y: team.qualityScore,
-            label: team.name,
-            status: team.status,
-            position: team.position
-        }));
+        const labels = sortedTeams.map(team => team.name);
+        const speedData = sortedTeams.map(team => team.speed);
+        const qualityData = sortedTeams.map(team => team.qualityScore);
+        const statusData = sortedTeams.map(team => team.status);
+        const positionData = sortedTeams.map(team => team.position);
 
-        // Group data by status for different colors
+        // Color mapping for status
         const statusColors = {
             'on-time': '#10B981',      // Green
             'in-delay': '#EF4444',     // Red
@@ -3015,33 +3016,36 @@ class FastTrackApp {
             'starting-soon': '#F59E0B' // Yellow
         };
 
-        const datasets = Object.keys(statusColors).map(status => {
-            const statusData = chartData.filter(item => item.status === status);
-            return {
-                label: status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                data: statusData.map(item => ({
-                    x: item.x,
-                    y: item.y,
-                    label: item.label,
-                    position: item.position
-                })),
-                backgroundColor: statusColors[status],
-                borderColor: statusColors[status],
-                borderWidth: 2,
-                pointRadius: 8,
-                pointHoverRadius: 12,
-                pointHoverBackgroundColor: statusColors[status],
-                pointHoverBorderColor: '#ffffff',
-                pointHoverBorderWidth: 3
-            };
-        });
+        // Create background colors based on status
+        const speedBackgroundColors = statusData.map(status => statusColors[status] + '80'); // 50% opacity
+        const qualityBackgroundColors = statusData.map(status => statusColors[status] + '40'); // 25% opacity
 
         // Create the chart
         const ctx = canvas.getContext('2d');
         this.performanceChart = new Chart(ctx, {
-            type: 'scatter',
+            type: 'bar',
             data: {
-                datasets: datasets
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Speed Score',
+                        data: speedData,
+                        backgroundColor: speedBackgroundColors,
+                        borderColor: statusData.map(status => statusColors[status]),
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                    },
+                    {
+                        label: 'Quality Score',
+                        data: qualityData,
+                        backgroundColor: qualityBackgroundColors,
+                        borderColor: statusData.map(status => statusColors[status]),
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -3049,28 +3053,38 @@ class FastTrackApp {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Speed vs Quality Score Analysis',
+                        text: 'Client Performance Overview',
                         font: {
-                            size: 16,
+                            size: 18,
                             weight: 'bold'
                         },
-                        color: '#1F2937'
+                        color: '#1F2937',
+                        padding: 20
                     },
                     legend: {
-                        display: false // We have our own legend
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     tooltip: {
                         callbacks: {
                             title: function(context) {
-                                return context[0].raw.label;
+                                return context[0].label;
                             },
                             label: function(context) {
-                                const data = context.raw;
+                                const teamIndex = context.dataIndex;
+                                const team = sortedTeams[teamIndex];
                                 return [
-                                    `Position: #${data.position}`,
-                                    `Speed: ${data.x}`,
-                                    `Quality: ${data.y}`,
-                                    `Status: ${context.dataset.label}`
+                                    `Position: #${team.position}`,
+                                    `Speed: ${context.parsed.y}`,
+                                    `Quality: ${context.datasetIndex === 0 ? team.qualityScore : team.speed}`,
+                                    `Status: ${team.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}`
                                 ];
                             }
                         },
@@ -3078,33 +3092,34 @@ class FastTrackApp {
                         titleColor: '#ffffff',
                         bodyColor: '#ffffff',
                         borderColor: '#374151',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        cornerRadius: 8
                     }
                 },
                 scales: {
                     x: {
                         title: {
                             display: true,
-                            text: 'Speed Score',
+                            text: 'Clients',
                             font: {
                                 size: 14,
                                 weight: 'bold'
                             },
                             color: '#374151'
                         },
-                        min: 0,
-                        max: 100,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            display: false
                         },
                         ticks: {
-                            color: '#6B7280'
+                            color: '#6B7280',
+                            maxRotation: 45,
+                            minRotation: 45
                         }
                     },
                     y: {
                         title: {
                             display: true,
-                            text: 'Quality Score',
+                            text: 'Score (0-100)',
                             font: {
                                 size: 14,
                                 weight: 'bold'
@@ -3117,20 +3132,20 @@ class FastTrackApp {
                             color: 'rgba(0, 0, 0, 0.1)'
                         },
                         ticks: {
-                            color: '#6B7280'
+                            color: '#6B7280',
+                            stepSize: 20
                         }
                     }
                 },
                 interaction: {
                     intersect: false,
-                    mode: 'point'
+                    mode: 'index'
                 },
                 onClick: (event, elements) => {
                     if (elements.length > 0) {
                         const element = elements[0];
-                        const dataset = this.performanceChart.data.datasets[element.datasetIndex];
-                        const dataPoint = dataset.data[element.index];
-                        const team = this.teams.find(t => t.name === dataPoint.label);
+                        const teamIndex = element.index;
+                        const team = sortedTeams[teamIndex];
                         if (team) {
                             this.viewClientDetails(team.id);
                         }
@@ -3139,17 +3154,17 @@ class FastTrackApp {
                 onDoubleClick: (event, elements) => {
                     if (elements.length > 0) {
                         const element = elements[0];
-                        const dataset = this.performanceChart.data.datasets[element.datasetIndex];
-                        const dataPoint = dataset.data[element.index];
-                        const team = this.teams.find(t => t.name === dataPoint.label);
+                        const teamIndex = element.index;
+                        const team = sortedTeams[teamIndex];
                         if (team && this.isAssociate) {
                             this.quickUpdateScores(team);
                         }
                     }
                 },
-                elements: {
-                    point: {
-                        hoverBackgroundColor: '#ffffff'
+                layout: {
+                    padding: {
+                        top: 20,
+                        bottom: 20
                     }
                 }
             }

@@ -965,7 +965,7 @@ body {
   box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-16);
   position: relative;
-  height: 400px;
+  height: 500px;
 }
 
 .chart-legend {
@@ -988,6 +988,21 @@ body {
   height: 12px;
   border-radius: 50%;
   display: inline-block;
+}
+
+.chart-instructions {
+  text-align: center;
+  margin-top: var(--space-16);
+  padding: var(--space-12);
+  background: var(--color-bg-1);
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--color-primary);
+}
+
+.chart-instructions p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 /* Podium Styles */
