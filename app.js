@@ -530,6 +530,7 @@ class FastTrackApp {
         this.selectedTeamForModal = null;
         this.subtasks = [];
         this.messages = [];
+        this.newTeamsJoiningCount = 0; // Admin-editable count for new teams joining
     }
 
     // Database initialization and schema setup
@@ -1105,8 +1106,15 @@ class FastTrackApp {
         // Populate team dropdown
         const teamSelect = document.getElementById('subtaskTeam');
         if (teamSelect) {
+            let teamsToShow = this.teams;
+            
+            // If associate is logged in, only show their clients
+            if (this.isAssociate && this.currentAssociate) {
+                teamsToShow = this.teams.filter(team => team.associateId === this.currentAssociate.id);
+            }
+            
             teamSelect.innerHTML = '<option value="">Select Team</option>' +
-                this.teams.map(team => `<option value="${team.id}">${team.name}</option>`).join('');
+                teamsToShow.map(team => `<option value="${team.id}">${team.name}</option>`).join('');
         }
 
         // Populate sprint dropdown from database (optional)
@@ -1199,7 +1207,13 @@ class FastTrackApp {
             if (subtask) {
                 alert('Subtask created successfully!');
                 this.hideAllModals();
-                this.populateAdminDashboard();
+                
+                // Refresh appropriate dashboard
+                if (this.isAssociate) {
+                    this.populateAssociateDashboard();
+                } else {
+                    this.populateAdminDashboard();
+                }
                 
                 // Log activity
                 await this.logTeamActivity(teamId, 'subtask_created', `New subtask created: ${title}`, { subtaskId: subtask.id });
@@ -1378,7 +1392,13 @@ class FastTrackApp {
 
             // Remove from local array
             this.subtasks = this.subtasks.filter(s => s.id !== subtaskId);
-            this.populateAdminSubtasks();
+            
+            // Refresh appropriate dashboard
+            if (this.isAssociate) {
+                this.populateAssociateDashboard();
+            } else {
+                this.populateAdminSubtasks();
+            }
             alert('Subtask deleted successfully!');
         } catch (error) {
             console.error('Error deleting subtask:', error);
@@ -1861,6 +1881,9 @@ class FastTrackApp {
             currentTeamElement.textContent = this.currentUser.name;
         }
 
+        // Populate top performers podium
+        this.populateClientPodium();
+
         // Populate progress cards
         const cardsContainer = document.getElementById('teamProgressCards');
         if (cardsContainer) {
@@ -1888,11 +1911,14 @@ class FastTrackApp {
             `;
         }
 
-        // Populate subtasks
-        this.populateTeamSubtasks();
-        
+        // Populate team leaderboard
+        this.populateClientLeaderboard();
+
         // Populate team ranking
         this.populateTeamRanking();
+        
+        // Populate subtasks
+        this.populateTeamSubtasks();
     }
 
     populateTeamSubtasks() {
@@ -2051,6 +2077,12 @@ class FastTrackApp {
         
         // Populate associate leaderboard
         this.populateAssociateLeaderboard(associateClients);
+        
+        // Populate associate code management
+        this.populateAssociateCodeManagement(associateClients);
+        
+        // Populate associate subtasks management
+        this.populateAssociateSubtasks(associateClients);
     }
 
     populateAssociateClients(clients) {
@@ -2175,7 +2207,7 @@ class FastTrackApp {
                             <td class="position-cell">${client.position}</td>
                             <td><strong>${client.name}</strong></td>
                             <td>${this.getCountryFlag(client.countryCode)} ${client.country}</td>
-                            <td>${client.sprint}</td>
+                            <td>${this.generateSprintProgressHTML(client)}</td>
                             <td>
                                 <div class="speed-score">${client.speed}</div>
                             </td>
@@ -2194,12 +2226,183 @@ class FastTrackApp {
         `;
     }
 
+    populateAssociateCodeManagement(clients) {
+        const codeList = document.getElementById('associateCodeList');
+        if (!codeList) return;
+        
+        if (clients.length === 0) {
+            codeList.innerHTML = '<p>No clients created yet. Add your first client to see access codes here.</p>';
+            return;
+        }
+
+        codeList.innerHTML = clients.map(client => `
+            <div class="code-item">
+                <div class="code-info">
+                    <div class="code-team-name">${client.name}</div>
+                    <div class="code-value">${client.accessCode}</div>
+                </div>
+                <div class="code-actions">
+                    <button class="btn btn--outline btn--sm" onclick="app.regenerateAssociateCode('${client.accessCode}')">
+                        Regenerate
+                    </button>
+                    <button class="btn btn--secondary btn--sm" onclick="app.deactivateAssociateCode('${client.accessCode}')">
+                        Deactivate
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    populateAssociateSubtasks(clients) {
+        const subtasksContainer = document.getElementById('associateSubtasksContainer');
+        if (!subtasksContainer) return;
+
+        // Get client IDs for filtering
+        const clientIds = clients.map(client => client.id);
+        
+        // Filter subtasks to only show those for this associate's clients
+        const associateSubtasks = this.subtasks.filter(subtask => 
+            clientIds.includes(subtask.team_id)
+        );
+
+        if (associateSubtasks.length === 0) {
+            subtasksContainer.innerHTML = `
+                <div class="subtasks-management-section">
+                    <h2>Subtasks Management</h2>
+                    <div class="subtasks-actions">
+                        <button class="btn btn--primary" onclick="app.showCreateSubtaskModal()">
+                            Create New Subtask
+                        </button>
+                    </div>
+                    <div class="no-subtasks-message">
+                        <p>No subtasks created yet for your clients. Create your first subtask to get started.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        subtasksContainer.innerHTML = `
+            <div class="subtasks-management-section">
+                <h2>Subtasks Management</h2>
+                <div class="subtasks-actions">
+                    <button class="btn btn--primary" onclick="app.showCreateSubtaskModal()">
+                        Create New Subtask
+                    </button>
+                </div>
+                <div class="associate-subtasks-container">
+                    ${associateSubtasks.map(subtask => {
+                        const team = this.teams.find(t => t.id === subtask.team_id);
+                        return `
+                            <div class="subtask-card">
+                                <div class="subtask-header">
+                                    <div>
+                                        <div class="subtask-title">${subtask.title}</div>
+                                        <div class="subtask-description">${subtask.description || 'No description provided'}</div>
+                                        <div class="subtask-description"><strong>Client:</strong> ${team ? team.name : 'Unknown'}</div>
+                                    </div>
+                                    <div class="subtask-status ${subtask.status}">${subtask.status.replace('_', ' ')}</div>
+                                </div>
+                                
+                                ${subtask.status === 'in_progress' ? `
+                                    <div class="subtask-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${subtask.completion_percentage}%"></div>
+                                        </div>
+                                        <div class="progress-text">${subtask.completion_percentage}% complete</div>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="subtask-actions">
+                                    <button class="btn btn--outline btn--sm" onclick="app.showSubtaskDetails('${subtask.id}')">
+                                        View Details
+                                    </button>
+                                    <button class="btn btn--secondary btn--sm" onclick="app.deleteSubtask('${subtask.id}')">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+
     getCountryFlag(countryCode) {
         const flags = {
             'MU': '🇲🇺', 'LV': '🇱🇻', 'KE': '🇰🇪', 'GT': '🇬🇹', 'IT': '🇮🇹', 'EE': '🇪🇪',
             'LK': '🇱🇰', 'PL': '🇵🇱', 'MX': '🇲🇽', 'AT': '🇦🇹', 'AE': '🇦🇪', 'RO': '🇷🇴'
         };
         return flags[countryCode] || '🌍';
+    }
+
+    calculateSprintProgress(team) {
+        const totalSprints = 30;
+        
+        // If graduated, show 30/30
+        if (team.status === 'graduated') {
+            return {
+                current: 30,
+                total: 30,
+                percentage: 100,
+                angle: 360
+            };
+        }
+        
+        // Calculate based on current module and sprint
+        let currentSprint = 0;
+        
+        // Map modules to sprint ranges
+        const moduleSprintMap = {
+            0: { start: 1, count: 1 },    // Program WOOP
+            1: { start: 2, count: 5 },    // Individual and Company Identity
+            2: { start: 7, count: 6 },    // Core Performance Elements
+            3: { start: 13, count: 2 },   // Market Understanding
+            4: { start: 15, count: 5 },   // Strategy Development (+2 interview weeks)
+            5: { start: 20, count: 6 },   // Strategy Execution (+1 testing week)
+            6: { start: 26, count: 3 },   // Organizational Structure
+            7: { start: 29, count: 3 },   // People and Leadership
+            8: { start: 32, count: 3 },   // Tech and AI
+            9: { start: 35, count: 1 }    // Closing sprint
+        };
+        
+        if (team.currentModule !== undefined && moduleSprintMap[team.currentModule]) {
+            const moduleInfo = moduleSprintMap[team.currentModule];
+            currentSprint = moduleInfo.start;
+            
+            // If they're in a specific sprint within the module, add offset
+            if (team.currentSprint && team.currentSprint !== 'Program WOOP') {
+                // This is a simplified calculation - in reality you'd map specific sprint names
+                currentSprint = Math.min(currentSprint + 1, totalSprints);
+            }
+        } else {
+            // Default to 1 if no module info
+            currentSprint = 1;
+        }
+        
+        const percentage = Math.round((currentSprint / totalSprints) * 100);
+        const angle = Math.round((currentSprint / totalSprints) * 360);
+        
+        return {
+            current: currentSprint,
+            total: totalSprints,
+            percentage: percentage,
+            angle: angle
+        };
+    }
+
+    generateSprintProgressHTML(team) {
+        const progress = this.calculateSprintProgress(team);
+        const statusClass = team.status.replace(/[^a-zA-Z0-9]/g, '-');
+        
+        return `
+            <div class="sprint-progress ${statusClass}" style="--progress-angle: ${progress.angle}deg;">
+                <div class="sprint-progress-circle">
+                    <div class="sprint-progress-text">${progress.current}/${progress.total}</div>
+                </div>
+            </div>
+        `;
     }
 
     // Client Management Methods
@@ -2606,6 +2809,68 @@ class FastTrackApp {
         }).join('');
     }
 
+    populateClientPodium() {
+        const podiumContainer = document.getElementById('clientPodiumContainer');
+        if (!podiumContainer) return;
+
+        const topThree = [...this.teams]
+            .sort((a, b) => a.position - b.position)
+            .slice(0, 3);
+
+        podiumContainer.innerHTML = topThree.map((team, index) => {
+            const classes = ['podium-first', 'podium-second', 'podium-third'];
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            return `
+                <div class="podium-item ${classes[index]}">
+                    <div class="podium-position">${medals[index]}</div>
+                    <div class="podium-team">${team.name}</div>
+                    <div class="podium-score">Score: ${team.weeklyScore}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    populateClientLeaderboard() {
+        const tbody = document.getElementById('clientLeaderboardBody');
+        if (!tbody) return;
+        
+        const sortedTeams = [...this.teams].sort((a, b) => a.position - b.position);
+
+        tbody.innerHTML = sortedTeams.map(team => {
+            const trendClass = team.position < team.previousPosition ? 'position-trend-up' : 
+                              team.position > team.previousPosition ? 'position-trend-down' : 'position-trend-same';
+            const trendSymbol = team.position < team.previousPosition ? '↑' : 
+                               team.position > team.previousPosition ? '↓' : '→';
+
+            return `
+                <tr>
+                    <td class="position-cell ${trendClass}">
+                        ${team.position} ${trendSymbol}
+                    </td>
+                    <td>
+                        <strong>${team.name}</strong>
+                    </td>
+                    <td>${this.getCountryFlag(team.countryCode)} ${team.country}</td>
+                    <td>${this.generateSprintProgressHTML(team)}</td>
+                    <td>
+                        <div class="speed-score">${team.speed}</div>
+                    </td>
+                    <td>${team.qualityScore}</td>
+                    <td>
+                        <span class="status-badge status-${team.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(team.status)}</span>
+                    </td>
+                    <td>
+                        ${team.id === this.currentUser?.id ? 
+                            '<button class="btn btn--outline btn--sm" onclick="app.viewTeamDetails(\'' + team.accessCode + '\')">VIEW</button>' : 
+                            '<span class="text-muted">-</span>'
+                        }
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
     populateLeaderboard() {
         const tbody = document.getElementById('leaderboardBody');
         if (!tbody) return;
@@ -2648,18 +2913,30 @@ class FastTrackApp {
         const teamsOnTrack = this.teams.filter(t => t.status === 'on-time' || t.status === 'progress-meeting').length;
         const teamsInDelay = this.teams.filter(t => t.status === 'in-delay').length;
         const averageSpeed = (this.teams.reduce((sum, team) => sum + team.speed, 0) / this.teams.length).toFixed(1);
-        const graduationRate = ((this.teams.filter(t => t.status === 'graduated').length / this.teams.length) * 100).toFixed(0);
+        const newTeamsJoining = this.newTeamsJoiningCount || 0;
 
         const elements = {
             'teamsOnTrack': teamsOnTrack,
             'averageSpeed': averageSpeed,
             'teamsInDelay': teamsInDelay,
-            'graduationRate': `${graduationRate}%`
+            'newTeamsJoining': newTeamsJoining
         };
 
         Object.entries(elements).forEach(([id, value]) => {
             const element = document.getElementById(id);
-            if (element) element.textContent = value;
+            if (element) {
+                if (id === 'newTeamsJoining') {
+                    // Make "New Teams Joining" editable for admin
+                    element.innerHTML = `
+                        <span id="newTeamsJoiningDisplay">${value}</span>
+                        <button class="btn btn--outline btn--sm" onclick="app.editNewTeamsJoining()" style="margin-left: 8px;">
+                            Edit
+                        </button>
+                    `;
+                } else {
+                    element.textContent = value;
+                }
+            }
         });
     }
 
@@ -2896,6 +3173,55 @@ class FastTrackApp {
                 this.populateCodeManagement();
                 alert('Access code has been deactivated.');
             }
+        }
+    }
+
+    editNewTeamsJoining() {
+        const newValue = prompt('Enter new count for "New Teams Joining":', this.newTeamsJoiningCount);
+        if (newValue !== null) {
+            const numValue = parseInt(newValue);
+            if (!isNaN(numValue) && numValue >= 0) {
+                this.newTeamsJoiningCount = numValue;
+                this.populateAnalytics();
+                alert(`New Teams Joining count updated to ${numValue}`);
+            } else {
+                alert('Please enter a valid number (0 or greater)');
+            }
+        }
+    }
+
+    regenerateAssociateCode(oldCode) {
+        const team = this.teams.find(t => t.accessCode === oldCode);
+        if (team) {
+            // Check if this is the associate's client
+            if (team.associateId !== this.currentAssociate.id) {
+                alert('You can only manage access codes for your own clients.');
+                return;
+            }
+            
+            const newCode = this.generateClientAccessCode(team.name);
+            team.accessCode = newCode;
+            
+            // Refresh associate dashboard
+            this.populateAssociateDashboard();
+            alert(`New access code for ${team.name}: ${newCode}`);
+        }
+    }
+
+    deactivateAssociateCode(code) {
+        const team = this.teams.find(t => t.accessCode === code);
+        if (!team) return;
+        
+        // Check if this is the associate's client
+        if (team.associateId !== this.currentAssociate.id) {
+            alert('You can only manage access codes for your own clients.');
+            return;
+        }
+        
+        if (confirm('Are you sure you want to deactivate this access code?')) {
+            team.accessCode = 'DEACTIVATED';
+            this.populateAssociateDashboard();
+            alert('Access code has been deactivated.');
         }
     }
 

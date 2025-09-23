@@ -79,7 +79,7 @@
             <header class="dashboard-header">
                 <div class="header-content">
                     <div class="fast-track-brand">
-                        <h1>Fast Track</h1>
+                        <img src="logo.jpg" alt="Fast Track" class="brand-logo">
                         <div class="brand-underline"></div>
                     </div>
                     <div class="user-info">
@@ -91,6 +91,14 @@
 
             <main class="dashboard-main">
                 <div class="container">
+                    <!-- Top Performers Section -->
+                    <div class="podium-section">
+                        <h2>Top Performers</h2>
+                        <div id="clientPodiumContainer" class="podium-container">
+                            <!-- Top performers will be populated by JavaScript -->
+                        </div>
+                    </div>
+
                     <!-- Team Progress Section -->
                     <div class="team-progress-section">
                         <h2>Team Progress Overview</h2>
@@ -102,6 +110,30 @@
                     <!-- Individual Team Modal Trigger -->
                     <div class="team-details-section">
                         <button id="viewTeamProgress" class="btn btn--primary">View Detailed Sprint Progress</button>
+                    </div>
+
+                    <!-- Team Leaderboard Section -->
+                    <div class="leaderboard-section">
+                        <h2>Team Leaderboard</h2>
+                        <div class="leaderboard-table-container">
+                            <table class="leaderboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Weekly Rank</th>
+                                        <th>Team</th>
+                                        <th>Country</th>
+                                        <th>Sprint</th>
+                                        <th>Speed</th>
+                                        <th>Quality Score</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clientLeaderboardBody">
+                                    <!-- Team leaderboard will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Team Ranking Section -->
@@ -128,7 +160,8 @@
             <header class="dashboard-header">
                 <div class="header-content">
                     <div class="fast-track-brand">
-                        <h1>Fast Track - Admin Panel</h1>
+                        <img src="logo.jpg" alt="Fast Track" class="brand-logo">
+                        <h1 class="admin-panel-text">Admin Panel</h1>
                         <div class="brand-underline"></div>
                     </div>
                     <div class="admin-actions">
@@ -190,7 +223,7 @@
                             </div>
                             <div class="analytics-card">
                                 <div class="analytics-label">New Teams Joining</div>
-                                <div class="analytics-value" id="graduationRate">-</div>
+                                <div class="analytics-value" id="newTeamsJoining">-</div>
                             </div>
                         </div>
                     </div>
@@ -231,7 +264,8 @@
             <header class="dashboard-header">
                 <div class="header-content">
                     <div class="fast-track-brand">
-                        <h1>Fast Track - Associate Panel</h1>
+                        <img src="logo.jpg" alt="Fast Track" class="brand-logo">
+                        <h1 class="associate-panel-text">Associate Panel</h1>
                         <div class="brand-underline"></div>
                     </div>
                     <div class="user-info">
@@ -267,6 +301,19 @@
                                 <!-- Leaderboard will be populated by JavaScript -->
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Access Code Management Section -->
+                    <div class="code-management-section">
+                        <h2>Your Client Access Codes</h2>
+                        <div id="associateCodeList" class="code-list">
+                            <!-- Associate's client codes will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Associate Subtasks Management Section -->
+                    <div id="associateSubtasksContainer">
+                        <!-- Associate's subtasks will be populated by JavaScript -->
                     </div>
                 </div>
             </main>

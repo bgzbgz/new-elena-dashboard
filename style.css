@@ -913,6 +913,21 @@ body {
   border-radius: var(--radius-sm);
 }
 
+.brand-logo {
+  height: 40px;
+  width: auto;
+  margin-right: var(--space-8);
+}
+
+.admin-panel-text,
+.associate-panel-text {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--ft-white);
+  margin: 0;
+  display: inline;
+}
+
 .user-info, .admin-actions {
   display: flex;
   align-items: center;
@@ -1000,6 +1015,12 @@ body {
 .podium-score {
   font-size: var(--font-size-base);
   color: rgba(255, 255, 255, 0.9);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Team Progress Cards */
@@ -1177,6 +1198,60 @@ body {
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-lg);
   box-shadow: 0 2px 8px rgba(255, 244, 105, 0.3);
+}
+
+.sprint-progress {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+}
+
+.sprint-progress-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(var(--ft-yellow) 0deg, var(--ft-yellow) 0deg, #e5e7eb 0deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.sprint-progress-circle::before {
+  content: '';
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  background: white;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.sprint-progress-text {
+  position: relative;
+  z-index: 2;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--ft-black);
+  text-align: center;
+  line-height: 1;
+}
+
+.sprint-progress.graduated .sprint-progress-circle {
+  background: conic-gradient(var(--status-on-time) 0deg, var(--status-on-time) 360deg);
+}
+
+.sprint-progress.on-time .sprint-progress-circle {
+  background: conic-gradient(var(--status-on-time) 0deg, var(--status-on-time) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
+}
+
+.sprint-progress.in-delay .sprint-progress-circle {
+  background: conic-gradient(var(--status-delay) 0deg, var(--status-delay) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
+}
+
+.sprint-progress.starting-soon .sprint-progress-circle {
+  background: conic-gradient(var(--status-starting-soon) 0deg, var(--status-starting-soon) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
 }
 
 /* Status badges */
@@ -2256,6 +2331,21 @@ body {
   gap: var(--space-16);
 }
 
+.associate-subtasks-container {
+  margin-top: var(--space-16);
+}
+
+.no-subtasks-message {
+  text-align: center;
+  padding: var(--space-32);
+  color: var(--color-text-secondary);
+}
+
+.no-subtasks-message p {
+  margin: 0;
+  font-style: italic;
+}
+
 .fast-track-tools h4 {
   margin-bottom: var(--space-8);
   color: var(--ft-black);
@@ -2327,6 +2417,11 @@ body {
 .clients-header h3 {
     margin: 0;
     color: var(--ft-black);
+}
+
+.text-muted {
+    color: var(--color-text-secondary);
+    font-style: italic;
 }
 
 .form-grid {
