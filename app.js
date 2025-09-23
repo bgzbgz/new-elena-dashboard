@@ -837,10 +837,37 @@ class FastTrackApp {
 
     async loadDataFromSupabase() {
         try {
-            // Load teams
+            // Load associates first
+            const { data: associatesData, error: associatesError } = await this.supabase
+                .from('associates')
+                .select('*');
+
+            if (associatesError) {
+                console.error('Error loading associates:', associatesError);
+            } else if (associatesData) {
+                this.associates = associatesData.map(associate => ({
+                    id: associate.id,
+                    name: associate.name,
+                    accessCode: associate.access_code,
+                    email: associate.email,
+                    phone: associate.phone,
+                    createdAt: associate.created_at,
+                    updatedAt: associate.updated_at
+                }));
+                console.log('Loaded associates from Supabase:', this.associates.length);
+            }
+
+            // Load teams with associate relationships
             const { data: teamsData, error: teamsError } = await this.supabase
                 .from('teams')
-                .select('*')
+                .select(`
+                    *,
+                    associates:associate_id (
+                        id,
+                        name,
+                        access_code
+                    )
+                `)
                 .order('position', { ascending: true });
 
             if (teamsError) {
@@ -868,39 +895,65 @@ class FastTrackApp {
                     guru: team.guru,
                     lastLogin: team.last_login,
                     associateId: team.associate_id,
-                    country: team.country,
-                    countryCode: team.country_code,
-                    ceoName: team.ceo_name,
-                    mainContact: team.main_contact,
-                    website: team.website
+                    associateName: team.associates?.name || team.guru,
+                    // Enhanced client profile fields
+                    country: team.country || 'Not specified',
+                    countryCode: team.country_code || 'US',
+                    ceoName: team.ceo_name || 'Not specified',
+                    mainContact: team.main_contact || 'Not specified',
+                    website: team.website || 'Not specified',
+                    industryType: team.industry_type || 'Not specified',
+                    companySize: team.company_size || 'Not specified',
+                    priorityLevel: team.priority_level || 'Medium',
+                    notes: team.notes || '',
+                    fastTrackInstructions: []
                 }));
-            }
-
-            // Load associates
-            const { data: associatesData, error: associatesError } = await this.supabase
-                .from('associates')
-                .select('*');
-
-            if (!associatesError && associatesData) {
-                this.associates = associatesData;
+                console.log('Loaded teams from Supabase:', this.teams.length);
             }
 
             // Load subtasks
             const { data: subtasksData, error: subtasksError } = await this.supabase
                 .from('subtasks')
-                .select('*');
+                .select('*')
+                .order('created_at', { ascending: false });
 
-            if (!subtasksError && subtasksData) {
-                this.subtasks = subtasksData;
+            if (subtasksError) {
+                console.error('Error loading subtasks:', subtasksError);
+            } else if (subtasksData) {
+                this.subtasks = subtasksData.map(subtask => ({
+                    id: subtask.id,
+                    sprintId: subtask.sprint_id,
+                    teamId: subtask.team_id,
+                    title: subtask.title,
+                    description: subtask.description,
+                    status: subtask.status,
+                    completionPercentage: subtask.completion_percentage,
+                    createdBy: subtask.created_by,
+                    createdAt: subtask.created_at,
+                    updatedAt: subtask.updated_at
+                }));
+                console.log('Loaded subtasks from Supabase:', this.subtasks.length);
             }
 
             // Load messages
             const { data: messagesData, error: messagesError } = await this.supabase
                 .from('messages')
-                .select('*');
+                .select('*')
+                .order('created_at', { ascending: false });
 
-            if (!messagesError && messagesData) {
-                this.messages = messagesData;
+            if (messagesError) {
+                console.error('Error loading messages:', messagesError);
+            } else if (messagesData) {
+                this.messages = messagesData.map(message => ({
+                    id: message.id,
+                    subtaskId: message.subtask_id,
+                    teamId: message.team_id,
+                    senderType: message.sender_type,
+                    message: message.message,
+                    isAdminResponse: message.is_admin_response,
+                    createdAt: message.created_at
+                }));
+                console.log('Loaded messages from Supabase:', this.messages.length);
             }
 
         } catch (error) {
@@ -1817,15 +1870,15 @@ class FastTrackApp {
             return;
         }
 
-        // Check both database associates and hardcoded ones
-        let associate = this.associates.find(a => a.access_code === associateCode);
+        // Check database associates first
+        let associate = this.associates.find(a => a.accessCode === associateCode);
         
-        // If not found in database, create temporary associate
+        // If not found in database, create temporary associate for fallback
         if (!associate) {
             const tempAssociates = {
-                'ELENA001': { id: 'elena-temp-id', name: 'Elena', access_code: 'ELENA001' },
-                'VASIL001': { id: 'vasil-temp-id', name: 'Vasil', access_code: 'VASIL001' },
-                'ANI001': { id: 'ani-temp-id', name: 'Ana-Maria', access_code: 'ANI001' }
+                'ELENA001': { id: 'elena-temp-id', name: 'Elena', accessCode: 'ELENA001' },
+                'VASIL001': { id: 'vasil-temp-id', name: 'Vasil', accessCode: 'VASIL001' },
+                'ANI001': { id: 'ani-temp-id', name: 'Ana-Maria', accessCode: 'ANI001' }
             };
             associate = tempAssociates[associateCode];
         }
@@ -2804,7 +2857,7 @@ class FastTrackApp {
         const countryName = this.getCountryNameFromCode(countryCode);
 
         try {
-            // First, try to save to Supabase database
+            // First, try to save to Supabase database with all fields
             const { data, error } = await this.supabase
                 .from('teams')
                 .insert([
@@ -2840,7 +2893,49 @@ class FastTrackApp {
 
             if (error) {
                 console.error('Error saving client to database:', error);
-                alert('Error saving client to database. Please try again.');
+                console.error('Error details:', error);
+                
+                // If database save fails, create client locally and show warning
+                console.log('Creating client locally due to database error');
+                
+                const newClient = {
+                    id: `temp-client-${Date.now()}`,
+                    name: formData.name,
+                    accessCode: accessCode,
+                    weeklyScore: Math.floor(Math.random() * 40) + 60,
+                    qualityScore: Math.floor(Math.random() * 40) + 60,
+                    speed: formData.speed,
+                    sprint: formData.currentSprint,
+                    status: formData.status,
+                    position: this.teams.length + 1,
+                    previousPosition: this.teams.length + 1,
+                    graduation: "TBD",
+                    delay: 0,
+                    currentModule: formData.currentModule,
+                    currentSprint: formData.currentSprint,
+                    completedSprints: [],
+                    guru: this.currentAssociate.name,
+                    associateId: this.currentAssociate.id,
+                    country: countryName,
+                    countryCode: countryCode,
+                    ceoName: formData.ceoName,
+                    mainContact: formData.mainContact,
+                    website: formData.website,
+                    industryType: "Not specified",
+                    companySize: "Small (1-50 employees)",
+                    priorityLevel: "Medium",
+                    notes: "New client created by " + this.currentAssociate.name,
+                    fastTrackInstructions: []
+                };
+
+                // Add to teams array
+                this.teams.push(newClient);
+
+                // Refresh the associate dashboard
+                this.populateAssociateDashboard();
+
+                alert(`Client "${formData.name}" created successfully!\nAccess Code: ${accessCode}\n\nNote: Client saved locally. Database connection issue detected.`);
+                this.hideAllModals();
                 return;
             }
 
@@ -2880,6 +2975,11 @@ class FastTrackApp {
             this.teams.push(newClient);
 
             // Log the activity
+            await this.logAssociateActivity(this.currentAssociate.id, 'client_created', `Created new client: ${formData.name}`, {
+                clientId: data[0].id,
+                clientName: formData.name,
+                accessCode: accessCode
+            });
             await this.logTeamActivity(data[0].id, 'client_created', `New client created by ${this.currentAssociate.name}`, { 
                 clientName: formData.name, 
                 associateId: this.currentAssociate.id 
@@ -2893,7 +2993,52 @@ class FastTrackApp {
 
         } catch (error) {
             console.error('Error creating client:', error);
-            alert('Error creating client. Please check your database connection and try again.');
+            console.error('Error details:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
+            
+            // Create client locally as fallback
+            const newClient = {
+                id: `temp-client-${Date.now()}`,
+                name: formData.name,
+                accessCode: accessCode,
+                weeklyScore: Math.floor(Math.random() * 40) + 60,
+                qualityScore: Math.floor(Math.random() * 40) + 60,
+                speed: formData.speed,
+                sprint: formData.currentSprint,
+                status: formData.status,
+                position: this.teams.length + 1,
+                previousPosition: this.teams.length + 1,
+                graduation: "TBD",
+                delay: 0,
+                currentModule: formData.currentModule,
+                currentSprint: formData.currentSprint,
+                completedSprints: [],
+                guru: this.currentAssociate.name,
+                associateId: this.currentAssociate.id,
+                country: countryName,
+                countryCode: countryCode,
+                ceoName: formData.ceoName,
+                mainContact: formData.mainContact,
+                website: formData.website,
+                industryType: "Not specified",
+                companySize: "Small (1-50 employees)",
+                priorityLevel: "Medium",
+                notes: "New client created by " + this.currentAssociate.name,
+                fastTrackInstructions: []
+            };
+
+            // Add to teams array
+            this.teams.push(newClient);
+
+            // Refresh the associate dashboard
+            this.populateAssociateDashboard();
+
+            alert(`Client "${formData.name}" created successfully!\nAccess Code: ${accessCode}\n\nNote: Client saved locally due to database connection issues.`);
+            this.hideAllModals();
         }
     }
 
