@@ -27,6 +27,7 @@
                     
                     <div class="auth-buttons">
                         <button id="teamLoginBtn" class="btn btn--primary btn--full-width">Access Team Dashboard</button>
+                        <button id="associateLoginBtn" class="btn btn--secondary btn--full-width">Associate Access</button>
                         <button id="adminLoginBtn" class="btn btn--outline btn--full-width">Admin Access</button>
                     </div>
                 </div>
@@ -49,6 +50,26 @@
                 </div>
                 <div class="modal-footer">
                     <button id="adminAuthBtn" class="btn btn--primary">Authenticate</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Associate Login Modal -->
+        <div id="associateModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Associate Authentication</h3>
+                    <button id="closeAssociateModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="associateCode" class="form-label">Associate Access Code</label>
+                        <input type="password" id="associateCode" class="form-control" placeholder="Enter associate code">
+                        <div id="associateError" class="error-message hidden"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="associateAuthBtn" class="btn btn--primary">Authenticate</button>
                 </div>
             </div>
         </div>
@@ -199,6 +220,52 @@
                         <h2>Team Activity Log</h2>
                         <div id="activityLogContainer" class="activity-log-container">
                             <!-- Activity log will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Associate Dashboard -->
+        <div id="associateDashboard" class="dashboard hidden">
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <div class="fast-track-brand">
+                        <h1>Fast Track - Associate Panel</h1>
+                        <div class="brand-underline"></div>
+                    </div>
+                    <div class="user-info">
+                        <span id="associateName" class="team-name"></span>
+                        <button id="associateLogoutBtn" class="btn btn--outline btn--sm">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="dashboard-main">
+                <div class="container">
+                    <!-- Associate Analytics -->
+                    <div class="analytics-section">
+                        <h2>Your Client Analytics</h2>
+                        <div id="associateAnalyticsContainer" class="analytics-grid">
+                            <!-- Analytics will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Associate's Clients -->
+                    <div class="clients-section">
+                        <h2>Your Clients</h2>
+                        <div id="associateClientsContainer" class="clients-grid">
+                            <!-- Clients will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Associate Leaderboard -->
+                    <div class="leaderboard-section">
+                        <h2>Client Leaderboard</h2>
+                        <div class="leaderboard-table-container">
+                            <div id="associateLeaderboardContainer">
+                                <!-- Leaderboard will be populated by JavaScript -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -366,6 +433,128 @@
                     <div id="subtaskDetailsContent">
                         <!-- Subtask details will be populated by JavaScript -->
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Management Modal -->
+        <div id="clientManagementModal" class="modal hidden">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3 id="clientManagementTitle">Client Management</h3>
+                    <button id="closeClientManagementModal" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="client-management-tabs">
+                        <button class="tab-btn active" data-tab="profile">Client Profile</button>
+                        <button class="tab-btn" data-tab="sprint">Sprint Management</button>
+                        <button class="tab-btn" data-tab="tools">Fast Track Tools</button>
+                    </div>
+                    
+                    <!-- Client Profile Tab -->
+                    <div id="profileTab" class="tab-content active">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="clientName" class="form-label">Company Name</label>
+                                <input type="text" id="clientName" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientCountry" class="form-label">Country</label>
+                                <select id="clientCountry" class="form-control">
+                                    <option value="MU">🇲🇺 Mauritius</option>
+                                    <option value="LV">🇱🇻 Latvia</option>
+                                    <option value="KE">🇰🇪 Kenya</option>
+                                    <option value="GT">🇬🇹 Guatemala</option>
+                                    <option value="IT">🇮🇹 Italy</option>
+                                    <option value="EE">🇪🇪 Estonia</option>
+                                    <option value="LK">🇱🇰 Sri Lanka</option>
+                                    <option value="PL">🇵🇱 Poland</option>
+                                    <option value="MX">🇲🇽 Mexico</option>
+                                    <option value="AT">🇦🇹 Austria</option>
+                                    <option value="AE">🇦🇪 UAE</option>
+                                    <option value="RO">🇷🇴 Romania</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientCEO" class="form-label">CEO Name</label>
+                                <input type="text" id="clientCEO" class="form-control" placeholder="Enter CEO name">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientContact" class="form-label">Main Contact</label>
+                                <input type="text" id="clientContact" class="form-control" placeholder="Enter main contact">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientWebsite" class="form-label">Website</label>
+                                <input type="url" id="clientWebsite" class="form-control" placeholder="https://example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientAccessCode" class="form-label">Access Code</label>
+                                <input type="text" id="clientAccessCode" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sprint Management Tab -->
+                    <div id="sprintTab" class="tab-content">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="clientCurrentModule" class="form-label">Current Module</label>
+                                <select id="clientCurrentModule" class="form-control">
+                                    <option value="0">0 - Intro Sprint</option>
+                                    <option value="1">1 - Individual and Company Identity</option>
+                                    <option value="2">2 - Core Performance Elements</option>
+                                    <option value="3">3 - Market Understanding</option>
+                                    <option value="4">4 - Strategy Development</option>
+                                    <option value="5">5 - Strategy Execution</option>
+                                    <option value="6">6 - Organizational Structure</option>
+                                    <option value="7">7 - People & Leadership</option>
+                                    <option value="8">8 - Tech & AI Implementation</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientCurrentSprint" class="form-label">Current Sprint</label>
+                                <input type="text" id="clientCurrentSprint" class="form-control" placeholder="Enter current sprint name">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientSpeed" class="form-label">Speed Score</label>
+                                <input type="number" id="clientSpeed" class="form-control" min="0" max="100" placeholder="Enter speed score">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientStatus" class="form-label">Status</label>
+                                <select id="clientStatus" class="form-control">
+                                    <option value="starting-soon">Starting Soon (Yellow)</option>
+                                    <option value="on-time">On Time (Green)</option>
+                                    <option value="in-delay">In Delay (Red)</option>
+                                    <option value="graduated">Graduated (Blue)</option>
+                                    <option value="progress-meeting">Progress Meeting (Gray)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientDelay" class="form-label">Delay Days</label>
+                                <input type="number" id="clientDelay" class="form-control" min="0" placeholder="Enter delay days">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientGuru" class="form-label">Assigned Guru</label>
+                                <input type="text" id="clientGuru" class="form-control" placeholder="Enter guru name">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fast Track Tools Tab -->
+                    <div id="toolsTab" class="tab-content">
+                        <div class="fast-track-tools">
+                            <h4>Fast Track Signature Tools</h4>
+                            <p>Add sprint-specific instructions and tools for this client.</p>
+                            <div id="fastTrackToolsContainer">
+                                <!-- Fast Track tools will be populated by JavaScript -->
+                            </div>
+                            <button id="addFastTrackToolBtn" class="btn btn--primary btn--sm">Add New Tool</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveClientBtn" class="btn btn--primary">Save Changes</button>
+                    <button id="cancelClientBtn" class="btn btn--outline">Cancel</button>
                 </div>
             </div>
         </div>

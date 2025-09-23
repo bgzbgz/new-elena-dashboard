@@ -172,6 +172,11 @@ class FastTrackApp {
             }
         ];
 
+        // Associate management
+        this.associates = [];
+        this.currentAssociate = null;
+        this.isAssociate = false;
+
         this.adminCodes = ['ADMIN001', 'FASTTRACK_ADMIN', 'FT_SUPER_ADMIN'];
         this.currentUser = null;
         this.isAdmin = false;
@@ -258,9 +263,58 @@ class FastTrackApp {
         // Add UUID-like IDs to hardcoded teams so they can be used in forms
         this.teams = this.teams.map((team, index) => ({
             ...team,
-            id: `temp-id-${index + 1}` // Temporary ID for hardcoded teams
+            id: `temp-id-${index + 1}`, // Temporary ID for hardcoded teams
+            associateId: this.getAssociateIdForTeam(team.name),
+            country: this.getCountryForTeam(team.name),
+            countryCode: this.getCountryCodeForTeam(team.name),
+            ceoName: '',
+            mainContact: '',
+            website: ''
         }));
         console.log('Added temporary IDs to hardcoded teams:', this.teams);
+    }
+
+    getAssociateIdForTeam(teamName) {
+        const elenaClients = ['MAX CITY', 'PHARMACIE NOUVELLE', 'LEAL GROUP (AUTO)', 'APF', 'CFL', 'VIZULO', 'GRUPO PDC', 'Chromavis', 'Industra Bank'];
+        const vasilClients = ['Capital Alliance', 'Rockland'];
+        const aniClients = ['Hemas', 'ENSON', 'PGO', 'FORMIKA', 'Plazteca', 'AMEX', 'MOBO', 'CRAFT'];
+        
+        if (elenaClients.includes(teamName)) return 'elena-temp-id';
+        if (vasilClients.includes(teamName)) return 'vasil-temp-id';
+        if (aniClients.includes(teamName)) return 'ani-temp-id';
+        return 'elena-temp-id'; // Default to Elena
+    }
+
+    getCountryForTeam(teamName) {
+        const countryMap = {
+            'MAX CITY': 'Mauritius', 'PHARMACIE NOUVELLE': 'Mauritius', 'LEAL GROUP (AUTO)': 'Mauritius',
+            'APF': 'Latvia', 'VIZULO': 'Latvia',
+            'CFL': 'Kenya',
+            'GRUPO PDC': 'Guatemala',
+            'Chromavis': 'Italy',
+            'Industra Bank': 'Estonia',
+            'Capital Alliance': 'Sri Lanka', 'Rockland': 'Sri Lanka', 'Hemas': 'Sri Lanka',
+            'ENSON': 'Poland', 'PGO': 'Poland', 'FORMIKA': 'Poland',
+            'Plazteca': 'Mexico', 'MOBO': 'Mexico', 'CRAFT': 'Mexico',
+            'AMEX': 'Austria'
+        };
+        return countryMap[teamName] || 'Mauritius';
+    }
+
+    getCountryCodeForTeam(teamName) {
+        const countryCodeMap = {
+            'MAX CITY': 'MU', 'PHARMACIE NOUVELLE': 'MU', 'LEAL GROUP (AUTO)': 'MU',
+            'APF': 'LV', 'VIZULO': 'LV',
+            'CFL': 'KE',
+            'GRUPO PDC': 'GT',
+            'Chromavis': 'IT',
+            'Industra Bank': 'EE',
+            'Capital Alliance': 'LK', 'Rockland': 'LK', 'Hemas': 'LK',
+            'ENSON': 'PL', 'PGO': 'PL', 'FORMIKA': 'PL',
+            'Plazteca': 'MX', 'MOBO': 'MX', 'CRAFT': 'MX',
+            'AMEX': 'AT'
+        };
+        return countryCodeMap[teamName] || 'MU';
     }
 
     async createTablesIfNotExist() {
@@ -365,8 +419,23 @@ class FastTrackApp {
                     currentSprint: team.current_sprint,
                     completedSprints: team.completed_sprints || [],
                     guru: team.guru,
-                    lastLogin: team.last_login
+                    lastLogin: team.last_login,
+                    associateId: team.associate_id,
+                    country: team.country,
+                    countryCode: team.country_code,
+                    ceoName: team.ceo_name,
+                    mainContact: team.main_contact,
+                    website: team.website
                 }));
+            }
+
+            // Load associates
+            const { data: associatesData, error: associatesError } = await this.supabase
+                .from('associates')
+                .select('*');
+
+            if (!associatesError && associatesData) {
+                this.associates = associatesData;
             }
 
             // Load subtasks
@@ -927,6 +996,17 @@ class FastTrackApp {
             teamLoginBtn.onclick = () => this.handleTeamLogin();
         }
         
+        // Associate login
+        const associateLoginBtn = document.getElementById('associateLoginBtn');
+        if (associateLoginBtn) {
+            associateLoginBtn.onclick = () => this.showAssociateModal();
+        }
+        
+        const associateAuthBtn = document.getElementById('associateAuthBtn');
+        if (associateAuthBtn) {
+            associateAuthBtn.onclick = () => this.handleAssociateLogin();
+        }
+        
         // Admin login
         const adminLoginBtn = document.getElementById('adminLoginBtn');
         if (adminLoginBtn) {
@@ -939,6 +1019,11 @@ class FastTrackApp {
         }
         
         // Modal close buttons
+        const closeAssociateModal = document.getElementById('closeAssociateModal');
+        if (closeAssociateModal) {
+            closeAssociateModal.onclick = () => this.hideAllModals();
+        }
+        
         const closeAdminModal = document.getElementById('closeAdminModal');
         if (closeAdminModal) {
             closeAdminModal.onclick = () => this.hideAllModals();
@@ -963,6 +1048,11 @@ class FastTrackApp {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.onclick = () => this.logout();
+        }
+        
+        const associateLogoutBtn = document.getElementById('associateLogoutBtn');
+        if (associateLogoutBtn) {
+            associateLogoutBtn.onclick = () => this.logout();
         }
         
         const adminLogoutBtn = document.getElementById('adminLogoutBtn');
@@ -1017,12 +1107,48 @@ class FastTrackApp {
             closeSubtaskDetailsModal.onclick = () => this.hideAllModals();
         }
         
+        const closeClientManagementModal = document.getElementById('closeClientManagementModal');
+        if (closeClientManagementModal) {
+            closeClientManagementModal.onclick = () => this.hideAllModals();
+        }
+        
+        // Client management buttons
+        const saveClientBtn = document.getElementById('saveClientBtn');
+        if (saveClientBtn) {
+            saveClientBtn.onclick = () => this.saveClientChanges();
+        }
+        
+        const cancelClientBtn = document.getElementById('cancelClientBtn');
+        if (cancelClientBtn) {
+            cancelClientBtn.onclick = () => this.hideAllModals();
+        }
+        
+        const addFastTrackToolBtn = document.getElementById('addFastTrackToolBtn');
+        if (addFastTrackToolBtn) {
+            addFastTrackToolBtn.onclick = () => this.addFastTrackTool();
+        }
+        
+        // Tab switching for client management
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            btn.onclick = () => this.switchClientManagementTab(btn.dataset.tab);
+        });
+        
         // Enter key support
         const accessCodeInput = document.getElementById('accessCode');
         if (accessCodeInput) {
             accessCodeInput.onkeypress = (e) => {
                 if (e.key === 'Enter') {
                     this.handleTeamLogin();
+                }
+            };
+        }
+        
+        const associateCodeInput = document.getElementById('associateCode');
+        if (associateCodeInput) {
+            associateCodeInput.onkeypress = (e) => {
+                if (e.key === 'Enter') {
+                    this.handleAssociateLogin();
                 }
             };
         }
@@ -1087,14 +1213,31 @@ class FastTrackApp {
         }
     }
 
+    showAssociateDashboard() {
+        this.hideAllPages();
+        this.hideAllModals();
+        const associateDashboard = document.getElementById('associateDashboard');
+        if (associateDashboard) {
+            associateDashboard.classList.remove('hidden');
+            this.populateAssociateDashboard();
+        }
+    }
+
     hideAllPages() {
-        const pages = ['loginPage', 'teamDashboard', 'adminDashboard'];
+        const pages = ['loginPage', 'teamDashboard', 'adminDashboard', 'associateDashboard'];
         pages.forEach(pageId => {
             const page = document.getElementById(pageId);
             if (page) {
                 page.classList.add('hidden');
             }
         });
+    }
+
+    showAssociateModal() {
+        const modal = document.getElementById('associateModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
     }
 
     showAdminModal() {
@@ -1127,7 +1270,7 @@ class FastTrackApp {
     }
 
     hideAllModals() {
-        const modals = ['adminModal', 'teamProgressModal', 'addTeamModal', 'uploadModal', 'createSubtaskModal', 'subtaskDetailsModal'];
+        const modals = ['associateModal', 'adminModal', 'teamProgressModal', 'addTeamModal', 'uploadModal', 'createSubtaskModal', 'subtaskDetailsModal', 'clientManagementModal'];
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
             if (modal) {
@@ -1182,6 +1325,74 @@ class FastTrackApp {
             this.showAdminDashboard();
         } else {
             this.showError('adminError', 'Invalid admin code');
+        }
+    }
+
+    // Associate authentication methods
+    async handleAssociateLogin() {
+        const associateCodeInput = document.getElementById('associateCode');
+        if (!associateCodeInput) return;
+        
+        const associateCode = associateCodeInput.value.trim().toUpperCase();
+        
+        if (!associateCode) {
+            this.showError('associateError', 'Please enter associate code');
+            return;
+        }
+
+        // Check both database associates and hardcoded ones
+        let associate = this.associates.find(a => a.access_code === associateCode);
+        
+        // If not found in database, create temporary associate
+        if (!associate) {
+            const tempAssociates = {
+                'ELENA001': { id: 'elena-temp-id', name: 'Elena', access_code: 'ELENA001' },
+                'VASIL001': { id: 'vasil-temp-id', name: 'Vasil', access_code: 'VASIL001' },
+                'ANI001': { id: 'ani-temp-id', name: 'Ani', access_code: 'ANI001' }
+            };
+            associate = tempAssociates[associateCode];
+        }
+        
+        if (associate) {
+            this.currentAssociate = associate;
+            this.isAssociate = true;
+            this.isAdmin = false;
+            this.currentUser = null;
+            this.clearError('associateError');
+            
+            // Log associate activity (only if not temporary)
+            if (!associate.id.includes('temp-id')) {
+                await this.logAssociateActivity(associate.id, 'login', 'Associate logged in');
+            }
+            
+            this.showAssociateDashboard();
+        } else {
+            this.showError('associateError', 'Invalid associate code');
+        }
+    }
+
+    async logAssociateActivity(associateId, activityType, description, metadata = {}) {
+        try {
+            const { data, error } = await this.supabase
+                .from('associate_activities')
+                .insert([
+                    {
+                        associate_id: associateId,
+                        activity_type: activityType,
+                        description: description,
+                        metadata: metadata
+                    }
+                ])
+                .select();
+
+            if (error) {
+                console.error('Error logging associate activity:', error);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error logging associate activity:', error);
+            return false;
         }
     }
 
@@ -1355,6 +1566,400 @@ class FastTrackApp {
         this.populateCodeManagement();
         this.populateAdminSubtasks();
         this.populateActivityLog();
+    }
+
+    populateAssociateDashboard() {
+        if (!this.isAssociate || !this.currentAssociate) return;
+
+        // Set associate name
+        const associateNameElement = document.getElementById('associateName');
+        if (associateNameElement) {
+            associateNameElement.textContent = this.currentAssociate.name;
+        }
+
+        // Get associate's clients
+        const associateClients = this.teams.filter(team => team.associateId === this.currentAssociate.id);
+        console.log('Current associate:', this.currentAssociate);
+        console.log('Filtered clients:', associateClients);
+        
+        // Populate associate's client list
+        this.populateAssociateClients(associateClients);
+        
+        // Populate associate analytics
+        this.populateAssociateAnalytics(associateClients);
+        
+        // Populate associate leaderboard
+        this.populateAssociateLeaderboard(associateClients);
+    }
+
+    populateAssociateClients(clients) {
+        const clientsContainer = document.getElementById('associateClientsContainer');
+        if (!clientsContainer) return;
+
+        if (clients.length === 0) {
+            clientsContainer.innerHTML = '<p>No clients assigned yet.</p>';
+            return;
+        }
+
+        clientsContainer.innerHTML = clients.map(client => `
+            <div class="client-card">
+                <div class="client-header">
+                    <div class="client-info">
+                        <h3>${client.name}</h3>
+                        <p class="client-country">${this.getCountryFlag(client.countryCode)} ${client.country}</p>
+                        <p class="client-ceo">CEO: ${client.ceoName || 'Not specified'}</p>
+                    </div>
+                    <div class="client-status">
+                        <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
+                    </div>
+                </div>
+                <div class="client-details">
+                    <div class="client-metric">
+                        <span class="metric-label">Current Sprint:</span>
+                        <span class="metric-value">${client.currentSprint}</span>
+                    </div>
+                    <div class="client-metric">
+                        <span class="metric-label">Speed Score:</span>
+                        <span class="metric-value">${client.speed}</span>
+                    </div>
+                    <div class="client-metric">
+                        <span class="metric-label">Module:</span>
+                        <span class="metric-value">${client.currentModule}</span>
+                    </div>
+                </div>
+                <div class="client-actions">
+                    <button class="btn btn--primary btn--sm" onclick="app.viewClientDetails('${client.id}')">
+                        Manage Client
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    populateAssociateAnalytics(clients) {
+        const analyticsContainer = document.getElementById('associateAnalyticsContainer');
+        if (!analyticsContainer) return;
+
+        const totalClients = clients.length;
+        const clientsOnTime = clients.filter(c => c.status === 'on-time').length;
+        const clientsInDelay = clients.filter(c => c.status === 'in-delay').length;
+        const clientsGraduated = clients.filter(c => c.status === 'graduated').length;
+        const averageSpeed = clients.length > 0 ? Math.round(clients.reduce((sum, c) => sum + c.speed, 0) / clients.length) : 0;
+
+        analyticsContainer.innerHTML = `
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-label">Total Clients</div>
+                    <div class="analytics-value">${totalClients}</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-label">On Time</div>
+                    <div class="analytics-value">${clientsOnTime}</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-label">In Delay</div>
+                    <div class="analytics-value">${clientsInDelay}</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-label">Graduated</div>
+                    <div class="analytics-value">${clientsGraduated}</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-label">Avg Speed</div>
+                    <div class="analytics-value">${averageSpeed}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    populateAssociateLeaderboard(clients) {
+        const leaderboardContainer = document.getElementById('associateLeaderboardContainer');
+        if (!leaderboardContainer) return;
+
+        const sortedClients = [...clients].sort((a, b) => a.position - b.position);
+
+        leaderboardContainer.innerHTML = `
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Weekly Rank</th>
+                        <th>Client</th>
+                        <th>Country</th>
+                        <th>Sprint</th>
+                        <th>Speed</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sortedClients.map(client => `
+                        <tr>
+                            <td class="position-cell">${client.position}</td>
+                            <td><strong>${client.name}</strong></td>
+                            <td>${this.getCountryFlag(client.countryCode)} ${client.country}</td>
+                            <td>${client.sprint}</td>
+                            <td>
+                                <div class="speed-score">${client.speed}</div>
+                            </td>
+                            <td>
+                                <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
+                            </td>
+                            <td>
+                                <button class="btn btn--outline btn--sm" onclick="app.viewClientDetails('${client.id}')">
+                                    VIEW
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    getCountryFlag(countryCode) {
+        const flags = {
+            'MU': '🇲🇺', 'LV': '🇱🇻', 'KE': '🇰🇪', 'GT': '🇬🇹', 'IT': '🇮🇹', 'EE': '🇪🇪',
+            'LK': '🇱🇰', 'PL': '🇵🇱', 'MX': '🇲🇽', 'AT': '🇦🇹', 'AE': '🇦🇪', 'RO': '🇷🇴'
+        };
+        return flags[countryCode] || '🌍';
+    }
+
+    // Client Management Methods
+    viewClientDetails(clientId) {
+        console.log('Looking for client with ID:', clientId);
+        console.log('Available teams:', this.teams.map(t => ({ id: t.id, name: t.name })));
+        
+        const client = this.teams.find(t => t.id === clientId);
+        if (!client) {
+            console.error('Client not found with ID:', clientId);
+            alert('Client not found. Please try again.');
+            return;
+        }
+
+        console.log('Found client:', client);
+        this.selectedTeamForModal = client;
+        this.showClientManagementModal();
+    }
+
+    showClientManagementModal() {
+        const modal = document.getElementById('clientManagementModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            this.populateClientManagementForm();
+        }
+    }
+
+    populateClientManagementForm() {
+        const client = this.selectedTeamForModal;
+        if (!client) return;
+
+        // Set modal title
+        const titleElement = document.getElementById('clientManagementTitle');
+        if (titleElement) {
+            titleElement.textContent = `Manage ${client.name}`;
+        }
+
+        // Populate form fields
+        const fields = {
+            'clientName': client.name,
+            'clientCountry': client.countryCode || 'MU',
+            'clientCEO': client.ceoName || '',
+            'clientContact': client.mainContact || '',
+            'clientWebsite': client.website || '',
+            'clientAccessCode': client.accessCode,
+            'clientCurrentModule': client.currentModule || 0,
+            'clientCurrentSprint': client.currentSprint || '',
+            'clientSpeed': client.speed || 0,
+            'clientStatus': client.status || 'starting-soon',
+            'clientDelay': client.delay || 0,
+            'clientGuru': client.guru || ''
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value;
+            }
+        });
+
+        // Load Fast Track tools
+        this.loadFastTrackTools(client.id);
+    }
+
+    async loadFastTrackTools(clientId) {
+        try {
+            const { data: tools, error } = await this.supabase
+                .from('fast_track_tools')
+                .select('*')
+                .eq('team_id', clientId)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                console.error('Error loading Fast Track tools:', error);
+                return;
+            }
+
+            this.populateFastTrackTools(tools || []);
+        } catch (error) {
+            console.error('Error loading Fast Track tools:', error);
+        }
+    }
+
+    populateFastTrackTools(tools) {
+        const container = document.getElementById('fastTrackToolsContainer');
+        if (!container) return;
+
+        if (tools.length === 0) {
+            container.innerHTML = '<p>No Fast Track tools added yet. Click "Add New Tool" to get started.</p>';
+            return;
+        }
+
+        container.innerHTML = tools.map(tool => `
+            <div class="fast-track-tool-item">
+                <div class="fast-track-tool-header">
+                    <div class="fast-track-tool-sprint">${tool.sprint_name}</div>
+                    <div class="fast-track-tool-actions">
+                        <button class="btn btn--outline btn--sm" onclick="app.editFastTrackTool('${tool.id}')">Edit</button>
+                        <button class="btn btn--secondary btn--sm" onclick="app.deleteFastTrackTool('${tool.id}')">Delete</button>
+                    </div>
+                </div>
+                <textarea class="fast-track-tool-instructions" readonly>${tool.tool_instructions || ''}</textarea>
+            </div>
+        `).join('');
+    }
+
+    async saveClientChanges() {
+        const client = this.selectedTeamForModal;
+        if (!client) return;
+
+        const formData = {
+            country: document.getElementById('clientCountry').value,
+            country_code: document.getElementById('clientCountry').value,
+            ceo_name: document.getElementById('clientCEO').value,
+            main_contact: document.getElementById('clientContact').value,
+            website: document.getElementById('clientWebsite').value,
+            current_module: parseInt(document.getElementById('clientCurrentModule').value),
+            current_sprint: document.getElementById('clientCurrentSprint').value,
+            speed: parseInt(document.getElementById('clientSpeed').value),
+            status: document.getElementById('clientStatus').value,
+            delay_days: parseInt(document.getElementById('clientDelay').value),
+            guru: document.getElementById('clientGuru').value
+        };
+
+        try {
+            // Only update database if not using temporary ID
+            if (!client.id.includes('temp-id')) {
+                const { error } = await this.supabase
+                    .from('teams')
+                    .update(formData)
+                    .eq('id', client.id);
+
+                if (error) {
+                    console.error('Error updating client:', error);
+                    alert('Error updating client. Please try again.');
+                    return;
+                }
+            }
+
+            // Update local data
+            Object.assign(client, formData);
+
+            // Log activity (only if not temporary)
+            if (!this.currentAssociate.id.includes('temp-id')) {
+                await this.logAssociateActivity(this.currentAssociate.id, 'client_updated', 
+                    `Updated client ${client.name}`, { clientId: client.id, changes: formData });
+            }
+
+            // Refresh the associate dashboard
+            this.populateAssociateDashboard();
+
+            alert('Client updated successfully!');
+            this.hideAllModals();
+        } catch (error) {
+            console.error('Error updating client:', error);
+            alert('Error updating client. Please try again.');
+        }
+    }
+
+    async addFastTrackTool() {
+        const client = this.selectedTeamForModal;
+        if (!client) return;
+
+        const sprintName = prompt('Enter sprint name for this tool:');
+        if (!sprintName) return;
+
+        const instructions = prompt('Enter Fast Track tool instructions:');
+        if (!instructions) return;
+
+        try {
+            const { data, error } = await this.supabase
+                .from('fast_track_tools')
+                .insert([
+                    {
+                        team_id: client.id,
+                        sprint_name: sprintName,
+                        module_number: client.currentModule,
+                        tool_instructions: instructions,
+                        created_by: this.currentAssociate.id
+                    }
+                ])
+                .select();
+
+            if (error) {
+                console.error('Error adding Fast Track tool:', error);
+                alert('Error adding tool. Please try again.');
+                return;
+            }
+
+            // Log activity
+            await this.logAssociateActivity(this.currentAssociate.id, 'fast_track_tool_added', 
+                `Added Fast Track tool for ${client.name} - ${sprintName}`, { clientId: client.id, toolId: data[0].id });
+
+            // Reload tools
+            this.loadFastTrackTools(client.id);
+            alert('Fast Track tool added successfully!');
+        } catch (error) {
+            console.error('Error adding Fast Track tool:', error);
+            alert('Error adding tool. Please try again.');
+        }
+    }
+
+    async deleteFastTrackTool(toolId) {
+        if (!confirm('Are you sure you want to delete this Fast Track tool?')) return;
+
+        try {
+            const { error } = await this.supabase
+                .from('fast_track_tools')
+                .delete()
+                .eq('id', toolId);
+
+            if (error) {
+                console.error('Error deleting Fast Track tool:', error);
+                alert('Error deleting tool. Please try again.');
+                return;
+            }
+
+            // Log activity
+            await this.logAssociateActivity(this.currentAssociate.id, 'fast_track_tool_deleted', 
+                `Deleted Fast Track tool`, { toolId });
+
+            // Reload tools
+            this.loadFastTrackTools(this.selectedTeamForModal.id);
+            alert('Fast Track tool deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting Fast Track tool:', error);
+            alert('Error deleting tool. Please try again.');
+        }
+    }
+
+    switchClientManagementTab(tabName) {
+        // Remove active class from all tabs and buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active class to selected tab and button
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(`${tabName}Tab`).classList.add('active');
     }
 
     populatePodium() {
@@ -1737,10 +2342,12 @@ class FastTrackApp {
     logout() {
         this.currentUser = null;
         this.isAdmin = false;
+        this.isAssociate = false;
+        this.currentAssociate = null;
         this.selectedTeamForModal = null;
         
         // Clear inputs
-        const inputs = ['accessCode', 'adminCode', 'newTeamName', 'newTeamSprint', 'newTeamGuru'];
+        const inputs = ['accessCode', 'adminCode', 'associateCode', 'newTeamName', 'newTeamSprint', 'newTeamGuru'];
         inputs.forEach(id => {
             const element = document.getElementById(id);
             if (element) element.value = '';
@@ -1757,6 +2364,7 @@ class FastTrackApp {
         
         this.clearError('loginError');
         this.clearError('adminError');
+        this.clearError('associateError');
         this.hideAllModals();
         this.showLoginPage();
     }
