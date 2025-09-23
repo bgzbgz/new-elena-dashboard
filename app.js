@@ -554,9 +554,22 @@ class FastTrackApp {
         const anaMariaClients = ['LIFECARE', 'Plazteca', 'Rockland', 'Hemas', 'ENSON', 'PGO', 'FORMIKA', 'AMEX', 'MOBO', 'CRAFT'];
         const vasilClients = ['Capital Alliance'];
         
-        if (elenaClients.includes(teamName)) return 'elena-temp-id';
-        if (anaMariaClients.includes(teamName)) return 'ani-temp-id'; // Using 'ani-temp-id' for Ana-Maria
-        if (vasilClients.includes(teamName)) return 'vasil-temp-id';
+        console.log('Getting associate ID for team:', teamName);
+        
+        if (elenaClients.includes(teamName)) {
+            console.log('Found Elena client:', teamName);
+            return 'elena-temp-id';
+        }
+        if (anaMariaClients.includes(teamName)) {
+            console.log('Found Ana-Maria client:', teamName);
+            return 'ani-temp-id'; // Using 'ani-temp-id' for Ana-Maria
+        }
+        if (vasilClients.includes(teamName)) {
+            console.log('Found Vasil client:', teamName);
+            return 'vasil-temp-id';
+        }
+        
+        console.log('No match found for:', teamName, '- defaulting to Elena');
         return 'elena-temp-id'; // Default to Elena
     }
 
@@ -1856,11 +1869,9 @@ class FastTrackApp {
             associateNameElement.textContent = this.currentAssociate.name;
         }
 
-        // Ensure teams have associate IDs
-        if (this.teams.length > 0 && !this.teams[0].associateId) {
-            console.log('Adding associate IDs to teams...');
-            this.addIdsToHardcodedTeams();
-        }
+        // Always ensure teams have associate IDs
+        console.log('Ensuring teams have associate IDs...');
+        this.addIdsToHardcodedTeams();
 
         // Get associate's clients
         const associateClients = this.teams.filter(team => team.associateId === this.currentAssociate.id);
