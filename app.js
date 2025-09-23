@@ -1856,10 +1856,17 @@ class FastTrackApp {
             associateNameElement.textContent = this.currentAssociate.name;
         }
 
+        // Ensure teams have associate IDs
+        if (this.teams.length > 0 && !this.teams[0].associateId) {
+            console.log('Adding associate IDs to teams...');
+            this.addIdsToHardcodedTeams();
+        }
+
         // Get associate's clients
         const associateClients = this.teams.filter(team => team.associateId === this.currentAssociate.id);
         console.log('Current associate:', this.currentAssociate);
-        console.log('Filtered clients:', associateClients);
+        console.log('All teams with associate IDs:', this.teams.map(t => ({ name: t.name, associateId: t.associateId })));
+        console.log('Filtered clients for', this.currentAssociate.name, ':', associateClients);
         
         // Populate associate's client list
         this.populateAssociateClients(associateClients);
