@@ -1420,6 +1420,17 @@ class FastTrackApp {
             addFastTrackToolBtn.onclick = () => this.addFastTrackTool();
         }
         
+        // Add client modal buttons
+        const addClientBtn = document.getElementById('addClientBtn');
+        if (addClientBtn) {
+            addClientBtn.onclick = () => this.createNewClient();
+        }
+        
+        const closeAddClientModal = document.getElementById('closeAddClientModal');
+        if (closeAddClientModal) {
+            closeAddClientModal.onclick = () => this.hideAllModals();
+        }
+        
         // Tab switching for client management
         const tabButtons = document.querySelectorAll('.tab-btn');
         tabButtons.forEach(btn => {
@@ -1562,7 +1573,7 @@ class FastTrackApp {
     }
 
     hideAllModals() {
-        const modals = ['associateModal', 'adminModal', 'teamProgressModal', 'addTeamModal', 'uploadModal', 'createSubtaskModal', 'subtaskDetailsModal', 'clientManagementModal'];
+        const modals = ['associateModal', 'adminModal', 'teamProgressModal', 'addTeamModal', 'uploadModal', 'createSubtaskModal', 'subtaskDetailsModal', 'clientManagementModal', 'addClientModal'];
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
             if (modal) {
@@ -1640,7 +1651,7 @@ class FastTrackApp {
             const tempAssociates = {
                 'ELENA001': { id: 'elena-temp-id', name: 'Elena', access_code: 'ELENA001' },
                 'VASIL001': { id: 'vasil-temp-id', name: 'Vasil', access_code: 'VASIL001' },
-                'ANI001': { id: 'ani-temp-id', name: 'Ani', access_code: 'ANI001' }
+                'ANI001': { id: 'ani-temp-id', name: 'Ana-Maria', access_code: 'ANI001' }
             };
             associate = tempAssociates[associateCode];
         }
@@ -1894,43 +1905,60 @@ class FastTrackApp {
         if (!clientsContainer) return;
 
         if (clients.length === 0) {
-            clientsContainer.innerHTML = '<p>No clients assigned yet.</p>';
+            clientsContainer.innerHTML = `
+                <div class="no-clients-message">
+                    <p>No clients assigned yet.</p>
+                    <button class="btn btn--primary" onclick="app.showAddClientModal()">
+                        Add Your First Client
+                    </button>
+                </div>
+            `;
             return;
         }
 
-        clientsContainer.innerHTML = clients.map(client => `
-            <div class="client-card">
-                <div class="client-header">
-                    <div class="client-info">
-                        <h3>${client.name}</h3>
-                        <p class="client-country">${this.getCountryFlag(client.countryCode)} ${client.country}</p>
-                        <p class="client-ceo">CEO: ${client.ceoName || 'Not specified'}</p>
-                    </div>
-                    <div class="client-status">
-                        <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
-                    </div>
-                </div>
-                <div class="client-details">
-                    <div class="client-metric">
-                        <span class="metric-label">Current Sprint:</span>
-                        <span class="metric-value">${client.currentSprint}</span>
-                    </div>
-                    <div class="client-metric">
-                        <span class="metric-label">Speed Score:</span>
-                        <span class="metric-value">${client.speed}</span>
-                    </div>
-                    <div class="client-metric">
-                        <span class="metric-label">Module:</span>
-                        <span class="metric-value">${client.currentModule}</span>
-                    </div>
-                </div>
-                <div class="client-actions">
-                    <button class="btn btn--primary btn--sm" onclick="app.viewClientDetails('${client.id}')">
-                        Manage Client
-                    </button>
-                </div>
+        clientsContainer.innerHTML = `
+            <div class="clients-header">
+                <h3>Your Clients (${clients.length})</h3>
+                <button class="btn btn--primary" onclick="app.showAddClientModal()">
+                    + Add New Client
+                </button>
             </div>
-        `).join('');
+            <div class="clients-grid">
+                ${clients.map(client => `
+                    <div class="client-card">
+                        <div class="client-header">
+                            <div class="client-info">
+                                <h3>${client.name}</h3>
+                                <p class="client-country">${this.getCountryFlag(client.countryCode)} ${client.country}</p>
+                                <p class="client-ceo">CEO: ${client.ceoName || 'Not specified'}</p>
+                            </div>
+                            <div class="client-status">
+                                <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
+                            </div>
+                        </div>
+                        <div class="client-details">
+                            <div class="client-metric">
+                                <span class="metric-label">Current Sprint:</span>
+                                <span class="metric-value">${client.currentSprint}</span>
+                            </div>
+                            <div class="client-metric">
+                                <span class="metric-label">Speed Score:</span>
+                                <span class="metric-value">${client.speed}</span>
+                            </div>
+                            <div class="client-metric">
+                                <span class="metric-label">Module:</span>
+                                <span class="metric-value">${client.currentModule}</span>
+                            </div>
+                        </div>
+                        <div class="client-actions">
+                            <button class="btn btn--primary btn--sm" onclick="app.viewClientDetails('${client.id}')">
+                                Manage Client
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
 
     populateAssociateAnalytics(clients) {
@@ -2257,6 +2285,112 @@ class FastTrackApp {
         // Add active class to selected tab and button
         document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         document.getElementById(`${tabName}Tab`).classList.add('active');
+    }
+
+    // Add Client Modal Methods
+    showAddClientModal() {
+        const modal = document.getElementById('addClientModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            this.populateAddClientForm();
+        }
+    }
+
+    populateAddClientForm() {
+        // Set default values
+        const fields = {
+            'newClientName': '',
+            'newClientCountry': 'MU',
+            'newClientCEO': '',
+            'newClientContact': '',
+            'newClientWebsite': '',
+            'newClientStatus': 'starting-soon',
+            'newClientModule': '0',
+            'newClientSprint': 'Program WOOP',
+            'newClientSpeed': '70'
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value;
+            }
+        });
+    }
+
+    async createNewClient() {
+        const formData = {
+            name: document.getElementById('newClientName').value.trim(),
+            country: document.getElementById('newClientCountry').value,
+            ceoName: document.getElementById('newClientCEO').value.trim(),
+            mainContact: document.getElementById('newClientContact').value.trim(),
+            website: document.getElementById('newClientWebsite').value.trim(),
+            status: document.getElementById('newClientStatus').value,
+            currentModule: parseInt(document.getElementById('newClientModule').value),
+            currentSprint: document.getElementById('newClientSprint').value,
+            speed: parseInt(document.getElementById('newClientSpeed').value)
+        };
+
+        if (!formData.name) {
+            alert('Please enter a client name');
+            return;
+        }
+
+        // Generate access code
+        const accessCode = this.generateClientAccessCode(formData.name);
+        
+        // Get country info
+        const countryCode = formData.country;
+        const countryName = this.getCountryNameFromCode(countryCode);
+
+        const newClient = {
+            id: `temp-client-${Date.now()}`,
+            name: formData.name,
+            accessCode: accessCode,
+            weeklyScore: Math.floor(Math.random() * 40) + 60,
+            qualityScore: Math.floor(Math.random() * 40) + 60,
+            speed: formData.speed,
+            sprint: formData.currentSprint,
+            status: formData.status,
+            position: this.teams.length + 1,
+            previousPosition: this.teams.length + 1,
+            graduation: "TBD",
+            delay: 0,
+            currentModule: formData.currentModule,
+            currentSprint: formData.currentSprint,
+            completedSprints: [],
+            guru: this.currentAssociate.name,
+            associateId: this.currentAssociate.id,
+            country: countryName,
+            countryCode: countryCode,
+            ceoName: formData.ceoName,
+            mainContact: formData.mainContact,
+            website: formData.website
+        };
+
+        // Add to teams array
+        this.teams.push(newClient);
+
+        // Refresh the associate dashboard
+        this.populateAssociateDashboard();
+
+        alert(`Client "${formData.name}" created successfully!\nAccess Code: ${accessCode}`);
+        this.hideAllModals();
+    }
+
+    generateClientAccessCode(clientName) {
+        // Generate a simple access code based on client name
+        const prefix = clientName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        return `${prefix}${random}`;
+    }
+
+    getCountryNameFromCode(countryCode) {
+        const countryMap = {
+            'MU': 'Mauritius', 'LV': 'Latvia', 'KE': 'Kenya', 'GT': 'Guatemala', 'IT': 'Italy', 'EE': 'Estonia',
+            'LK': 'Sri Lanka', 'PL': 'Poland', 'MX': 'Mexico', 'AT': 'Austria', 'AE': 'UAE', 'RO': 'Romania'
+        };
+        return countryMap[countryCode] || 'Mauritius';
     }
 
     populatePodium() {
