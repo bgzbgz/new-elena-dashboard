@@ -7,9 +7,9 @@ class FastTrackApp {
         this.corsProxyUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co/functions/v1/cors-proxy';
         this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
         
-        // Enhanced team data with detailed sprint information - All 21 clients
+        // Enhanced team data with detailed sprint information - Based on roadmap analysis
         this.teams = [
-            // Elena's Clients (10)
+            // Elena's Clients (10) - Based on roadmap analysis
             {
                 name: "SECOM",
                 weeklyScore: 94,
@@ -33,15 +33,15 @@ class FastTrackApp {
                 qualityScore: 92,
                 speed: 90,
                 sprint: "Week 3", 
-                status: "progress-meeting",
+                status: "on-time",
                 position: 2,
                 previousPosition: 3,
                 accessCode: "FT002",
-                graduation: "Jan 2025",
+                graduation: "Nov 2025",
                 delay: 0,
                 currentModule: 2,
-                currentSprint: "Current Cash Position",
-                completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT"],
+                currentSprint: "Goals, Priorities and Planning",
+                completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
                 guru: "Elena"
             },
             {
@@ -50,15 +50,15 @@ class FastTrackApp {
                 qualityScore: 90,
                 speed: 87.5,
                 sprint: "Week 2",
-                status: "progress-meeting", 
+                status: "on-time", 
                 position: 3,
                 previousPosition: 5,
                 accessCode: "FT003",
                 graduation: "Feb 2025",
                 delay: 0,
-                currentModule: 1,
-                currentSprint: "Dream",
-                completedSprints: ["Program WOOP", "Know Thyself"],
+                currentModule: 2,
+                currentSprint: "Goals, Priorities and Planning",
+                completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
                 guru: "Elena"
             },
             {
@@ -67,15 +67,15 @@ class FastTrackApp {
                 qualityScore: 85,
                 speed: 83.5,
                 sprint: "Week 1",
-                status: "in-delay", 
+                status: "on-time", 
                 position: 4,
                 previousPosition: 4,
                 accessCode: "FT004",
                 graduation: "Mar 2025",
-                delay: 3,
-                currentModule: 1,
-                currentSprint: "Know Thyself",
-                completedSprints: ["Program WOOP"],
+                delay: 0,
+                currentModule: 2,
+                currentSprint: "Goals, Priorities and Planning",
+                completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
                 guru: "Elena"
             },
             {
@@ -84,15 +84,15 @@ class FastTrackApp {
                 qualityScore: 87, 
                 speed: 89,
                 sprint: "Week 5",
-                status: "progress-meeting",
+                status: "on-time",
                 position: 5,
                 previousPosition: 3,
                 accessCode: "FT005",
-                graduation: "Nov 2024",
+                graduation: "Mar 2025",
                 delay: 0,
-                currentModule: 3,
-                currentSprint: "Market Size",
-                completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position", "Goals, Priorities and Planning"],
+                currentModule: 2,
+                currentSprint: "Goals, Priorities and Planning",
+                completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
                 guru: "Elena"
             },
             {
@@ -101,15 +101,15 @@ class FastTrackApp {
                 qualityScore: 83,
                 speed: 81,
                 sprint: "Week 1",
-                status: "in-delay", 
+                status: "on-time", 
                 position: 6,
                 previousPosition: 6,
                 accessCode: "FT006",
-                graduation: "Apr 2025",
-                delay: 5,
-                currentModule: 1,
-                currentSprint: "Know Thyself",
-                completedSprints: ["Program WOOP"],
+                graduation: "Jan 2026",
+                delay: 0,
+                currentModule: 2,
+                currentSprint: "Goals, Priorities and Planning",
+                completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
                 guru: "Elena"
             },
             {
@@ -156,7 +156,7 @@ class FastTrackApp {
                 position: 9,
                 previousPosition: 9,
                 accessCode: "FT009",
-                graduation: "Jul 2025",
+                graduation: "Aug 2026",
                 delay: 0,
                 currentModule: 0,
                 currentSprint: "Program WOOP",
@@ -180,7 +180,7 @@ class FastTrackApp {
                 completedSprints: [],
                 guru: "Elena"
             },
-            // Ana-Maria's Clients (10)
+            // Ana-Maria's Clients (10) - Based on roadmap analysis
             {
                 name: "LIFECARE",
                 weeklyScore: 93,
@@ -225,7 +225,7 @@ class FastTrackApp {
                 position: 13,
                 previousPosition: 13,
                 accessCode: "FT013",
-                graduation: "Jan 2025",
+                graduation: "Oct 2026",
                 delay: 0,
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
@@ -242,7 +242,7 @@ class FastTrackApp {
                 position: 14,
                 previousPosition: 14,
                 accessCode: "FT014",
-                graduation: "Feb 2025",
+                graduation: "Oct 2026",
                 delay: 0,
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
@@ -259,7 +259,7 @@ class FastTrackApp {
                 position: 15,
                 previousPosition: 15,
                 accessCode: "FT015",
-                graduation: "Mar 2025",
+                graduation: "Oct 2026",
                 delay: 0,
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
@@ -276,7 +276,7 @@ class FastTrackApp {
                 position: 16,
                 previousPosition: 16,
                 accessCode: "FT016",
-                graduation: "Apr 2025",
+                graduation: "Oct 2026",
                 delay: 0,
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
@@ -293,7 +293,7 @@ class FastTrackApp {
                 position: 17,
                 previousPosition: 17,
                 accessCode: "FT017",
-                graduation: "May 2025",
+                graduation: "Oct 2026",
                 delay: 0,
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
@@ -351,7 +351,7 @@ class FastTrackApp {
                 completedSprints: ["All Modules Completed"],
                 guru: "Ana-Maria"
             },
-            // Vasil's Clients (1)
+            // Vasil's Clients (1) - Based on roadmap analysis
             {
                 name: "Capital Alliance",
                 weeklyScore: 87,
@@ -362,7 +362,7 @@ class FastTrackApp {
                 position: 21,
                 previousPosition: 21,
                 accessCode: "FT021",
-                graduation: "Feb 2025",
+                graduation: "Oct 2026",
                 delay: 0,
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
@@ -542,9 +542,9 @@ class FastTrackApp {
             associateId: this.getAssociateIdForTeam(team.name),
             country: this.getCountryForTeam(team.name),
             countryCode: this.getCountryCodeForTeam(team.name),
-            ceoName: '',
-            mainContact: '',
-            website: ''
+            ceoName: this.getCEOForTeam(team.name),
+            mainContact: this.getMainContactForTeam(team.name),
+            website: this.getWebsiteForTeam(team.name)
         }));
         console.log('Added temporary IDs to hardcoded teams:', this.teams);
     }
@@ -607,6 +607,87 @@ class FastTrackApp {
             'AMEX': 'AT'
         };
         return countryCodeMap[teamName] || 'MU';
+    }
+
+    getCEOForTeam(teamName) {
+        const ceoMap = {
+            'SECOM': 'Not specified',
+            'LIFECARE': 'Not specified',
+            'MAX CITY': 'Not specified',
+            'PHARMACIE NOUVELLE': 'Not specified',
+            'LEAL GROUP (AUTO)': 'Sapan Etwaroo',
+            'APF': 'Not specified',
+            'CFL': 'Not specified',
+            'VIZULO': 'Not specified',
+            'GRUPO PDC': 'Not specified',
+            'Chromavis': 'Not specified',
+            'Industra Bank': 'Not specified',
+            'Capital Alliance': 'Not specified',
+            'Rockland': 'Not specified',
+            'Hemas': 'Not specified',
+            'ENSON': 'Not specified',
+            'PGO': 'Not specified',
+            'FORMIKA': 'Not specified',
+            'Plazteca': 'Not specified',
+            'MOBO': 'Not specified',
+            'CRAFT': 'Not specified',
+            'AMEX': 'Not specified'
+        };
+        return ceoMap[teamName] || 'Not specified';
+    }
+
+    getMainContactForTeam(teamName) {
+        const contactMap = {
+            'SECOM': 'Not specified',
+            'LIFECARE': 'Not specified',
+            'MAX CITY': 'Not specified',
+            'PHARMACIE NOUVELLE': 'Not specified',
+            'LEAL GROUP (AUTO)': 'Meela Ramsamy',
+            'APF': 'Not specified',
+            'CFL': 'Not specified',
+            'VIZULO': 'Not specified',
+            'GRUPO PDC': 'Not specified',
+            'Chromavis': 'Not specified',
+            'Industra Bank': 'Not specified',
+            'Capital Alliance': 'Not specified',
+            'Rockland': 'Not specified',
+            'Hemas': 'Not specified',
+            'ENSON': 'Not specified',
+            'PGO': 'Not specified',
+            'FORMIKA': 'Not specified',
+            'Plazteca': 'Not specified',
+            'MOBO': 'Not specified',
+            'CRAFT': 'Not specified',
+            'AMEX': 'Not specified'
+        };
+        return contactMap[teamName] || 'Not specified';
+    }
+
+    getWebsiteForTeam(teamName) {
+        const websiteMap = {
+            'SECOM': 'Not specified',
+            'LIFECARE': 'Not specified',
+            'MAX CITY': 'Not specified',
+            'PHARMACIE NOUVELLE': 'Not specified',
+            'LEAL GROUP (AUTO)': 'lealgroup.mu',
+            'APF': 'Not specified',
+            'CFL': 'Not specified',
+            'VIZULO': 'Not specified',
+            'GRUPO PDC': 'Not specified',
+            'Chromavis': 'Not specified',
+            'Industra Bank': 'Not specified',
+            'Capital Alliance': 'Not specified',
+            'Rockland': 'Not specified',
+            'Hemas': 'Not specified',
+            'ENSON': 'Not specified',
+            'PGO': 'Not specified',
+            'FORMIKA': 'Not specified',
+            'Plazteca': 'Not specified',
+            'MOBO': 'Not specified',
+            'CRAFT': 'Not specified',
+            'AMEX': 'Not specified'
+        };
+        return websiteMap[teamName] || 'Not specified';
     }
 
     async createTablesIfNotExist() {
