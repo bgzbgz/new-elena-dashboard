@@ -25,7 +25,13 @@ class FastTrackApp {
                 currentModule: 9,
                 currentSprint: "Completed",
                 completedSprints: ["All Modules Completed"],
-                guru: "Elena"
+                guru: "Elena",
+                // Enhanced client profile fields
+                industryType: "Technology",
+                companySize: "Medium (50-200 employees)",
+                priorityLevel: "High",
+                notes: "Key client with excellent performance",
+                fastTrackInstructions: []
             },
             {
                 name: "MAX CITY",
@@ -42,7 +48,13 @@ class FastTrackApp {
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
                 completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
-                guru: "Elena"
+                guru: "Elena",
+                // Enhanced client profile fields
+                industryType: "Real Estate",
+                companySize: "Large (200+ employees)",
+                priorityLevel: "High",
+                notes: "Strong performance in real estate sector",
+                fastTrackInstructions: []
             },
             {
                 name: "PHARMACIE NOUVELLE",
@@ -59,7 +71,13 @@ class FastTrackApp {
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
                 completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
-                guru: "Elena"
+                guru: "Elena",
+                // Enhanced client profile fields
+                industryType: "Healthcare",
+                companySize: "Medium (50-200 employees)",
+                priorityLevel: "Medium",
+                notes: "Pharmacy chain with good potential",
+                fastTrackInstructions: []
             },
             {
                 name: "LEAL GROUP (AUTO)",
@@ -76,7 +94,13 @@ class FastTrackApp {
                 currentModule: 2,
                 currentSprint: "Goals, Priorities and Planning",
                 completedSprints: ["Program WOOP", "Know Thyself", "Dream", "Values", "Team", "FIT", "Current Cash Position"],
-                guru: "Elena"
+                guru: "Elena",
+                // Enhanced client profile fields
+                industryType: "Automotive",
+                companySize: "Large (200+ employees)",
+                priorityLevel: "High",
+                notes: "Automotive group with strong market presence",
+                fastTrackInstructions: []
             },
             {
                 name: "APF",
@@ -371,13 +395,13 @@ class FastTrackApp {
             }
         ];
 
-        // Comprehensive module structure
+        // Comprehensive module structure with detailed sprints
         this.moduleStructure = [
             {
                 number: 0,
                 title: "Intro Sprint",
                 description: "Program WOOP - Welcome, Outcomes, Obstacles, Plan",
-                sprints: ["Program WOOP"],
+                sprints: ["Program WOOP: Establish a Clear Mission and Objectives for the Entire Program"],
                 gurus: ["Program Team"],
                 duration: "1 week"
             },
@@ -385,7 +409,13 @@ class FastTrackApp {
                 number: 1,
                 title: "Individual and Company Identity",
                 description: "Building foundation of self and team understanding",
-                sprints: ["Know Thyself", "Dream", "Values", "Team", "FIT"],
+                sprints: [
+                    "Know Thyself",
+                    "Dream", 
+                    "Values",
+                    "Team",
+                    "FIT"
+                ],
                 gurus: ["Diliara", "Jurijs"],
                 duration: "5 weeks"
             },
@@ -393,57 +423,99 @@ class FastTrackApp {
                 number: 2,
                 title: "Core Performance Elements",
                 description: "Essential business performance and accountability systems",
-                sprints: ["Current Cash Position", "Goals, Priorities and Planning", "Focus/Discipline", "Performance/Accountability", "Meeting Rhythm"],
+                sprints: [
+                    "Current Cash Position",
+                    "[optional] Creating Energy in the Body and Mind",
+                    "Goals, Priorities and Planning",
+                    "Focus, Discipline & Productivity",
+                    "Performance & Accountability",
+                    "Meeting Rhythm"
+                ],
                 gurus: ["Mihails", "Diliara"],
-                duration: "5 weeks"
+                duration: "6 weeks"
             },
             {
                 number: 3,
-                title: "Market Understanding",
+                title: "Strategy - Understanding the Market",
                 description: "Deep dive into market dynamics and opportunities",
-                sprints: ["Market Size", "Market Segmentation", "Target Market Analysis"],
+                sprints: [
+                    "Market Size",
+                    "Segmentation & Target Market"
+                ],
                 gurus: ["Janis", "Olga"],
-                duration: "3 weeks"
+                duration: "2 weeks"
             },
             {
                 number: 4,
-                title: "Strategy Development",
+                title: "Strategy - Strategy Development",
                 description: "Crafting and testing your strategic approach",
-                sprints: ["Target Segment Deep Dive", "Value Proposition", "VP Testing"],
+                sprints: [
+                    "Target Segment Deep Dive - Pains, Needs, Gains (+ 1 week for client interviews)",
+                    "Value Proposition",
+                    "Value Proposition Testing (+ 1 week for client interviews)"
+                ],
                 gurus: ["Strategy Team"],
-                duration: "3 weeks"
+                duration: "5 weeks"
             },
             {
                 number: 5,
-                title: "Strategy Execution",
+                title: "Strategy - Execution",
                 description: "Bringing strategy to life through execution",
-                sprints: ["Product Development", "Pricing Strategy", "Brand/Marketing", "Route to Market"],
+                sprints: [
+                    "Product Development (+1 week for client testing)",
+                    "Strategy Driven Pricing",
+                    "Brand and Marketing",
+                    "[optional] Customer Service Strategy and Execution",
+                    "Route to Market - Market Penetration"
+                ],
                 gurus: ["Execution Team"],
-                duration: "4 weeks"
+                duration: "5 weeks"
             },
             {
                 number: 6,
-                title: "Organizational Structure",
+                title: "Organization & People - Organisational Structure",
                 description: "Building efficient organizational systems",
-                sprints: ["Core Activities", "Process Design", "Team Analysis"],
+                sprints: [
+                    "Define Core Activities",
+                    "Define core processes, Decisions, and Capabilities",
+                    "FIT & ABC Analysis (Current team analyses and change)"
+                ],
                 gurus: ["Operations Team"],
                 duration: "3 weeks"
             },
             {
                 number: 7,
-                title: "People & Leadership",
+                title: "Organization & People - People and Leadership",
                 description: "Developing leadership and team capabilities",
-                sprints: ["Personal Development Plan", "Recruitment Strategy", "Agile Teams"],
+                sprints: [
+                    "[optional] Organizational redesign & Personal Development Plan for A-Players",
+                    "Employer Branding and Recruitment Strategy",
+                    "[optional] Set Agile Teams"
+                ],
                 gurus: ["Leadership Team"],
                 duration: "3 weeks"
             },
             {
                 number: 8,
-                title: "Tech & AI Implementation",
+                title: "Organization & People - Apply Aggressively Tech and AI",
                 description: "Leveraging technology and AI for competitive advantage",
-                sprints: ["Process Digitalization", "AI Options Assessment", "Implementation Plan"],
+                sprints: [
+                    "Potential Tech and AI-Low hanging options",
+                    "Top 3 Decisions and Top 3 Processes to Digitalize",
+                    "Mastering Departmental AI Transformation"
+                ],
                 gurus: ["Tech Team"],
                 duration: "3 weeks"
+            },
+            {
+                number: 9,
+                title: "Closing Sprint",
+                description: "Program overview and next steps",
+                sprints: [
+                    "Program Overview & Next 12 months Plan"
+                ],
+                gurus: ["Program Team"],
+                duration: "1 week"
             }
         ];
 
@@ -1794,12 +1866,12 @@ class FastTrackApp {
         if (cardsContainer) {
             cardsContainer.innerHTML = `
                 <div class="progress-card">
-                    <div class="progress-card-label">Weekly Score</div>
+                    <div class="progress-card-label">Weekly Rank</div>
                     <div class="progress-card-value">${this.currentUser.weeklyScore}</div>
                     <div class="progress-card-subtitle">Current ranking: #${this.currentUser.position}</div>
                 </div>
                 <div class="progress-card">
-                    <div class="progress-card-label">Speed Score</div>
+                    <div class="progress-card-label">Starting Date</div>
                     <div class="progress-card-value">${this.currentUser.speed}</div>
                     <div class="progress-card-subtitle">Performance metric</div>
                 </div>
@@ -1909,7 +1981,7 @@ class FastTrackApp {
             <div class="ranking-card">
                 <div class="ranking-position">#${currentTeam.position}</div>
                 <div class="ranking-team-name">${currentTeam.name}</div>
-                <div class="ranking-score">Weekly Score: ${currentTeam.weeklyScore}</div>
+                <div class="ranking-score">Weekly Rank: ${currentTeam.weeklyScore}</div>
             </div>
             
             <div class="ranking-comparison">
@@ -2178,7 +2250,12 @@ class FastTrackApp {
             'clientSpeed': client.speed || 0,
             'clientStatus': client.status || 'starting-soon',
             'clientDelay': client.delay || 0,
-            'clientGuru': client.guru || ''
+            'clientGuru': client.guru || '',
+            // Enhanced client profile fields
+            'clientIndustryType': client.industryType || '',
+            'clientCompanySize': client.companySize || '',
+            'clientPriorityLevel': client.priorityLevel || 'Medium',
+            'clientNotes': client.notes || ''
         };
 
         Object.entries(fields).forEach(([id, value]) => {
@@ -2249,7 +2326,12 @@ class FastTrackApp {
             speed: parseInt(document.getElementById('clientSpeed').value),
             status: document.getElementById('clientStatus').value,
             delay_days: parseInt(document.getElementById('clientDelay').value),
-            guru: document.getElementById('clientGuru').value
+            guru: document.getElementById('clientGuru').value,
+            // Enhanced client profile fields
+            industryType: document.getElementById('clientIndustryType').value,
+            companySize: document.getElementById('clientCompanySize').value,
+            priorityLevel: document.getElementById('clientPriorityLevel').value,
+            notes: document.getElementById('clientNotes').value
         };
 
         try {
@@ -2298,6 +2380,28 @@ class FastTrackApp {
         if (!instructions) return;
 
         try {
+            // For hardcoded data, add to local array
+            if (client.id.includes('temp-id') || client.id.includes('temp-client')) {
+                const newInstruction = {
+                    id: `instruction-${Date.now()}`,
+                    sprintName: sprintName,
+                    instructions: instructions,
+                    createdAt: new Date().toISOString(),
+                    createdBy: this.currentAssociate.name
+                };
+                
+                if (!client.fastTrackInstructions) {
+                    client.fastTrackInstructions = [];
+                }
+                client.fastTrackInstructions.push(newInstruction);
+                
+                // Refresh the tools display
+                this.populateFastTrackTools(client.fastTrackInstructions);
+                alert('Fast Track tool added successfully!');
+                return;
+            }
+
+            // Database operation for real clients
             const { data, error } = await this.supabase
                 .from('fast_track_tools')
                 .insert([
@@ -2581,7 +2685,7 @@ class FastTrackApp {
 
         // Set basic info
         const elements = {
-            'modalTeamName': `${team.name} - Sprint Progress Details`,
+            'modalTeamName': `${team.name} - Program Progress Details`,
             'modalSpeed': team.speed,
             'modalGraduation': team.graduation,
             'modalDelay': team.delay > 0 ? `${team.delay} days` : '0 days',

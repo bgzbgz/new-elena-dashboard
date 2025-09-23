@@ -1191,23 +1191,33 @@ body {
 }
 
 .status-on-time {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--status-on-time);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: #10B981; /* Green */
+  color: white;
+  border: 1px solid #10B981;
 }
 
 .status-in-delay {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--status-delay);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: #EF4444; /* Red */
+  color: white;
+  border: 1px solid #EF4444;
 }
 
-.status-progress-meeting,
-.status-graduated,
+.status-graduated {
+  background: #3B82F6; /* Blue */
+  color: white;
+  border: 1px solid #3B82F6;
+}
+
 .status-starting-soon {
-  background: rgba(107, 114, 128, 0.1);
-  color: var(--status-meeting);
-  border: 1px solid rgba(107, 114, 128, 0.2);
+  background: #F59E0B; /* Yellow */
+  color: white;
+  border: 1px solid #F59E0B;
+}
+
+.status-progress-meeting {
+  background: #6B7280; /* Gray */
+  color: white;
+  border: 1px solid #6B7280;
 }
 
 /* Code Management */

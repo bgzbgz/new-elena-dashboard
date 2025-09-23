@@ -156,7 +156,7 @@
                             <table class="leaderboard-table">
                                 <thead>
                                     <tr>
-                                        <th>Weekly Score</th>
+                                        <th>Weekly Rank</th>
                                         <th>Team</th>
                                         <th>Sprint</th>
                                         <th>Speed</th>
@@ -189,7 +189,7 @@
                                 <div class="analytics-value" id="teamsInDelay">-</div>
                             </div>
                             <div class="analytics-card">
-                                <div class="analytics-label">Graduation Rate</div>
+                                <div class="analytics-label">New Teams Joining</div>
                                 <div class="analytics-value" id="graduationRate">-</div>
                             </div>
                         </div>
@@ -490,6 +490,31 @@
                             <div class="form-group">
                                 <label for="clientAccessCode" class="form-label">Access Code</label>
                                 <input type="text" id="clientAccessCode" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientIndustryType" class="form-label">Industry Type</label>
+                                <input type="text" id="clientIndustryType" class="form-control" placeholder="e.g., Technology, Healthcare, Manufacturing">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientCompanySize" class="form-label">Company Size</label>
+                                <select id="clientCompanySize" class="form-control">
+                                    <option value="Small (1-50 employees)">Small (1-50 employees)</option>
+                                    <option value="Medium (50-200 employees)">Medium (50-200 employees)</option>
+                                    <option value="Large (200+ employees)">Large (200+ employees)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientPriorityLevel" class="form-label">Priority Level</label>
+                                <select id="clientPriorityLevel" class="form-control">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Critical">Critical</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientNotes" class="form-label">Notes & Comments</label>
+                                <textarea id="clientNotes" class="form-control" rows="3" placeholder="Add any additional notes about this client..."></textarea>
                             </div>
                         </div>
                     </div>
