@@ -531,6 +531,7 @@ class FastTrackApp {
         this.subtasks = [];
         this.messages = [];
         this.newTeamsJoiningCount = 0; // Admin-editable count for new teams joining
+        this.performanceChart = null; // Chart.js instance
     }
 
     // Database initialization and schema setup
@@ -1881,8 +1882,8 @@ class FastTrackApp {
             currentTeamElement.textContent = this.currentUser.name;
         }
 
-        // Populate top performers podium
-        this.populateClientPodium();
+        // Populate performance analytics chart
+        this.populatePerformanceChart();
 
         // Populate progress cards
         const cardsContainer = document.getElementById('teamProgressCards');
@@ -2083,6 +2084,9 @@ class FastTrackApp {
         
         // Populate associate subtasks management
         this.populateAssociateSubtasks(associateClients);
+        
+        // Populate associate activity log
+        this.populateAssociateActivityLog(associateClients);
     }
 
     populateAssociateClients(clients) {
@@ -2114,7 +2118,7 @@ class FastTrackApp {
                         <div class="client-header">
                             <div class="client-info">
                                 <h3>${client.name}</h3>
-                                <p class="client-country">${this.getCountryFlag(client.countryCode)} ${client.country}</p>
+                                <p class="client-country">${this.getCountryName(client.countryCode)}</p>
                                 <p class="client-ceo">CEO: ${client.ceoName || 'Not specified'}</p>
                             </div>
                             <div class="client-status">
@@ -2206,7 +2210,7 @@ class FastTrackApp {
                         <tr>
                             <td class="position-cell">${client.position}</td>
                             <td><strong>${client.name}</strong></td>
-                            <td>${this.getCountryFlag(client.countryCode)} ${client.country}</td>
+                            <td>${this.getCountryName(client.countryCode)}</td>
                             <td>${this.generateSprintProgressHTML(client)}</td>
                             <td>
                                 <div class="speed-score">${client.speed}</div>
@@ -2329,12 +2333,58 @@ class FastTrackApp {
         `;
     }
 
-    getCountryFlag(countryCode) {
-        const flags = {
-            'MU': '🇲🇺', 'LV': '🇱🇻', 'KE': '🇰🇪', 'GT': '🇬🇹', 'IT': '🇮🇹', 'EE': '🇪🇪',
-            'LK': '🇱🇰', 'PL': '🇵🇱', 'MX': '🇲🇽', 'AT': '🇦🇹', 'AE': '🇦🇪', 'RO': '🇷🇴'
+    getCountryName(countryCode) {
+        const countryNames = {
+            'MU': 'Mauritius', 'LV': 'Latvia', 'KE': 'Kenya', 'GT': 'Guatemala', 'IT': 'Italy', 'EE': 'Estonia',
+            'LK': 'Sri Lanka', 'PL': 'Poland', 'MX': 'Mexico', 'AT': 'Austria', 'AE': 'UAE', 'RO': 'Romania'
         };
-        return flags[countryCode] || '🌍';
+        return countryNames[countryCode] || 'Unknown';
+    }
+
+    async populateAssociateActivityLog(clients) {
+        const container = document.getElementById('associateActivityLogContainer');
+        if (!container) return;
+
+        try {
+            // Get client IDs for filtering
+            const clientIds = clients.map(client => client.id);
+            
+            // Only show activities for clients created by this associate
+            const { data: activities, error } = await this.supabase
+                .from('team_activities')
+                .select(`
+                    *,
+                    teams!inner(name)
+                `)
+                .in('team_id', clientIds)
+                .order('created_at', { ascending: false })
+                .limit(20); // Show last 20 activities
+
+            if (error) {
+                console.error('Error loading associate activities:', error);
+                container.innerHTML = '<p>Error loading activity log.</p>';
+                return;
+            }
+
+            if (!activities || activities.length === 0) {
+                container.innerHTML = '<p>No activities recorded yet for your clients.</p>';
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon">📝</div>
+                    <div class="activity-content">
+                        <div class="activity-description">${activity.description}</div>
+                        <div class="activity-time">${new Date(activity.created_at).toLocaleString()}</div>
+                        <div class="activity-metadata">Client: ${activity.teams.name} | Type: ${activity.activity_type}</div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading associate activities:', error);
+            container.innerHTML = '<p>Error loading activity log.</p>';
+        }
     }
 
     calculateSprintProgress(team) {
@@ -2531,9 +2581,9 @@ class FastTrackApp {
             delay_days: parseInt(document.getElementById('clientDelay').value),
             guru: document.getElementById('clientGuru').value,
             // Enhanced client profile fields
-            industryType: document.getElementById('clientIndustryType').value,
-            companySize: document.getElementById('clientCompanySize').value,
-            priorityLevel: document.getElementById('clientPriorityLevel').value,
+            industry_type: document.getElementById('clientIndustryType').value,
+            company_size: document.getElementById('clientCompanySize').value,
+            priority_level: document.getElementById('clientPriorityLevel').value,
             notes: document.getElementById('clientNotes').value
         };
 
@@ -2559,10 +2609,23 @@ class FastTrackApp {
             if (!this.currentAssociate.id.includes('temp-id')) {
                 await this.logAssociateActivity(this.currentAssociate.id, 'client_updated', 
                     `Updated client ${client.name}`, { clientId: client.id, changes: formData });
+                
+                // Also log team activity
+                await this.logTeamActivity(client.id, 'client_updated', 
+                    `Client updated by ${this.currentAssociate.name}`, { 
+                        clientName: client.name, 
+                        associateId: this.currentAssociate.id,
+                        changes: formData 
+                    });
             }
 
             // Refresh the associate dashboard
             this.populateAssociateDashboard();
+
+            // Update the performance chart if we're on the team dashboard
+            if (this.currentUser && !this.isAdmin && !this.isAssociate) {
+                this.populatePerformanceChart();
+            }
 
             alert('Client updated successfully!');
             this.hideAllModals();
@@ -2627,6 +2690,15 @@ class FastTrackApp {
             // Log activity
             await this.logAssociateActivity(this.currentAssociate.id, 'fast_track_tool_added', 
                 `Added Fast Track tool for ${client.name} - ${sprintName}`, { clientId: client.id, toolId: data[0].id });
+            
+            // Also log team activity
+            await this.logTeamActivity(client.id, 'fast_track_tool_added', 
+                `Fast Track tool added by ${this.currentAssociate.name} - ${sprintName}`, { 
+                    clientName: client.name, 
+                    associateId: this.currentAssociate.id,
+                    toolId: data[0].id,
+                    sprintName: sprintName 
+                });
 
             // Reload tools
             this.loadFastTrackTools(client.id);
@@ -2731,45 +2803,98 @@ class FastTrackApp {
         const countryCode = formData.country;
         const countryName = this.getCountryNameFromCode(countryCode);
 
-        const newClient = {
-            id: `temp-client-${Date.now()}`,
-            name: formData.name,
-            accessCode: accessCode,
-            weeklyScore: Math.floor(Math.random() * 40) + 60,
-            qualityScore: Math.floor(Math.random() * 40) + 60,
-            speed: formData.speed,
-            sprint: formData.currentSprint,
-            status: formData.status,
-            position: this.teams.length + 1,
-            previousPosition: this.teams.length + 1,
-            graduation: "TBD",
-            delay: 0,
-            currentModule: formData.currentModule,
-            currentSprint: formData.currentSprint,
-            completedSprints: [],
-            guru: this.currentAssociate.name,
-            associateId: this.currentAssociate.id,
-            country: countryName,
-            countryCode: countryCode,
-            ceoName: formData.ceoName,
-            mainContact: formData.mainContact,
-            website: formData.website,
-            // Enhanced client profile fields
-            industryType: "Not specified",
-            companySize: "Small (1-50 employees)",
-            priorityLevel: "Medium",
-            notes: "New client created by " + this.currentAssociate.name,
-            fastTrackInstructions: []
-        };
+        try {
+            // First, try to save to Supabase database
+            const { data, error } = await this.supabase
+                .from('teams')
+                .insert([
+                    {
+                        name: formData.name,
+                        access_code: accessCode,
+                        weekly_score: Math.floor(Math.random() * 40) + 60,
+                        quality_score: Math.floor(Math.random() * 40) + 60,
+                        speed: formData.speed,
+                        sprint: formData.currentSprint,
+                        status: formData.status,
+                        position: this.teams.length + 1,
+                        previous_position: this.teams.length + 1,
+                        graduation: "TBD",
+                        delay_days: 0,
+                        current_module: formData.currentModule,
+                        current_sprint: formData.currentSprint,
+                        completed_sprints: [],
+                        guru: this.currentAssociate.name,
+                        associate_id: this.currentAssociate.id,
+                        country: countryName,
+                        country_code: countryCode,
+                        ceo_name: formData.ceoName,
+                        main_contact: formData.mainContact,
+                        website: formData.website,
+                        industry_type: "Not specified",
+                        company_size: "Small (1-50 employees)",
+                        priority_level: "Medium",
+                        notes: "New client created by " + this.currentAssociate.name
+                    }
+                ])
+                .select();
 
-        // Add to teams array
-        this.teams.push(newClient);
+            if (error) {
+                console.error('Error saving client to database:', error);
+                alert('Error saving client to database. Please try again.');
+                return;
+            }
 
-        // Refresh the associate dashboard
-        this.populateAssociateDashboard();
+            // If successful, create the client object with the database ID
+            const newClient = {
+                id: data[0].id, // Use the database ID
+                name: formData.name,
+                accessCode: accessCode,
+                weeklyScore: data[0].weekly_score,
+                qualityScore: data[0].quality_score,
+                speed: formData.speed,
+                sprint: formData.currentSprint,
+                status: formData.status,
+                position: data[0].position,
+                previousPosition: data[0].previous_position,
+                graduation: "TBD",
+                delay: 0,
+                currentModule: formData.currentModule,
+                currentSprint: formData.currentSprint,
+                completedSprints: [],
+                guru: this.currentAssociate.name,
+                associateId: this.currentAssociate.id,
+                country: countryName,
+                countryCode: countryCode,
+                ceoName: formData.ceoName,
+                mainContact: formData.mainContact,
+                website: formData.website,
+                // Enhanced client profile fields
+                industryType: "Not specified",
+                companySize: "Small (1-50 employees)",
+                priorityLevel: "Medium",
+                notes: "New client created by " + this.currentAssociate.name,
+                fastTrackInstructions: []
+            };
 
-        alert(`Client "${formData.name}" created successfully!\nAccess Code: ${accessCode}`);
-        this.hideAllModals();
+            // Add to teams array
+            this.teams.push(newClient);
+
+            // Log the activity
+            await this.logTeamActivity(data[0].id, 'client_created', `New client created by ${this.currentAssociate.name}`, { 
+                clientName: formData.name, 
+                associateId: this.currentAssociate.id 
+            });
+
+            // Refresh the associate dashboard
+            this.populateAssociateDashboard();
+
+            alert(`Client "${formData.name}" created successfully!\nAccess Code: ${accessCode}\n\nClient can now log in using this access code.`);
+            this.hideAllModals();
+
+        } catch (error) {
+            console.error('Error creating client:', error);
+            alert('Error creating client. Please check your database connection and try again.');
+        }
     }
 
     generateClientAccessCode(clientName) {
@@ -2785,6 +2910,61 @@ class FastTrackApp {
             'LK': 'Sri Lanka', 'PL': 'Poland', 'MX': 'Mexico', 'AT': 'Austria', 'AE': 'UAE', 'RO': 'Romania'
         };
         return countryMap[countryCode] || 'Mauritius';
+    }
+
+    quickUpdateScores(team) {
+        const newSpeed = prompt(`Update Speed Score for ${team.name} (current: ${team.speed}):`, team.speed);
+        if (newSpeed === null) return;
+        
+        const newQuality = prompt(`Update Quality Score for ${team.name} (current: ${team.qualityScore}):`, team.qualityScore);
+        if (newQuality === null) return;
+
+        const speedNum = parseInt(newSpeed);
+        const qualityNum = parseInt(newQuality);
+
+        if (isNaN(speedNum) || isNaN(qualityNum) || speedNum < 0 || speedNum > 100 || qualityNum < 0 || qualityNum > 100) {
+            alert('Please enter valid scores between 0 and 100');
+            return;
+        }
+
+        // Update the team data
+        team.speed = speedNum;
+        team.qualityScore = qualityNum;
+
+        // Update in database if not temporary
+        if (!team.id.includes('temp-id')) {
+            this.supabase
+                .from('teams')
+                .update({ 
+                    speed: speedNum, 
+                    quality_score: qualityNum 
+                })
+                .eq('id', team.id)
+                .then(({ error }) => {
+                    if (error) {
+                        console.error('Error updating scores:', error);
+                        alert('Error updating scores in database');
+                        return;
+                    }
+                    
+                    // Log activity
+                    this.logTeamActivity(team.id, 'scores_updated', 
+                        `Scores updated by ${this.currentAssociate.name} - Speed: ${speedNum}, Quality: ${qualityNum}`, { 
+                            clientName: team.name, 
+                            associateId: this.currentAssociate.id,
+                            newSpeed: speedNum,
+                            newQuality: qualityNum 
+                        });
+                });
+        }
+
+        // Update the chart
+        this.populatePerformanceChart();
+        
+        // Refresh associate dashboard
+        this.populateAssociateDashboard();
+
+        alert(`Scores updated for ${team.name}!\nSpeed: ${speedNum}\nQuality: ${qualityNum}`);
     }
 
     populatePodium() {
@@ -2809,26 +2989,171 @@ class FastTrackApp {
         }).join('');
     }
 
-    populateClientPodium() {
-        const podiumContainer = document.getElementById('clientPodiumContainer');
-        if (!podiumContainer) return;
+    populatePerformanceChart() {
+        const canvas = document.getElementById('performanceChart');
+        if (!canvas) return;
 
-        const topThree = [...this.teams]
-            .sort((a, b) => a.position - b.position)
-            .slice(0, 3);
+        // Destroy existing chart if it exists
+        if (this.performanceChart) {
+            this.performanceChart.destroy();
+        }
 
-        podiumContainer.innerHTML = topThree.map((team, index) => {
-            const classes = ['podium-first', 'podium-second', 'podium-third'];
-            const medals = ['🥇', '🥈', '🥉'];
-            
-            return `
-                <div class="podium-item ${classes[index]}">
-                    <div class="podium-position">${medals[index]}</div>
-                    <div class="podium-team">${team.name}</div>
-                    <div class="podium-score">Score: ${team.weeklyScore}</div>
-                </div>
-            `;
-        }).join('');
+        // Prepare data for the chart
+        const chartData = this.teams.map(team => ({
+            x: team.speed,
+            y: team.qualityScore,
+            label: team.name,
+            status: team.status,
+            position: team.position
+        }));
+
+        // Group data by status for different colors
+        const statusColors = {
+            'on-time': '#10B981',      // Green
+            'in-delay': '#EF4444',     // Red
+            'graduated': '#3B82F6',    // Blue
+            'starting-soon': '#F59E0B' // Yellow
+        };
+
+        const datasets = Object.keys(statusColors).map(status => {
+            const statusData = chartData.filter(item => item.status === status);
+            return {
+                label: status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                data: statusData.map(item => ({
+                    x: item.x,
+                    y: item.y,
+                    label: item.label,
+                    position: item.position
+                })),
+                backgroundColor: statusColors[status],
+                borderColor: statusColors[status],
+                borderWidth: 2,
+                pointRadius: 8,
+                pointHoverRadius: 12,
+                pointHoverBackgroundColor: statusColors[status],
+                pointHoverBorderColor: '#ffffff',
+                pointHoverBorderWidth: 3
+            };
+        });
+
+        // Create the chart
+        const ctx = canvas.getContext('2d');
+        this.performanceChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Speed vs Quality Score Analysis',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        color: '#1F2937'
+                    },
+                    legend: {
+                        display: false // We have our own legend
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].raw.label;
+                            },
+                            label: function(context) {
+                                const data = context.raw;
+                                return [
+                                    `Position: #${data.position}`,
+                                    `Speed: ${data.x}`,
+                                    `Quality: ${data.y}`,
+                                    `Status: ${context.dataset.label}`
+                                ];
+                            }
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#374151',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Speed Score',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            color: '#374151'
+                        },
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: '#6B7280'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Quality Score',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            color: '#374151'
+                        },
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: '#6B7280'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'point'
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const element = elements[0];
+                        const dataset = this.performanceChart.data.datasets[element.datasetIndex];
+                        const dataPoint = dataset.data[element.index];
+                        const team = this.teams.find(t => t.name === dataPoint.label);
+                        if (team) {
+                            this.viewClientDetails(team.id);
+                        }
+                    }
+                },
+                onDoubleClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const element = elements[0];
+                        const dataset = this.performanceChart.data.datasets[element.datasetIndex];
+                        const dataPoint = dataset.data[element.index];
+                        const team = this.teams.find(t => t.name === dataPoint.label);
+                        if (team && this.isAssociate) {
+                            this.quickUpdateScores(team);
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: '#ffffff'
+                    }
+                }
+            }
+        });
     }
 
     populateClientLeaderboard() {
@@ -2851,7 +3176,7 @@ class FastTrackApp {
                     <td>
                         <strong>${team.name}</strong>
                     </td>
-                    <td>${this.getCountryFlag(team.countryCode)} ${team.country}</td>
+                    <td>${this.getCountryName(team.countryCode)}</td>
                     <td>${this.generateSprintProgressHTML(team)}</td>
                     <td>
                         <div class="speed-score">${team.speed}</div>

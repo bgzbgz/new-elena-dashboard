@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fast Track - Team Leaderboard</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div id="app">
@@ -91,11 +92,29 @@
 
             <main class="dashboard-main">
                 <div class="container">
-                    <!-- Top Performers Section -->
-                    <div class="podium-section">
-                        <h2>Top Performers</h2>
-                        <div id="clientPodiumContainer" class="podium-container">
-                            <!-- Top performers will be populated by JavaScript -->
+                    <!-- Performance Analytics Chart Section -->
+                    <div class="chart-section">
+                        <h2>Client Performance Analytics</h2>
+                        <div class="chart-container">
+                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #10B981;"></span>
+                                <span>On Time</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #EF4444;"></span>
+                                <span>In Delay</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #3B82F6;"></span>
+                                <span>Graduated</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #F59E0B;"></span>
+                                <span>Starting Soon</span>
+                            </div>
                         </div>
                     </div>
 
@@ -314,6 +333,14 @@
                     <!-- Associate Subtasks Management Section -->
                     <div id="associateSubtasksContainer">
                         <!-- Associate's subtasks will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Associate Activity Log Section -->
+                    <div class="activity-log-section">
+                        <h2>Client Activity Log</h2>
+                        <div id="associateActivityLogContainer" class="activity-log-container">
+                            <!-- Activity log will be populated by JavaScript -->
+                        </div>
                     </div>
                 </div>
             </main>

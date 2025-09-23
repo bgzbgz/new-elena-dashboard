@@ -945,6 +945,51 @@ body {
   min-height: calc(100vh - 100px);
 }
 
+/* Chart Styles */
+.chart-section {
+  margin-bottom: var(--space-32);
+}
+
+.chart-section h2 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-24);
+  color: var(--ft-black);
+  text-align: center;
+}
+
+.chart-container {
+  background: var(--ft-white);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-24);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-16);
+  position: relative;
+  height: 400px;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 /* Podium Styles */
 .podium-section {
   margin-bottom: var(--space-32);
