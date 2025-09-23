@@ -610,13 +610,13 @@ class FastTrackApp {
         // Add UUID-like IDs to hardcoded teams so they can be used in forms
         this.teams = this.teams.map((team, index) => ({
             ...team,
-            id: `temp-id-${index + 1}`, // Temporary ID for hardcoded teams
-            associateId: this.getAssociateIdForTeam(team.name),
-            country: this.getCountryForTeam(team.name),
-            countryCode: this.getCountryCodeForTeam(team.name),
-            ceoName: this.getCEOForTeam(team.name),
-            mainContact: this.getMainContactForTeam(team.name),
-            website: this.getWebsiteForTeam(team.name)
+            id: team.id || `temp-id-${index + 1}`, // Preserve existing ID or create temporary ID
+            associateId: team.associateId || this.getAssociateIdForTeam(team.name), // Preserve existing associateId
+            country: team.country || this.getCountryForTeam(team.name),
+            countryCode: team.countryCode || this.getCountryCodeForTeam(team.name),
+            ceoName: team.ceoName || this.getCEOForTeam(team.name),
+            mainContact: team.mainContact || this.getMainContactForTeam(team.name),
+            website: team.website || this.getWebsiteForTeam(team.name)
         }));
         console.log('Added temporary IDs to hardcoded teams:', this.teams);
     }
@@ -2550,7 +2550,13 @@ class FastTrackApp {
             countryCode: countryCode,
             ceoName: formData.ceoName,
             mainContact: formData.mainContact,
-            website: formData.website
+            website: formData.website,
+            // Enhanced client profile fields
+            industryType: "Not specified",
+            companySize: "Small (1-50 employees)",
+            priorityLevel: "Medium",
+            notes: "New client created by " + this.currentAssociate.name,
+            fastTrackInstructions: []
         };
 
         // Add to teams array
