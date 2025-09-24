@@ -2007,9 +2007,6 @@ class FastTrackApp {
         
         // Populate team ranking
         this.populateTeamRanking();
-        
-        // Populate subtasks
-        this.populateTeamSubtasks();
     }
 
     populateTeamSubtasks() {
