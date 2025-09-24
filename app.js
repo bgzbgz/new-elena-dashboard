@@ -2306,7 +2306,7 @@ class FastTrackApp {
                                 <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
                             </td>
                             <td>
-                                <button class="btn btn--outline btn--sm" onclick="app.viewClientDetails('${client.id}')">
+                                <button class="btn btn--outline btn--sm" onclick="console.log('VIEW button clicked for:', '${client.id}'); app.viewClientDetails('${client.id}')">
                                     VIEW
                                 </button>
                             </td>
@@ -2544,18 +2544,24 @@ class FastTrackApp {
 
     // Client Management Methods
     viewClientDetails(clientId) {
+        console.log('=== viewClientDetails called ===');
         console.log('Looking for client with ID:', clientId);
+        console.log('Teams array length:', this.teams.length);
         console.log('Available teams:', this.teams.map(t => ({ id: t.id, name: t.name })));
+        console.log('Supabase initialized:', !!this.supabase);
+        console.log('Current user:', this.currentUser);
         
         const client = this.teams.find(t => t.id === clientId);
         if (!client) {
             console.error('Client not found with ID:', clientId);
+            console.log('All team IDs:', this.teams.map(t => t.id));
             alert('Client not found. Please try again.');
             return;
         }
 
         console.log('Found client:', client);
         this.selectedTeamForModal = client;
+        console.log('About to call showClientManagementModal...');
         this.showClientManagementModal();
     }
 
