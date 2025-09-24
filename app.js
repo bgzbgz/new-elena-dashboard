@@ -1507,7 +1507,16 @@ class FastTrackApp {
         // Initialize database and load data
         await this.initializeDatabase();
         this.bindEvents();
-        this.showLoginPage();
+        
+        // Only show login page if we're on the original single-page app
+        const isOriginalPage = document.getElementById('loginPage') && 
+                              document.getElementById('teamDashboard') && 
+                              document.getElementById('adminDashboard') && 
+                              document.getElementById('associateDashboard');
+        
+        if (isOriginalPage) {
+            this.showLoginPage();
+        }
     }
 
     bindEvents() {
