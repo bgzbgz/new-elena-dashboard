@@ -2565,6 +2565,119 @@ class FastTrackApp {
         this.showClientManagementModal();
     }
 
+    viewTeamSprintDetails(teamId) {
+        console.log('=== viewTeamSprintDetails called ===');
+        console.log('Looking for team with ID:', teamId);
+        
+        const team = this.teams.find(t => t.id === teamId);
+        if (!team) {
+            console.error('Team not found with ID:', teamId);
+            alert('Team not found. Please try again.');
+            return;
+        }
+
+        console.log('Found team:', team);
+        this.selectedTeamForModal = team;
+        this.showTeamSprintModal();
+    }
+
+    showTeamSprintModal() {
+        const modal = document.getElementById('teamSprintModal');
+        console.log('Looking for team sprint modal:', modal);
+        if (modal) {
+            modal.classList.remove('hidden');
+            this.populateTeamSprintModal();
+        } else {
+            console.error('Team sprint modal not found!');
+            alert('Modal not found. Please refresh the page and try again.');
+        }
+    }
+
+    populateTeamSprintModal() {
+        const team = this.selectedTeamForModal;
+        if (!team) return;
+
+        console.log('Populating team sprint modal for:', team);
+
+        // Update modal title
+        const titleElement = document.querySelector('#teamSprintModal h3');
+        if (titleElement) {
+            titleElement.textContent = `${team.name} - Sprint Progress Details`;
+        }
+
+        // Update top metrics
+        const speedScoreElement = document.getElementById('teamSpeedScore');
+        if (speedScoreElement) {
+            speedScoreElement.textContent = team.speed || 0;
+        }
+
+        const graduationElement = document.getElementById('teamGraduationTimeline');
+        if (graduationElement) {
+            graduationElement.textContent = team.graduation || 'Not set';
+        }
+
+        const delayElement = document.getElementById('teamDelayTracker');
+        if (delayElement) {
+            delayElement.textContent = `${team.delay || 0} days`;
+        }
+
+        const guruElement = document.getElementById('teamAssignedGuru');
+        if (guruElement) {
+            guruElement.textContent = team.guru || 'Not assigned';
+        }
+
+        // Update current sprint
+        const currentSprintElement = document.getElementById('teamCurrentSprint');
+        if (currentSprintElement) {
+            currentSprintElement.innerHTML = `
+                <div class="current-sprint-module">MODULE ${team.currentModule || 0}</div>
+                <div class="current-sprint-name">${team.currentSprint || 'Not set'}</div>
+                <div class="current-sprint-guru">Guru: ${team.guru || 'Not assigned'}</div>
+            `;
+        }
+
+        // Update program journey
+        this.populateTeamProgramJourney(team);
+    }
+
+    populateTeamProgramJourney(team) {
+        const journeyContainer = document.getElementById('teamProgramJourney');
+        if (!journeyContainer) return;
+
+        const modules = [
+            { id: 0, name: 'Intro Sprint', description: 'Program WOOP - Welcome, Outcomes, Obstacles, Plan', sprints: ['Program WOOP'] },
+            { id: 1, name: 'Individual and Company Identity', description: 'Building foundation of self and team understanding', sprints: ['Know Thyself', 'Dream', 'Values', 'Team', 'FIT'] },
+            { id: 2, name: 'Core Performance Elements', description: 'Understanding and implementing performance fundamentals', sprints: ['Current Cash Position', 'Goals, Priorities and Planning', 'Focus, Discipline & Productivity', 'Performance & Accountability', 'Meeting Rhythm'] },
+            { id: 3, name: 'Strategy - Market Understanding', description: 'Understanding your market and competition', sprints: ['Market Size', 'Segmentation & Target Market'] },
+            { id: 4, name: 'Strategy - Strategy Development', description: 'Developing your strategic approach', sprints: ['Target Segment Deep Dive', 'Value Proposition', 'Value Proposition Testing'] },
+            { id: 5, name: 'Strategy - Execution', description: 'Executing your strategic plan', sprints: ['Product Development', 'Strategy Driven Pricing', 'Brand and Marketing', 'Route to Market'] },
+            { id: 6, name: 'Organization & People - Structure', description: 'Building organizational structure', sprints: ['Define Core Activities', 'Define core processes', 'FIT & ABC Analysis'] },
+            { id: 7, name: 'Organization & People - Leadership', description: 'Developing people and leadership', sprints: ['Organizational redesign', 'Employer Branding', 'Set Agile Teams'] },
+            { id: 8, name: 'Organization & People - Tech & AI', description: 'Leveraging technology and AI', sprints: ['Tech and AI Options', 'Digitalization Decisions', 'AI Transformation'] },
+            { id: 9, name: 'Closing Sprint', description: 'Program overview and next steps', sprints: ['Program Overview', 'Next 12 months Plan'] }
+        ];
+
+        const currentModule = team.currentModule || 0;
+        
+        journeyContainer.innerHTML = modules.map(module => {
+            const isCurrent = module.id === currentModule;
+            const isCompleted = module.id < currentModule;
+            const statusClass = isCurrent ? 'current' : isCompleted ? 'completed' : 'upcoming';
+            const statusIcon = isCompleted ? '✓' : isCurrent ? '●' : '○';
+            const statusColor = isCompleted ? 'green' : isCurrent ? 'black' : 'gray';
+            
+            return `
+                <div class="program-journey-item ${statusClass}">
+                    <div class="journey-icon" style="color: ${statusColor}">${statusIcon}</div>
+                    <div class="journey-content">
+                        <div class="journey-title">${module.id} ${module.name}</div>
+                        <div class="journey-description">${module.description}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
     showClientManagementModal() {
         console.log('showClientManagementModal called');
         console.log('Document ready state:', document.readyState);
@@ -3489,7 +3602,7 @@ class FastTrackApp {
                     </td>
                     <td>
                         ${team.id === this.currentUser?.id ? 
-                            '<button class="btn btn--outline btn--sm" onclick="console.log(\'VIEW button clicked for:\', \'' + team.id + '\'); app.viewClientDetails(\'' + team.id + '\')">VIEW</button>' : 
+                            '<button class="btn btn--outline btn--sm" onclick="console.log(\'VIEW button clicked for:\', \'' + team.id + '\'); app.viewTeamSprintDetails(\'' + team.id + '\')">VIEW</button>' : 
                             '<span class="text-muted">-</span>'
                         }
                     </td>

@@ -307,6 +307,58 @@
         </div>
     </div>
 
+    <!-- Team Sprint Details Modal -->
+    <div id="teamSprintModal" class="modal hidden">
+        <div class="modal-content modal-xl">
+            <div class="modal-header">
+                <h3>Team Sprint Progress Details</h3>
+                <button class="modal-close" onclick="app.hideAllModals()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Top Metrics Section -->
+                <div class="team-metrics-section">
+                    <div class="metric-card">
+                        <div class="metric-label">SPEED SCORE</div>
+                        <div class="metric-value" id="teamSpeedScore">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">GRADUATION TIMELINE</div>
+                        <div class="metric-value" id="teamGraduationTimeline">-</div>
+                    </div>
+                    <div class="metric-card delay-card">
+                        <div class="metric-label">IN DELAY TRACKER</div>
+                        <div class="metric-value" id="teamDelayTracker">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">ASSIGNED GURU</div>
+                        <div class="metric-value" id="teamAssignedGuru">-</div>
+                    </div>
+                </div>
+
+                <!-- Current Sprint Section -->
+                <div class="current-sprint-section">
+                    <h4>Current Sprint</h4>
+                    <div class="current-sprint-card" id="teamCurrentSprint">
+                        <div class="current-sprint-module">MODULE -</div>
+                        <div class="current-sprint-name">-</div>
+                        <div class="current-sprint-guru">Guru: -</div>
+                    </div>
+                </div>
+
+                <!-- Complete Program Journey Section -->
+                <div class="program-journey-section">
+                    <h4>Complete Program Journey</h4>
+                    <div class="program-journey-container" id="teamProgramJourney">
+                        <!-- Program journey will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="app.hideAllModals()" class="btn btn--primary">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
     <script>
         // Initialize the app for team login
