@@ -1848,10 +1848,18 @@ class FastTrackApp {
     }
 
     async handleTeamLogin() {
+        console.log('handleTeamLogin called');
         const accessCodeInput = document.getElementById('accessCode');
-        if (!accessCodeInput) return;
+        console.log('accessCodeInput:', accessCodeInput);
+        if (!accessCodeInput) {
+            console.log('No accessCodeInput found');
+            return;
+        }
         
         const accessCode = accessCodeInput.value.trim().toUpperCase();
+        console.log('accessCode:', accessCode);
+        console.log('teams loaded:', this.teams.length);
+        console.log('available teams:', this.teams.map(t => t.accessCode));
         
         if (!accessCode) {
             this.showError('loginError', 'Please enter your access code');
@@ -1859,6 +1867,7 @@ class FastTrackApp {
         }
 
         const team = this.teams.find(t => t.accessCode === accessCode);
+        console.log('found team:', team);
         
         if (team) {
             this.currentUser = team;
