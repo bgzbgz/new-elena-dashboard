@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Track - Associate Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--space-32);
+        }
+        
+        .login-logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: var(--space-16);
+        }
+        
+        .login-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--ft-black);
+            margin-bottom: var(--space-8);
+        }
+        
+        .login-subtitle {
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-8);
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-4);
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-16);
+        }
+        
+        .back-link:hover {
+            color: var(--ft-black);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Associate Login Page -->
+        <div id="loginPage" class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <img src="logo-black.png" alt="Fast Track" class="login-logo">
+                    <h1 class="login-title">Associate Access</h1>
+                    <p class="login-subtitle">Enter your associate access code to manage your clients</p>
+                </div>
+
+                <form class="login-form" id="associateLoginForm">
+                    <div class="form-group">
+                        <label for="associateCode" class="form-label">Associate Code</label>
+                        <input type="text" id="associateCode" class="form-control" placeholder="Enter your associate code" required>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <button type="submit" class="btn btn--primary btn--full-width">Access Associate Panel</button>
+                    </div>
+                    
+                    <div id="associateError" class="error-message" style="display: none;"></div>
+                </form>
+                
+                <a href="landing.html" class="back-link">
+                    ← Back to Access Portal
+                </a>
+            </div>
+        </div>
+
+        <!-- Associate Dashboard -->
+        <div id="associateDashboard" class="hidden">
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <div class="fast-track-brand">
+                        <img src="logo-black.png" alt="Fast Track" class="brand-logo">
+                        <h1 class="associate-panel-text">Associate Panel</h1>
+                    </div>
+                    <div class="user-info">
+                        <span class="team-name" id="currentAssociate"></span>
+                        <button onclick="app.logout()" class="btn btn--outline btn--sm">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="dashboard-main">
+                <div class="container">
+                    <!-- Clients Section -->
+                    <div class="clients-section">
+                        <div class="clients-header">
+                            <h2>Your Clients</h2>
+                            <button onclick="app.showAddClientModal()" class="btn btn--primary">Create New Client</button>
+                        </div>
+                        <div class="clients-grid" id="associateClientsContainer">
+                            <!-- Clients will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Analytics Section -->
+                    <div class="analytics-section">
+                        <h2>Client Analytics</h2>
+                        <div class="analytics-grid" id="associateAnalyticsContainer">
+                            <!-- Analytics will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Client Leaderboard Section -->
+                    <div class="leaderboard-section">
+                        <h2>Client Leaderboard</h2>
+                        <div class="leaderboard-table-container">
+                            <table class="leaderboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Position</th>
+                                        <th>Client</th>
+                                        <th>Country</th>
+                                        <th>Sprint</th>
+                                        <th>Status</th>
+                                        <th>Weekly Rank</th>
+                                        <th>Speed Score</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="associateLeaderboardBody">
+                                    <!-- Leaderboard will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Access Code Management Section -->
+                    <div class="code-management-section">
+                        <h2>Your Client Access Codes</h2>
+                        <div class="code-list" id="associateCodeList">
+                            <!-- Access codes will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Associate Subtasks Management Section -->
+                    <div class="subtasks-management-section">
+                        <h2>Client Subtasks Management</h2>
+                        <div class="subtasks-actions">
+                            <button onclick="app.showCreateSubtaskModal()" class="btn btn--primary">Create New Subtask</button>
+                        </div>
+                        <div class="associate-subtasks-container" id="associateSubtasksContainer">
+                            <!-- Subtasks will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Associate Activity Log Section -->
+                    <div class="activity-log-section">
+                        <h2>Activity Log</h2>
+                        <div class="activity-log-container" id="associateActivityLogContainer">
+                            <!-- Activity log will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Client Modal -->
+    <div id="addClientModal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Create New Client</h3>
+                <button class="modal-close" onclick="app.hideAllModals()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addClientForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="newClientName" class="form-label">Company Name *</label>
+                            <input type="text" id="newClientName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientCountry" class="form-label">Country</label>
+                            <select id="newClientCountry" class="form-control">
+                                <option value="MU">Mauritius</option>
+                                <option value="LV">Latvia</option>
+                                <option value="IT">Italy</option>
+                                <option value="RO">Romania</option>
+                                <option value="AE">UAE</option>
+                                <option value="LK">Sri Lanka</option>
+                                <option value="PL">Poland</option>
+                                <option value="GT">Guatemala</option>
+                                <option value="EE">Estonia</option>
+                                <option value="AT">Austria</option>
+                                <option value="MX">Mexico</option>
+                                <option value="KE">Kenya</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientCEO" class="form-label">CEO Name</label>
+                            <input type="text" id="newClientCEO" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientContact" class="form-label">Main Contact</label>
+                            <input type="email" id="newClientContact" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientWebsite" class="form-label">Website</label>
+                            <input type="url" id="newClientWebsite" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientStatus" class="form-label">Status</label>
+                            <select id="newClientStatus" class="form-control">
+                                <option value="starting-soon">Starting Soon (Yellow)</option>
+                                <option value="on-time">On Time (Green)</option>
+                                <option value="in-delay">In Delay (Red)</option>
+                                <option value="graduated">Graduated (Blue)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientModule" class="form-label">Current Module</label>
+                            <select id="newClientModule" class="form-control">
+                                <option value="0">0 - Intro Sprint</option>
+                                <option value="1">1 - Individual and Company Identity</option>
+                                <option value="2">2 - Core Performance Elements</option>
+                                <option value="3">3 - Strategy - Understanding the Market</option>
+                                <option value="4">4 - Strategy - Strategy Development</option>
+                                <option value="5">5 - Strategy - Execution</option>
+                                <option value="6">6 - Organization & People - Organisational Structure</option>
+                                <option value="7">7 - Organization & People - People and Leadership</option>
+                                <option value="8">8 - Organization & People - Apply Aggressively Tech and AI</option>
+                                <option value="9">9 - Closing Sprint</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientSprint" class="form-label">Current Sprint</label>
+                            <input type="text" id="newClientSprint" class="form-control" value="Program WOOP">
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientSpeed" class="form-label">Speed Score</label>
+                            <input type="number" id="newClientSpeed" class="form-control" min="0" max="100" value="70">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="app.hideAllModals()" class="btn btn--outline">Cancel</button>
+                <button onclick="app.createNewClient()" class="btn btn--primary">Create Client</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Initialize the app for associate login
+        document.addEventListener('DOMContentLoaded', function() {
+            window.app = new FastTrackApp();
+        });
+    </script>
+</body>
+</html>

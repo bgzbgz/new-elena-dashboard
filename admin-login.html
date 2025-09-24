@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Track - Admin Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--space-32);
+        }
+        
+        .login-logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: var(--space-16);
+        }
+        
+        .login-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--ft-black);
+            margin-bottom: var(--space-8);
+        }
+        
+        .login-subtitle {
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-8);
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-4);
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-16);
+        }
+        
+        .back-link:hover {
+            color: var(--ft-black);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Admin Login Page -->
+        <div id="loginPage" class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <img src="logo-black.png" alt="Fast Track" class="login-logo">
+                    <h1 class="login-title">Admin Access</h1>
+                    <p class="login-subtitle">Enter admin credentials to access the management panel</p>
+                </div>
+
+                <form class="login-form" id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="adminCode" class="form-label">Admin Code</label>
+                        <input type="password" id="adminCode" class="form-control" placeholder="Enter admin code" required>
+                    </div>
+                    
+                    <div class="auth-buttons">
+                        <button type="submit" class="btn btn--primary btn--full-width">Access Admin Panel</button>
+                    </div>
+                    
+                    <div id="adminError" class="error-message" style="display: none;"></div>
+                </form>
+                
+                <a href="landing.html" class="back-link">
+                    ← Back to Access Portal
+                </a>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <div class="fast-track-brand">
+                        <img src="logo-black.png" alt="Fast Track" class="brand-logo">
+                        <h1 class="admin-panel-text">Admin Panel</h1>
+                    </div>
+                    <div class="admin-actions">
+                        <button onclick="app.showAddTeamModal()" class="btn btn--primary">Add New Team</button>
+                        <button onclick="app.logout()" class="btn btn--outline">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="dashboard-main">
+                <div class="container">
+                    <!-- Analytics Section -->
+                    <div class="analytics-section">
+                        <h2>System Analytics</h2>
+                        <div class="analytics-grid" id="analyticsContainer">
+                            <!-- Analytics will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard Section -->
+                    <div class="leaderboard-section">
+                        <h2>Team Leaderboard</h2>
+                        <div class="leaderboard-table-container">
+                            <table class="leaderboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Position</th>
+                                        <th>Team</th>
+                                        <th>Country</th>
+                                        <th>Sprint</th>
+                                        <th>Status</th>
+                                        <th>Weekly Rank</th>
+                                        <th>Speed Score</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody">
+                                    <!-- Leaderboard will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Code Management Section -->
+                    <div class="code-management-section">
+                        <h2>Access Code Management</h2>
+                        <div class="code-list" id="codeManagementContainer">
+                            <!-- Access codes will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Subtasks Management Section -->
+                    <div class="subtasks-management-section">
+                        <h2>Subtasks Management</h2>
+                        <div class="subtasks-actions">
+                            <button onclick="app.showCreateSubtaskModal()" class="btn btn--primary">Create New Subtask</button>
+                        </div>
+                        <div class="admin-subtasks-container" id="adminSubtasksContainer">
+                            <!-- Subtasks will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Activity Log Section -->
+                    <div class="activity-log-section">
+                        <h2>System Activity Log</h2>
+                        <div class="activity-log-container" id="activityLogContainer">
+                            <!-- Activity log will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Team Modal -->
+    <div id="addTeamModal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Add New Team</h3>
+                <button class="modal-close" onclick="app.hideAllModals()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addTeamForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="teamName" class="form-label">Team Name *</label>
+                            <input type="text" id="teamName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teamCountry" class="form-label">Country</label>
+                            <select id="teamCountry" class="form-control">
+                                <option value="MU">Mauritius</option>
+                                <option value="LV">Latvia</option>
+                                <option value="IT">Italy</option>
+                                <option value="RO">Romania</option>
+                                <option value="AE">UAE</option>
+                                <option value="LK">Sri Lanka</option>
+                                <option value="PL">Poland</option>
+                                <option value="GT">Guatemala</option>
+                                <option value="EE">Estonia</option>
+                                <option value="AT">Austria</option>
+                                <option value="MX">Mexico</option>
+                                <option value="KE">Kenya</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="teamStatus" class="form-label">Status</label>
+                            <select id="teamStatus" class="form-control">
+                                <option value="starting-soon">Starting Soon</option>
+                                <option value="on-time">On Time</option>
+                                <option value="in-delay">In Delay</option>
+                                <option value="graduated">Graduated</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="teamGuru" class="form-label">Guru</label>
+                            <input type="text" id="teamGuru" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="app.hideAllModals()" class="btn btn--outline">Cancel</button>
+                <button onclick="app.createNewTeam()" class="btn btn--primary">Create Team</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Initialize the app for admin login
+        document.addEventListener('DOMContentLoaded', function() {
+            window.app = new FastTrackApp();
+        });
+    </script>
+</body>
+</html>
