@@ -2645,3 +2645,25 @@ body {
     color: var(--ft-black);
     border: 1px solid var(--color-background-secondary);
 }
+
+/* Navigation Logo Styles */
+.nav-logo-spacer {
+    width: var(--space-24);
+    display: inline-block;
+}
+
+.nav-logo {
+    height: 32px;
+    width: auto;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+
+.nav-logo:hover {
+    opacity: 1;
+}
+
+.admin-actions .nav-logo-spacer {
+    width: var(--space-24);
+    display: inline-block;
+}
