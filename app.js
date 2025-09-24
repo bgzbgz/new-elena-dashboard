@@ -1511,13 +1511,22 @@ class FastTrackApp {
     }
 
     bindEvents() {
-        // Team login
+        // Team login - handle both old and new page structures
         const teamLoginBtn = document.getElementById('teamLoginBtn');
         if (teamLoginBtn) {
             teamLoginBtn.onclick = () => this.handleTeamLogin();
         }
         
-        // Associate login
+        // Team login form (new separate page)
+        const teamLoginForm = document.getElementById('teamLoginForm');
+        if (teamLoginForm) {
+            teamLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleTeamLogin();
+            });
+        }
+        
+        // Associate login - handle both old and new page structures
         const associateLoginBtn = document.getElementById('associateLoginBtn');
         if (associateLoginBtn) {
             associateLoginBtn.onclick = () => this.showAssociateModal();
@@ -1528,7 +1537,16 @@ class FastTrackApp {
             associateAuthBtn.onclick = () => this.handleAssociateLogin();
         }
         
-        // Admin login
+        // Associate login form (new separate page)
+        const associateLoginForm = document.getElementById('associateLoginForm');
+        if (associateLoginForm) {
+            associateLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleAssociateLogin();
+            });
+        }
+        
+        // Admin login - handle both old and new page structures
         const adminLoginBtn = document.getElementById('adminLoginBtn');
         if (adminLoginBtn) {
             adminLoginBtn.onclick = () => this.showAdminModal();
@@ -1537,6 +1555,15 @@ class FastTrackApp {
         const adminAuthBtn = document.getElementById('adminAuthBtn');
         if (adminAuthBtn) {
             adminAuthBtn.onclick = () => this.handleAdminLogin();
+        }
+        
+        // Admin login form (new separate page)
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        if (adminLoginForm) {
+            adminLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleAdminLogin();
+            });
         }
         
         // Modal close buttons

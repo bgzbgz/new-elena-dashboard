@@ -211,8 +211,9 @@
     <script src="app.js"></script>
     <script>
         // Initialize the app for admin login
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             window.app = new FastTrackApp();
+            await window.app.init();
         });
     </script>
 </body>
