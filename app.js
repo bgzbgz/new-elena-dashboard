@@ -2285,6 +2285,16 @@ class FastTrackApp {
         if (!leaderboardContainer) return;
 
         const sortedClients = [...clients].sort((a, b) => a.position - b.position);
+        
+        // Debug: Log the client data to see what we're working with
+        console.log('Associate leaderboard clients:', sortedClients.map(c => ({
+            name: c.name,
+            countryCode: c.countryCode,
+            country: c.country,
+            currentSprint: c.currentSprint,
+            sprint: c.sprint,
+            position: c.position
+        })));
 
         if (sortedClients.length === 0) {
             leaderboardContainer.innerHTML = `
@@ -2301,8 +2311,8 @@ class FastTrackApp {
             <tr>
                 <td class="position-cell">${client.position}</td>
                 <td><strong>${client.name}</strong></td>
-                <td>${this.getCountryName(client.countryCode)}</td>
-                <td>${client.currentSprint || 'Not specified'}</td>
+                <td>${this.getCountryName(client.countryCode || client.country)}</td>
+                <td>${client.currentSprint || client.sprint || 'Not specified'}</td>
                 <td>
                     <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
                 </td>
