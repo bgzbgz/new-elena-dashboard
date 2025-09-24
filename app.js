@@ -3489,7 +3489,7 @@ class FastTrackApp {
                     </td>
                     <td>
                         ${team.id === this.currentUser?.id ? 
-                            '<button class="btn btn--outline btn--sm" onclick="app.viewTeamDetails(\'' + team.accessCode + '\')">VIEW</button>' : 
+                            '<button class="btn btn--outline btn--sm" onclick="console.log(\'VIEW button clicked for:\', \'' + team.id + '\'); app.viewClientDetails(\'' + team.id + '\')">VIEW</button>' : 
                             '<span class="text-muted">-</span>'
                         }
                     </td>
