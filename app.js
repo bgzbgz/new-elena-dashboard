@@ -2281,47 +2281,42 @@ class FastTrackApp {
     }
 
     populateAssociateLeaderboard(clients) {
-        const leaderboardContainer = document.getElementById('associateLeaderboardContainer');
+        const leaderboardContainer = document.getElementById('associateLeaderboardBody');
         if (!leaderboardContainer) return;
 
         const sortedClients = [...clients].sort((a, b) => a.position - b.position);
 
-        leaderboardContainer.innerHTML = `
-            <table class="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th>Weekly Rank</th>
-                        <th>Client</th>
-                        <th>Country</th>
-                        <th>Sprint</th>
-                        <th>Speed</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${sortedClients.map(client => `
-                        <tr>
-                            <td class="position-cell">${client.position}</td>
-                            <td><strong>${client.name}</strong></td>
-                            <td>${this.getCountryName(client.countryCode)}</td>
-                            <td>${this.generateSprintProgressHTML(client)}</td>
-                            <td>
-                                <div class="speed-score">${client.speed}</div>
-                            </td>
-                            <td>
-                                <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
-                            </td>
-                            <td>
-                                <button class="btn btn--outline btn--sm" onclick="console.log('VIEW button clicked for:', '${client.id}'); app.viewClientDetails('${client.id}')">
-                                    VIEW
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
+        if (sortedClients.length === 0) {
+            leaderboardContainer.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 20px; color: #666;">
+                        No clients found for this associate.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        leaderboardContainer.innerHTML = sortedClients.map(client => `
+            <tr>
+                <td class="position-cell">${client.position}</td>
+                <td><strong>${client.name}</strong></td>
+                <td>${this.getCountryName(client.countryCode)}</td>
+                <td>${client.currentSprint || 'Not specified'}</td>
+                <td>
+                    <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
+                </td>
+                <td>${client.position}</td>
+                <td>
+                    <div class="speed-score">${client.speed}</div>
+                </td>
+                <td>
+                    <button class="btn btn--outline btn--sm" onclick="app.viewClientDetails('${client.id}')">
+                        VIEW
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     populateAssociateCodeManagement(clients) {
