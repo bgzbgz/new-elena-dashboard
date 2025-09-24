@@ -1085,6 +1085,7 @@ body {
 
 /* Team Progress Cards */
 .team-progress-section {
+  margin-top: var(--space-48);
   margin-bottom: var(--space-32);
 }
 
