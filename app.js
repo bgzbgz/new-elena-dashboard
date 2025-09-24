@@ -870,7 +870,7 @@ class FastTrackApp {
                         access_code
                     )
                 `)
-                .order('position', { ascending: true });
+                .order('weekly_rank', { ascending: true });
 
             if (teamsError) {
                 console.error('Error loading teams:', teamsError);
@@ -882,12 +882,12 @@ class FastTrackApp {
                     id: team.id,
                     name: team.name,
                     accessCode: team.access_code,
-                    weeklyScore: team.weekly_score,
+                    weeklyScore: team.quality_score, // weekly_score renamed to quality_score
                     qualityScore: team.quality_score,
-                    speed: team.speed,
+                    speed: team.status, // speed renamed to status
                     sprint: team.sprint,
-                    status: team.status,
-                    position: team.position,
+                    status: team.speed_score, // status renamed to speed_score
+                    position: team.weekly_rank, // position renamed to weekly_rank
                     previousPosition: team.previous_position,
                     graduation: team.graduation,
                     delay: team.delay_days,
@@ -2002,7 +2002,7 @@ class FastTrackApp {
                     <div class="progress-card-subtitle">Execution quality</div>
                 </div>
                 <div class="progress-card">
-                    <div class="progress-card-label">Current Sprint</div>
+                    <div class="progress-card-label">Current Module</div>
                     <div class="progress-card-value">${this.currentUser.currentSprint}</div>
                     <div class="progress-card-subtitle">Module ${this.currentUser.currentModule}</div>
                 </div>
@@ -2221,7 +2221,7 @@ class FastTrackApp {
                         </div>
                         <div class="client-details">
                             <div class="client-metric">
-                                <span class="metric-label">Current Sprint:</span>
+                                <span class="metric-label">Current Module:</span>
                                 <span class="metric-value">${client.currentSprint}</span>
                             </div>
                             <div class="client-metric">
@@ -2314,11 +2314,11 @@ class FastTrackApp {
                 <td>${this.getCountryName(client.countryCode || client.country)}</td>
                 <td>${client.currentSprint || client.sprint || 'Not specified'}</td>
                 <td>
-                    <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
-                </td>
-                <td>${client.position}</td>
-                <td>
                     <div class="speed-score">${client.speed}</div>
+                </td>
+                <td>${client.qualityScore}</td>
+                <td>
+                    <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
                 </td>
                 <td>
                     <button class="btn btn--outline btn--sm" onclick="app.viewClientDetails('${client.id}')">
@@ -2723,6 +2723,9 @@ class FastTrackApp {
             'clientCountry': client.countryCode || 'MU',
             'clientCEO': client.ceoName || '',
             'clientStartingDate': client.startingDate || '',
+            'clientGraduationDate': client.graduationDate || '',
+            'clientDelayTracker': client.delay || 0,
+            'clientAssignedGuru': client.guru || '',
             'clientContact': client.mainContact || '',
             'clientWebsite': client.website || '',
             'clientModule': client.currentModule || 0,
@@ -2900,13 +2903,16 @@ class FastTrackApp {
             country_code: document.getElementById('clientCountry').value,
             ceo_name: document.getElementById('clientCEO').value,
             starting_date: document.getElementById('clientStartingDate').value || null,
+            graduation_date: document.getElementById('clientGraduationDate').value || null,
+            delay_days: parseInt(document.getElementById('clientDelayTracker').value) || 0,
+            guru: document.getElementById('clientAssignedGuru').value,
             main_contact: document.getElementById('clientContact').value,
             website: document.getElementById('clientWebsite').value,
             current_module: parseInt(document.getElementById('clientModule').value),
             current_sprint: document.getElementById('clientSprint').value,
-            speed: parseInt(document.getElementById('clientSpeed').value),
+            status: parseInt(document.getElementById('clientSpeed').value), // speed renamed to status
             quality_score: parseInt(document.getElementById('clientQuality').value) || 0,
-            status: document.getElementById('clientStatus').value,
+            speed_score: document.getElementById('clientStatus').value, // status renamed to speed_score
             // Enhanced client profile fields
             industry_type: document.getElementById('clientIndustry').value,
             company_size: document.getElementById('clientSize').value,
@@ -3168,12 +3174,11 @@ class FastTrackApp {
                     {
                         name: formData.name,
                         access_code: accessCode,
-                        weekly_score: Math.floor(Math.random() * 40) + 60,
-                        quality_score: Math.floor(Math.random() * 40) + 60,
-                        speed: formData.speed,
+                        quality_score: Math.floor(Math.random() * 40) + 60, // weekly_score renamed to quality_score
+                        status: formData.speed, // speed renamed to status
                         sprint: formData.currentSprint,
-                        status: formData.status,
-                        position: this.teams.length + 1,
+                        speed_score: formData.status, // status renamed to speed_score
+                        weekly_rank: this.teams.length + 1, // position renamed to weekly_rank
                         previous_position: this.teams.length + 1,
                         graduation: "TBD",
                         delay_days: 0,
@@ -3289,7 +3294,7 @@ class FastTrackApp {
                     await this.supabase
                         .from('teams')
                         .update({ 
-                            position: team.position,
+                            weekly_rank: team.position,
                             previous_position: team.previousPosition
                         })
                         .eq('id', team.id);
@@ -3426,7 +3431,7 @@ class FastTrackApp {
                     await this.supabase
                         .from('teams')
                         .update({ 
-                            position: team.position,
+                            weekly_rank: team.position,
                             previous_position: team.previousPosition
                         })
                         .eq('id', team.id);
@@ -3473,9 +3478,9 @@ class FastTrackApp {
             this.supabase
                 .from('teams')
                 .update({ 
-                    speed: speedNum, 
+                    status: speedNum, // speed renamed to status
                     quality_score: qualityNum,
-                    position: updatedTeam.position,
+                    weekly_rank: updatedTeam.position, // position renamed to weekly_rank
                     previous_position: updatedTeam.previousPosition
                 })
                 .eq('id', team.id)
@@ -3557,8 +3562,8 @@ class FastTrackApp {
         const statusColors = {
             'on-time': '#10B981',      // Green
             'in-delay': '#EF4444',     // Red
-            'graduated': '#3B82F6',    // Blue
-            'starting-soon': '#F59E0B' // Yellow
+            'graduated': '#4B5563',    // Dark Grey
+            'starting-soon': '#D1D5DB' // Light Grey
         };
 
         // Create background colors based on status
@@ -3776,6 +3781,7 @@ class FastTrackApp {
                     <td>
                         <strong>${team.name}</strong>
                     </td>
+                    <td>${this.getCountryName(team.countryCode || team.country)}</td>
                     <td>${team.sprint}</td>
                     <td>
                         <div class="speed-score">${team.speed}</div>

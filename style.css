@@ -1339,15 +1339,15 @@ body {
 }
 
 .status-graduated {
-  background: #3B82F6; /* Blue */
+  background: #4B5563; /* Dark Grey */
   color: white;
-  border: 1px solid #3B82F6;
+  border: 1px solid #4B5563;
 }
 
 .status-starting-soon {
-  background: #F59E0B; /* Yellow */
-  color: white;
-  border: 1px solid #F59E0B;
+  background: #D1D5DB; /* Light Grey */
+  color: #374151;
+  border: 1px solid #D1D5DB;
 }
 
 .status-progress-meeting {

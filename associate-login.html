@@ -109,7 +109,7 @@
 
                     <!-- Analytics Section -->
                     <div class="analytics-section">
-                        <h2>Client Analytics</h2>
+                        <h2>Your client analytics</h2>
                         <div class="analytics-grid" id="associateAnalyticsContainer">
                             <!-- Analytics will be populated by JavaScript -->
                         </div>
@@ -117,18 +117,18 @@
 
                     <!-- Client Leaderboard Section -->
                     <div class="leaderboard-section">
-                        <h2>Client Leaderboard</h2>
+                        <h2>Your clients leaderboard</h2>
                         <div class="leaderboard-table-container">
                             <table class="leaderboard-table">
                                 <thead>
                                     <tr>
-                                        <th>Position</th>
+                                        <th>Weekly Rank</th>
                                         <th>Client</th>
                                         <th>Country</th>
                                         <th>Sprint</th>
-                                        <th>Status</th>
-                                        <th>Weekly Rank</th>
                                         <th>Speed Score</th>
+                                        <th>Quality Score</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -426,7 +426,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="newClientSprint" class="form-label">Current Sprint</label>
+                            <label for="newClientSprint" class="form-label">Current Module</label>
                             <input type="text" id="newClientSprint" class="form-control" value="Program WOOP">
                         </div>
                         <div class="form-group">
@@ -486,8 +486,35 @@
                                 <input type="text" id="clientCEO" class="form-control">
                             </div>
                             <div class="form-group">
-                                <label for="clientStartingDate" class="form-label">Starting Date</label>
+                                <label for="clientStartingDate" class="form-label">Start Date</label>
                                 <input type="date" id="clientStartingDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientGraduationDate" class="form-label">Graduation Date</label>
+                                <input type="date" id="clientGraduationDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientDelayTracker" class="form-label">Delay Tracker (Days)</label>
+                                <input type="number" id="clientDelayTracker" class="form-control" min="0" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientAssignedGuru" class="form-label">Assigned GURU for Current Sprint</label>
+                                <select id="clientAssignedGuru" class="form-control">
+                                    <option value="Elena">Elena</option>
+                                    <option value="Ana-Maria">Ana-Maria</option>
+                                    <option value="Vasil">Vasil</option>
+                                    <option value="Diliara">Diliara</option>
+                                    <option value="Jurijs">Jurijs</option>
+                                    <option value="Mihails">Mihails</option>
+                                    <option value="Janis">Janis</option>
+                                    <option value="Olga">Olga</option>
+                                    <option value="Strategy Team">Strategy Team</option>
+                                    <option value="Execution Team">Execution Team</option>
+                                    <option value="Operations Team">Operations Team</option>
+                                    <option value="Leadership Team">Leadership Team</option>
+                                    <option value="Tech Team">Tech Team</option>
+                                    <option value="Program Team">Program Team</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="clientContact" class="form-label">Main Contact</label>
@@ -522,7 +549,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="clientSprint" class="form-label">Current Sprint</label>
+                                <label for="clientSprint" class="form-label">Current Module</label>
                                 <input type="text" id="clientSprint" class="form-control">
                             </div>
                             <div class="form-group">
@@ -563,7 +590,7 @@
                 
                 <div id="sprintTab" class="tab-content">
                     <div class="current-sprint-section">
-                        <h4>Current Sprint Information</h4>
+                        <h4>Current Module Information</h4>
                         <div class="current-sprint-card">
                             <div class="sprint-module">
                                 <span class="sprint-name" id="currentSprintName">-</span>

@@ -64,7 +64,7 @@
                     </div>
                     
                     <div class="auth-buttons">
-                        <button type="submit" class="btn btn--primary btn--full-width">Access Team Dashboard</button>
+                        <button type="submit" class="btn btn--primary btn--full-width">Access Team Leaderboard</button>
                     </div>
                     
                     <div id="loginError" class="error-message" style="display: none;"></div>
@@ -82,7 +82,7 @@
                 <div class="header-content">
                     <div class="fast-track-brand">
                         <img src="logo-black.png" alt="Fast Track" class="brand-logo">
-                        <h1 class="team-panel-text">Team Dashboard</h1>
+                        <h1 class="team-panel-text">Team Leaderboard</h1>
                     </div>
                     <div class="user-info">
                         <span class="team-name" id="currentTeam"></span>
@@ -103,13 +103,13 @@
                             <table class="leaderboard-table">
                                 <thead>
                                     <tr>
-                                        <th>Position</th>
+                                        <th>Weekly Rank</th>
                                         <th>Team</th>
                                         <th>Country</th>
                                         <th>Sprint</th>
-                                        <th>Status</th>
-                                        <th>Weekly Rank</th>
                                         <th>Speed Score</th>
+                                        <th>Quality Score</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -130,7 +130,7 @@
 
                     <!-- Team Progress Section -->
                     <div class="team-progress-section">
-                        <h2>Team Progress Overview</h2>
+                        <h2>Your weekly deepdive</h2>
                         <div id="teamProgressCards" class="progress-cards">
                             <!-- Progress cards will be populated by JavaScript -->
                         </div>
@@ -184,6 +184,37 @@
                                 <input type="text" id="clientCEO" class="form-control">
                             </div>
                             <div class="form-group">
+                                <label for="clientStartingDate" class="form-label">Start Date</label>
+                                <input type="date" id="clientStartingDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientGraduationDate" class="form-label">Graduation Date</label>
+                                <input type="date" id="clientGraduationDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientDelayTracker" class="form-label">Delay Tracker (Days)</label>
+                                <input type="number" id="clientDelayTracker" class="form-control" min="0" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientAssignedGuru" class="form-label">Assigned GURU for Current Sprint</label>
+                                <select id="clientAssignedGuru" class="form-control">
+                                    <option value="Elena">Elena</option>
+                                    <option value="Ana-Maria">Ana-Maria</option>
+                                    <option value="Vasil">Vasil</option>
+                                    <option value="Diliara">Diliara</option>
+                                    <option value="Jurijs">Jurijs</option>
+                                    <option value="Mihails">Mihails</option>
+                                    <option value="Janis">Janis</option>
+                                    <option value="Olga">Olga</option>
+                                    <option value="Strategy Team">Strategy Team</option>
+                                    <option value="Execution Team">Execution Team</option>
+                                    <option value="Operations Team">Operations Team</option>
+                                    <option value="Leadership Team">Leadership Team</option>
+                                    <option value="Tech Team">Tech Team</option>
+                                    <option value="Program Team">Program Team</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="clientContact" class="form-label">Main Contact</label>
                                 <input type="email" id="clientContact" class="form-control">
                             </div>
@@ -216,7 +247,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="clientSprint" class="form-label">Current Sprint</label>
+                                <label for="clientSprint" class="form-label">Current Module</label>
                                 <input type="text" id="clientSprint" class="form-control">
                             </div>
                             <div class="form-group">
@@ -257,7 +288,7 @@
                 
                 <div id="sprintTab" class="tab-content">
                     <div class="current-sprint-section">
-                        <h4>Current Sprint Information</h4>
+                        <h4>Current Module Information</h4>
                         <div class="current-sprint-card">
                             <div class="sprint-module">
                                 <span class="sprint-name" id="currentSprintName">-</span>
@@ -341,7 +372,7 @@
 
                 <!-- Current Sprint Section -->
                 <div class="current-sprint-section">
-                    <h4>Current Sprint</h4>
+                    <h4>Current Module</h4>
                     <div class="current-sprint-card" id="teamCurrentSprint">
                         <div class="current-sprint-module">MODULE -</div>
                         <div class="current-sprint-name">-</div>

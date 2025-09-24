@@ -31,7 +31,7 @@
                     </div>
                     
                     <div class="auth-buttons">
-                        <button id="teamLoginBtn" class="btn btn--primary btn--full-width">Access Team Dashboard</button>
+                        <button id="teamLoginBtn" class="btn btn--primary btn--full-width">Access Team Leaderboard</button>
                         <button id="associateLoginBtn" class="btn btn--secondary btn--full-width">Associate Access</button>
                         <button id="adminLoginBtn" class="btn btn--outline btn--full-width">Admin Access</button>
                     </div>
@@ -99,7 +99,7 @@
 
                     <!-- Team Progress Section -->
                     <div class="team-progress-section">
-                        <h2>Team Progress Overview</h2>
+                        <h2>Your weekly deepdive</h2>
                         <div id="teamProgressCards" class="progress-cards">
                             <!-- Progress cards will be populated by JavaScript -->
                         </div>
@@ -121,7 +121,7 @@
                                         <th>Team</th>
                                         <th>Country</th>
                                         <th>Sprint</th>
-                                        <th>Speed</th>
+                                        <th>Speed Score</th>
                                         <th>Quality Score</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -190,7 +190,7 @@
                                         <th>Weekly Rank</th>
                                         <th>Team</th>
                                         <th>Sprint</th>
-                                        <th>Speed</th>
+                                        <th>Speed Score</th>
                                         <th>Quality Score</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -293,7 +293,7 @@
 
                     <!-- Associate Leaderboard -->
                     <div class="leaderboard-section">
-                        <h2>Client Leaderboard</h2>
+                        <h2>Your clients leaderboard</h2>
                         <div class="leaderboard-table-container">
                             <div id="associateLeaderboardContainer">
                                 <!-- Leaderboard will be populated by JavaScript -->
@@ -355,7 +355,7 @@
 
                     <!-- Current Sprint Highlight -->
                     <div class="current-sprint-section">
-                        <h4>Current Sprint</h4>
+                        <h4>Current Module</h4>
                         <div class="current-sprint-card">
                             <div class="sprint-module">Module <span id="currentModuleNum">1</span></div>
                             <div class="sprint-name" id="currentSprintName">Know Thyself</div>
@@ -395,7 +395,7 @@
                         <input type="text" id="newTeamName" class="form-control" placeholder="Enter team name">
                     </div>
                     <div class="form-group">
-                        <label for="newTeamSprint" class="form-label">Current Sprint</label>
+                        <label for="newTeamSprint" class="form-label">Current Module</label>
                         <input type="text" id="newTeamSprint" class="form-control" placeholder="e.g., Week 1">
                     </div>
                     <div class="form-group">
@@ -590,7 +590,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="clientCurrentSprint" class="form-label">Current Sprint</label>
+                                <label for="clientCurrentSprint" class="form-label">Current Module</label>
                                 <input type="text" id="clientCurrentSprint" class="form-control" placeholder="Enter current sprint name">
                             </div>
                             <div class="form-group">
@@ -704,7 +704,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="newClientSprint" class="form-label">Current Sprint</label>
+                            <label for="newClientSprint" class="form-label">Current Module</label>
                             <input type="text" id="newClientSprint" class="form-control" placeholder="Enter current sprint name">
                         </div>
                         <div class="form-group">
