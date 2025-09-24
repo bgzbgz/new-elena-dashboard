@@ -2561,9 +2561,13 @@ class FastTrackApp {
 
     showClientManagementModal() {
         const modal = document.getElementById('clientManagementModal');
+        console.log('Looking for modal:', modal);
         if (modal) {
             modal.classList.remove('hidden');
             this.populateClientManagementForm();
+        } else {
+            console.error('Client management modal not found!');
+            alert('Modal not found. Please refresh the page and try again.');
         }
     }
 
@@ -2571,11 +2575,7 @@ class FastTrackApp {
         const client = this.selectedTeamForModal;
         if (!client) return;
 
-        // Set modal title
-        const titleElement = document.getElementById('clientManagementTitle');
-        if (titleElement) {
-            titleElement.textContent = `Manage ${client.name}`;
-        }
+        console.log('Populating form for client:', client);
 
         // Populate form fields
         const fields = {
@@ -2584,17 +2584,14 @@ class FastTrackApp {
             'clientCEO': client.ceoName || '',
             'clientContact': client.mainContact || '',
             'clientWebsite': client.website || '',
-            'clientAccessCode': client.accessCode,
-            'clientCurrentModule': client.currentModule || 0,
-            'clientCurrentSprint': client.currentSprint || '',
+            'clientModule': client.currentModule || 0,
+            'clientSprint': client.currentSprint || '',
             'clientSpeed': client.speed || 0,
+            'clientQuality': client.qualityScore || 0,
             'clientStatus': client.status || 'starting-soon',
-            'clientDelay': client.delay || 0,
-            'clientGuru': client.guru || '',
-            // Enhanced client profile fields
-            'clientIndustryType': client.industryType || '',
-            'clientCompanySize': client.companySize || '',
-            'clientPriorityLevel': client.priorityLevel || 'Medium',
+            'clientIndustry': client.industryType || '',
+            'clientSize': client.companySize || '',
+            'clientPriority': client.priorityLevel || 'Medium',
             'clientNotes': client.notes || ''
         };
 
@@ -2605,8 +2602,104 @@ class FastTrackApp {
             }
         });
 
+        // Populate sprint details
+        this.populateSprintDetails(client);
+
         // Load Fast Track tools
         this.loadFastTrackTools(client.id);
+    }
+
+    populateSprintDetails(client) {
+        // Populate current sprint information
+        const currentSprintName = document.getElementById('currentSprintName');
+        const currentSprintGuru = document.getElementById('currentSprintGuru');
+        
+        if (currentSprintName) {
+            currentSprintName.textContent = client.currentSprint || '-';
+        }
+        
+        if (currentSprintGuru) {
+            currentSprintGuru.textContent = client.guru || '-';
+        }
+
+        // Populate module timeline
+        this.populateModuleTimeline(client);
+        
+        // Populate sprint details grid
+        this.populateSprintDetailsGrid(client);
+    }
+
+    populateModuleTimeline(client) {
+        const timelineContainer = document.getElementById('moduleTimeline');
+        if (!timelineContainer) return;
+
+        const modules = [
+            { id: 0, name: 'Intro Sprint', sprints: ['Program WOOP'] },
+            { id: 1, name: 'Individual and Company Identity', sprints: ['Know Thyself', 'Company Identity', 'Vision & Mission'] },
+            { id: 2, name: 'Core Performance Elements', sprints: ['Performance Metrics', 'KPI Dashboard', 'Goal Setting'] },
+            { id: 3, name: 'Strategy - Understanding the Market', sprints: ['Market Analysis', 'Competitor Research', 'SWOT Analysis'] },
+            { id: 4, name: 'Strategy - Strategy Development', sprints: ['Strategic Planning', 'Business Model', 'Value Proposition'] },
+            { id: 5, name: 'Strategy - Execution', sprints: ['Action Plans', 'Implementation', 'Monitoring'] },
+            { id: 6, name: 'Organization & People - Structure', sprints: ['Org Chart', 'Roles & Responsibilities', 'Processes'] },
+            { id: 7, name: 'Organization & People - Leadership', sprints: ['Leadership Development', 'Team Building', 'Communication'] },
+            { id: 8, name: 'Organization & People - Tech & AI', sprints: ['Digital Transformation', 'AI Integration', 'Automation'] },
+            { id: 9, name: 'Closing Sprint', sprints: ['Final Review', 'Graduation', 'Next Steps'] }
+        ];
+
+        const currentModule = client.currentModule || 0;
+        
+        timelineContainer.innerHTML = modules.map(module => {
+            const isCurrent = module.id === currentModule;
+            const isCompleted = module.id < currentModule;
+            const statusClass = isCurrent ? 'current' : isCompleted ? 'completed' : 'upcoming';
+            
+            return `
+                <div class="module-item ${statusClass}">
+                    <div class="module-header">
+                        <span class="module-number">${module.id}</span>
+                        <span class="module-name">${module.name}</span>
+                    </div>
+                    <div class="module-sprints">
+                        ${module.sprints.map(sprint => `
+                            <div class="sprint-item ${sprint === client.currentSprint ? 'current-sprint' : ''}">
+                                ${sprint}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    populateSprintDetailsGrid(client) {
+        const gridContainer = document.getElementById('sprintDetailsGrid');
+        if (!gridContainer) return;
+
+        const sprintProgress = this.calculateSprintProgress(client);
+        
+        gridContainer.innerHTML = `
+            <div class="sprint-detail-card">
+                <h5>Current Progress</h5>
+                <div class="progress-info">
+                    <span class="progress-text">${sprintProgress.current}/${sprintProgress.total} Sprints</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${sprintProgress.percentage}%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="sprint-detail-card">
+                <h5>Status</h5>
+                <span class="status-badge status-${client.status}">${client.status.replace('-', ' ').toUpperCase()}</span>
+            </div>
+            <div class="sprint-detail-card">
+                <h5>Speed Score</h5>
+                <span class="score-value">${client.speed || 0}</span>
+            </div>
+            <div class="sprint-detail-card">
+                <h5>Quality Score</h5>
+                <span class="score-value">${client.qualityScore || 0}</span>
+            </div>
+        `;
     }
 
     async loadFastTrackTools(clientId) {
