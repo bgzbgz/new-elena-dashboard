@@ -2900,7 +2900,7 @@ class FastTrackApp {
             current_module: parseInt(document.getElementById('clientModule').value),
             current_sprint: document.getElementById('clientSprint').value,
             speed: parseInt(document.getElementById('clientSpeed').value),
-            quality: parseInt(document.getElementById('clientQuality').value) || 0,
+            quality_score: parseInt(document.getElementById('clientQuality').value) || 0,
             status: document.getElementById('clientStatus').value,
             // Enhanced client profile fields
             industry_type: document.getElementById('clientIndustry').value,
@@ -2929,7 +2929,7 @@ class FastTrackApp {
 
             // Check if speed or quality scores were updated
             const speedChanged = formData.speed !== undefined;
-            const qualityChanged = formData.quality !== undefined;
+            const qualityChanged = formData.quality_score !== undefined;
             
             if (speedChanged || qualityChanged) {
                 // Recalculate all team positions based on new scores
