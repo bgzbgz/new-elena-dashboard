@@ -1268,7 +1268,7 @@ class FastTrackApp {
                 if (this.isAssociate) {
                     this.populateAssociateDashboard();
                 } else {
-                    this.populateAdminDashboard();
+                this.populateAdminDashboard();
                 }
                 
                 // Log activity
@@ -1453,7 +1453,7 @@ class FastTrackApp {
             if (this.isAssociate) {
                 this.populateAssociateDashboard();
             } else {
-                this.populateAdminSubtasks();
+            this.populateAdminSubtasks();
             }
             alert('Subtask deleted successfully!');
         } catch (error) {
@@ -1515,7 +1515,7 @@ class FastTrackApp {
                               document.getElementById('associateDashboard');
         
         if (isOriginalPage) {
-            this.showLoginPage();
+        this.showLoginPage();
         }
     }
 
@@ -1848,18 +1848,10 @@ class FastTrackApp {
     }
 
     async handleTeamLogin() {
-        console.log('handleTeamLogin called');
         const accessCodeInput = document.getElementById('accessCode');
-        console.log('accessCodeInput:', accessCodeInput);
-        if (!accessCodeInput) {
-            console.log('No accessCodeInput found');
-            return;
-        }
+        if (!accessCodeInput) return;
         
         const accessCode = accessCodeInput.value.trim().toUpperCase();
-        console.log('accessCode:', accessCode);
-        console.log('teams loaded:', this.teams.length);
-        console.log('available teams:', this.teams.map(t => t.accessCode));
         
         if (!accessCode) {
             this.showError('loginError', 'Please enter your access code');
@@ -1867,7 +1859,6 @@ class FastTrackApp {
         }
 
         const team = this.teams.find(t => t.accessCode === accessCode);
-        console.log('found team:', team);
         
         if (team) {
             this.currentUser = team;
@@ -2013,7 +2004,7 @@ class FastTrackApp {
 
         // Populate team leaderboard
         this.populateClientLeaderboard();
-
+        
         // Populate team ranking
         this.populateTeamRanking();
         
