@@ -127,13 +127,8 @@
                     <!-- Team Ranking Section -->
                     <div class="team-ranking-section">
                         <h2>Your Team Ranking</h2>
-                        <div class="team-ranking-container">
-                            <div class="ranking-card">
-                                <div class="ranking-position" id="teamPosition">-</div>
-                                <div class="ranking-team-name" id="teamName">-</div>
-                                <div class="ranking-score" id="teamScore">-</div>
-                                <div class="ranking-comparison" id="teamComparison">-</div>
-                            </div>
+                        <div id="teamRankingContainer" class="team-ranking-container">
+                            <!-- Team ranking will be populated by JavaScript -->
                         </div>
                     </div>
 
@@ -146,6 +141,176 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- Client Management Modal -->
+    <div id="clientManagementModal" class="modal hidden">
+        <div class="modal-content modal-xl">
+            <div class="modal-header">
+                <h3>Client Details</h3>
+                <button class="modal-close" onclick="app.hideAllModals()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="client-management-tabs">
+                    <button class="tab-btn active" data-tab="profile" onclick="app.switchClientManagementTab('profile')">Profile</button>
+                    <button class="tab-btn" data-tab="sprint" onclick="app.switchClientManagementTab('sprint')">Sprint Progress</button>
+                    <button class="tab-btn" data-tab="tools" onclick="app.switchClientManagementTab('tools')">Fast Track Tools</button>
+                </div>
+                
+                <div id="profileTab" class="tab-content active">
+                    <form id="clientManagementForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="clientName" class="form-label">Company Name *</label>
+                                <input type="text" id="clientName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientCountry" class="form-label">Country</label>
+                                <select id="clientCountry" class="form-control">
+                                    <option value="MU">Mauritius</option>
+                                    <option value="LV">Latvia</option>
+                                    <option value="IT">Italy</option>
+                                    <option value="RO">Romania</option>
+                                    <option value="AE">UAE</option>
+                                    <option value="LK">Sri Lanka</option>
+                                    <option value="PL">Poland</option>
+                                    <option value="GT">Guatemala</option>
+                                    <option value="EE">Estonia</option>
+                                    <option value="AT">Austria</option>
+                                    <option value="MX">Mexico</option>
+                                    <option value="KE">Kenya</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientCEO" class="form-label">CEO Name</label>
+                                <input type="text" id="clientCEO" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientContact" class="form-label">Main Contact</label>
+                                <input type="email" id="clientContact" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientWebsite" class="form-label">Website</label>
+                                <input type="url" id="clientWebsite" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientStatus" class="form-label">Status</label>
+                                <select id="clientStatus" class="form-control">
+                                    <option value="starting-soon">Starting Soon (Yellow)</option>
+                                    <option value="on-time">On Time (Green)</option>
+                                    <option value="in-delay">In Delay (Red)</option>
+                                    <option value="graduated">Graduated (Blue)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientModule" class="form-label">Current Module</label>
+                                <select id="clientModule" class="form-control">
+                                    <option value="0">0 - Intro Sprint</option>
+                                    <option value="1">1 - Individual and Company Identity</option>
+                                    <option value="2">2 - Core Performance Elements</option>
+                                    <option value="3">3 - Strategy - Understanding the Market</option>
+                                    <option value="4">4 - Strategy - Strategy Development</option>
+                                    <option value="5">5 - Strategy - Execution</option>
+                                    <option value="6">6 - Organization & People - Organisational Structure</option>
+                                    <option value="7">7 - Organization & People - People and Leadership</option>
+                                    <option value="8">8 - Organization & People - Apply Aggressively Tech and AI</option>
+                                    <option value="9">9 - Closing Sprint</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientSprint" class="form-label">Current Sprint</label>
+                                <input type="text" id="clientSprint" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientSpeed" class="form-label">Speed Score</label>
+                                <input type="number" id="clientSpeed" class="form-control" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientQuality" class="form-label">Quality Score</label>
+                                <input type="number" id="clientQuality" class="form-control" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientIndustry" class="form-label">Industry Type</label>
+                                <input type="text" id="clientIndustry" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientSize" class="form-label">Company Size</label>
+                                <select id="clientSize" class="form-control">
+                                    <option value="Small (1-50 employees)">Small (1-50 employees)</option>
+                                    <option value="Medium (50-200 employees)">Medium (50-200 employees)</option>
+                                    <option value="Large (200+ employees)">Large (200+ employees)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientPriority" class="form-label">Priority Level</label>
+                                <select id="clientPriority" class="form-control">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientNotes" class="form-label">Notes</label>
+                                <textarea id="clientNotes" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="sprintTab" class="tab-content">
+                    <div class="current-sprint-section">
+                        <h4>Current Sprint Information</h4>
+                        <div class="current-sprint-card">
+                            <div class="sprint-module">
+                                <span class="sprint-name" id="currentSprintName">-</span>
+                                <span class="sprint-guru" id="currentSprintGuru">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="module-timeline-section">
+                        <h4>Module Timeline</h4>
+                        <div class="module-timeline" id="moduleTimeline">
+                            <!-- Module timeline will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="sprint-details-section">
+                        <h4>Program Progress Details</h4>
+                        <div class="sprint-details-grid" id="sprintDetailsGrid">
+                            <!-- Sprint details will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="toolsTab" class="tab-content">
+                    <div class="fast-track-tools">
+                        <h4>Fast Track Signature Tools</h4>
+                        <p>Sprint-specific instructions and guidance for this client.</p>
+                        <div id="fastTrackToolsList">
+                            <!-- Fast Track tools will be populated by JavaScript -->
+                        </div>
+                        <div class="form-group">
+                            <label for="toolSprintName" class="form-label">Sprint Name</label>
+                            <input type="text" id="toolSprintName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="toolModuleNumber" class="form-label">Module Number</label>
+                            <input type="number" id="toolModuleNumber" class="form-control" min="0" max="9">
+                        </div>
+                        <div class="form-group">
+                            <label for="toolInstructions" class="form-label">Instructions</label>
+                            <textarea id="toolInstructions" class="form-control" rows="3"></textarea>
+                        </div>
+                        <button onclick="app.addFastTrackTool()" class="btn btn--primary">Add Fast Track Tool</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="app.hideAllModals()" class="btn btn--outline">Close</button>
+                <button onclick="app.saveClientChanges()" class="btn btn--primary">Save Changes</button>
+            </div>
         </div>
     </div>
 
