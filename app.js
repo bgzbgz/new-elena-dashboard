@@ -1937,8 +1937,7 @@ class FastTrackApp {
             currentTeamElement.textContent = this.currentUser.name;
         }
 
-        // Populate performance analytics chart
-        this.populatePerformanceChart();
+        // Performance chart removed from client panels
 
         // Populate progress cards
         const cardsContainer = document.getElementById('teamProgressCards');
