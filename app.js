@@ -911,6 +911,9 @@ class FastTrackApp {
                     fastTrackInstructions: []
                 }));
                 console.log('Loaded teams from Supabase:', this.teams.length);
+                
+                // Recalculate positions to ensure they're accurate based on current scores
+                this.recalculateTeamPositions();
             }
 
             // Load subtasks
@@ -2924,10 +2927,35 @@ class FastTrackApp {
             // Update local data
             Object.assign(client, formData);
 
+            // Check if speed or quality scores were updated
+            const speedChanged = formData.speed !== undefined;
+            const qualityChanged = formData.quality !== undefined;
+            
+            if (speedChanged || qualityChanged) {
+                // Recalculate all team positions based on new scores
+                this.recalculateTeamPositions();
+                
+                // Update positions in database if not temporary
+                if (!client.id.includes('temp-id')) {
+                    const updatedClient = this.teams.find(t => t.id === client.id);
+                    await this.supabase
+                        .from('teams')
+                        .update({ 
+                            position: updatedClient.position,
+                            previous_position: updatedClient.previousPosition
+                        })
+                        .eq('id', client.id);
+                }
+            }
+
             // Log activity (only if not temporary)
             if (!this.currentAssociate.id.includes('temp-id')) {
+                const logMessage = speedChanged || qualityChanged ? 
+                    `Updated client ${client.name} - Scores changed, new position: ${client.position}` :
+                    `Updated client ${client.name}`;
+                    
                 await this.logAssociateActivity(this.currentAssociate.id, 'client_updated', 
-                    `Updated client ${client.name}`, { clientId: client.id, changes: formData });
+                    logMessage, { clientId: client.id, changes: formData });
                 
                 // Also log team activity
                 await this.logTeamActivity(client.id, 'client_updated', 
@@ -2946,7 +2974,11 @@ class FastTrackApp {
                 this.populatePerformanceChart();
             }
 
-            alert('Client updated successfully!');
+            const successMessage = speedChanged || qualityChanged ? 
+                `Client updated successfully!\nNew position: ${client.position}` :
+                'Client updated successfully!';
+                
+            alert(successMessage);
             this.hideAllModals();
         } catch (error) {
             console.error('Error updating client:', error);
@@ -3243,6 +3275,22 @@ class FastTrackApp {
             // Add to teams array
             this.teams.push(newClient);
 
+            // Recalculate positions for all teams (including the new one)
+            this.recalculateTeamPositions();
+
+            // Update positions in database for all teams
+            for (const team of this.teams) {
+                if (!team.id.includes('temp-id')) {
+                    await this.supabase
+                        .from('teams')
+                        .update({ 
+                            position: team.position,
+                            previous_position: team.previousPosition
+                        })
+                        .eq('id', team.id);
+                }
+            }
+
             // Log the activity
             await this.logAssociateActivity(this.currentAssociate.id, 'client_created', `Created new client: ${formData.name}`, {
                 clientId: data[0].id,
@@ -3327,6 +3375,70 @@ class FastTrackApp {
         return countryMap[countryCode] || 'Mauritius';
     }
 
+    recalculateTeamPositions() {
+        console.log('Recalculating team positions based on scores...');
+        
+        // Store previous positions for trend calculation
+        this.teams.forEach(team => {
+            team.previousPosition = team.position;
+        });
+
+        // Sort teams by combined score (speed + quality) in descending order
+        // Higher scores = better position (lower position number)
+        const sortedTeams = [...this.teams].sort((a, b) => {
+            const scoreA = (a.speed || 0) + (a.qualityScore || 0);
+            const scoreB = (b.speed || 0) + (b.qualityScore || 0);
+            
+            // If scores are equal, sort by speed as tiebreaker
+            if (scoreA === scoreB) {
+                return (b.speed || 0) - (a.speed || 0);
+            }
+            
+            return scoreB - scoreA;
+        });
+
+        // Assign new positions
+        sortedTeams.forEach((team, index) => {
+            team.position = index + 1;
+        });
+
+        console.log('New positions calculated:', sortedTeams.map(t => `${t.name}: ${t.position} (Score: ${(t.speed || 0) + (t.qualityScore || 0)})`));
+        
+        return sortedTeams;
+    }
+
+    // Manual function to recalculate all positions (useful for testing or admin use)
+    async recalculateAllPositions() {
+        console.log('Manually recalculating all team positions...');
+        
+        // Recalculate positions
+        this.recalculateTeamPositions();
+        
+        // Update all positions in database
+        for (const team of this.teams) {
+            if (!team.id.includes('temp-id')) {
+                try {
+                    await this.supabase
+                        .from('teams')
+                        .update({ 
+                            position: team.position,
+                            previous_position: team.previousPosition
+                        })
+                        .eq('id', team.id);
+                } catch (error) {
+                    console.error(`Error updating position for team ${team.name}:`, error);
+                }
+            }
+        }
+        
+        // Refresh all dashboards
+        this.populateAssociateDashboard();
+        this.populateAdminDashboard();
+        
+        console.log('All positions recalculated and updated in database');
+        alert('All team positions have been recalculated based on current scores!');
+    }
+
     quickUpdateScores(team) {
         const newSpeed = prompt(`Update Speed Score for ${team.name} (current: ${team.speed}):`, team.speed);
         if (newSpeed === null) return;
@@ -3346,13 +3458,20 @@ class FastTrackApp {
         team.speed = speedNum;
         team.qualityScore = qualityNum;
 
+        // Recalculate all team positions based on new scores
+        this.recalculateTeamPositions();
+
         // Update in database if not temporary
         if (!team.id.includes('temp-id')) {
+            // Update scores and positions in database
+            const updatedTeam = this.teams.find(t => t.id === team.id);
             this.supabase
                 .from('teams')
                 .update({ 
                     speed: speedNum, 
-                    quality_score: qualityNum 
+                    quality_score: qualityNum,
+                    position: updatedTeam.position,
+                    previous_position: updatedTeam.previousPosition
                 })
                 .eq('id', team.id)
                 .then(({ error }) => {
@@ -3364,11 +3483,13 @@ class FastTrackApp {
                     
                     // Log activity
                     this.logTeamActivity(team.id, 'scores_updated', 
-                        `Scores updated by ${this.currentAssociate.name} - Speed: ${speedNum}, Quality: ${qualityNum}`, { 
+                        `Scores updated by ${this.currentAssociate.name} - Speed: ${speedNum}, Quality: ${qualityNum}, New Position: ${updatedTeam.position}`, { 
                             clientName: team.name, 
                             associateId: this.currentAssociate.id,
                             newSpeed: speedNum,
-                            newQuality: qualityNum 
+                            newQuality: qualityNum,
+                            newPosition: updatedTeam.position,
+                            previousPosition: updatedTeam.previousPosition
                         });
                 });
         }
@@ -3379,7 +3500,11 @@ class FastTrackApp {
         // Refresh associate dashboard
         this.populateAssociateDashboard();
 
-        alert(`Scores updated for ${team.name}!\nSpeed: ${speedNum}\nQuality: ${qualityNum}`);
+        const updatedTeam = this.teams.find(t => t.id === team.id);
+        const positionChange = updatedTeam.previousPosition - updatedTeam.position;
+        const positionText = positionChange > 0 ? `↑${positionChange}` : positionChange < 0 ? `↓${Math.abs(positionChange)}` : '→';
+        
+        alert(`Scores updated for ${team.name}!\nSpeed: ${speedNum}\nQuality: ${qualityNum}\nNew Position: ${updatedTeam.position} ${positionText}`);
     }
 
     populatePodium() {
