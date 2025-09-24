@@ -891,6 +891,7 @@ class FastTrackApp {
                     previousPosition: team.previous_position,
                     graduation: team.graduation,
                     delay: team.delay_days,
+                    startingDate: team.starting_date,
                     currentModule: team.current_module,
                     currentSprint: team.current_sprint,
                     completedSprints: team.completed_sprints || [],
@@ -2620,7 +2621,7 @@ class FastTrackApp {
         // Update top metrics
         const speedScoreElement = document.getElementById('teamSpeedScore');
         if (speedScoreElement) {
-            speedScoreElement.textContent = team.speed || 0;
+            speedScoreElement.textContent = team.startingDate || 'Not set';
         }
 
         const graduationElement = document.getElementById('teamGraduationTimeline');
