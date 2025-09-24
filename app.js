@@ -2877,8 +2877,13 @@ class FastTrackApp {
     }
 
     async saveClientChanges() {
+        console.log('saveClientChanges called');
         const client = this.selectedTeamForModal;
-        if (!client) return;
+        if (!client) {
+            console.log('No client selected for modal');
+            return;
+        }
+        console.log('Saving changes for client:', client.name);
 
         const formData = {
             country: document.getElementById('clientCountry').value,
