@@ -1838,11 +1838,15 @@ class FastTrackApp {
     }
 
     hideAllModals() {
-        const modals = ['associateModal', 'adminModal', 'teamProgressModal', 'addTeamModal', 'uploadModal', 'createSubtaskModal', 'subtaskDetailsModal', 'clientManagementModal', 'addClientModal'];
+        console.log('hideAllModals called');
+        const modals = ['associateModal', 'adminModal', 'teamProgressModal', 'addTeamModal', 'uploadModal', 'createSubtaskModal', 'subtaskDetailsModal', 'clientManagementModal', 'addClientModal', 'teamSprintModal'];
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
             if (modal) {
+                console.log(`Hiding modal: ${modalId}`);
                 modal.classList.add('hidden');
+            } else {
+                console.log(`Modal not found: ${modalId}`);
             }
         });
     }
