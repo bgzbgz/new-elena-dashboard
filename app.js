@@ -2887,22 +2887,22 @@ class FastTrackApp {
         console.log('Saving changes for client:', client.name);
 
         const formData = {
+            name: document.getElementById('clientName').value,
             country: document.getElementById('clientCountry').value,
             country_code: document.getElementById('clientCountry').value,
             ceo_name: document.getElementById('clientCEO').value,
             starting_date: document.getElementById('clientStartingDate').value,
             main_contact: document.getElementById('clientContact').value,
             website: document.getElementById('clientWebsite').value,
-            current_module: parseInt(document.getElementById('clientCurrentModule').value),
-            current_sprint: document.getElementById('clientCurrentSprint').value,
+            current_module: parseInt(document.getElementById('clientModule').value),
+            current_sprint: document.getElementById('clientSprint').value,
             speed: parseInt(document.getElementById('clientSpeed').value),
+            quality: parseInt(document.getElementById('clientQuality').value) || 0,
             status: document.getElementById('clientStatus').value,
-            delay_days: parseInt(document.getElementById('clientDelay').value),
-            guru: document.getElementById('clientGuru').value,
             // Enhanced client profile fields
-            industry_type: document.getElementById('clientIndustryType').value,
-            company_size: document.getElementById('clientCompanySize').value,
-            priority_level: document.getElementById('clientPriorityLevel').value,
+            industry_type: document.getElementById('clientIndustry').value,
+            company_size: document.getElementById('clientSize').value,
+            priority_level: document.getElementById('clientPriority').value,
             notes: document.getElementById('clientNotes').value
         };
 
