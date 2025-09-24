@@ -882,8 +882,8 @@ class FastTrackApp {
                     id: team.id,
                     name: team.name,
                     accessCode: team.access_code,
-                    weeklyScore: team.quality_score, // weekly_score renamed to quality_score
-                    qualityScore: team.quality_score,
+                    weeklyScore: team.weekly_score, // weekly_score unchanged
+                    qualityScore: team.quality_score, // quality_score unchanged
                     speed: team.status, // speed renamed to status
                     sprint: team.sprint,
                     status: team.speed_score, // status renamed to speed_score
@@ -3174,7 +3174,8 @@ class FastTrackApp {
                     {
                         name: formData.name,
                         access_code: accessCode,
-                        quality_score: Math.floor(Math.random() * 40) + 60, // weekly_score renamed to quality_score
+                        weekly_score: Math.floor(Math.random() * 40) + 60, // weekly_score unchanged
+                        quality_score: Math.floor(Math.random() * 40) + 60, // quality_score unchanged
                         status: formData.speed, // speed renamed to status
                         sprint: formData.currentSprint,
                         speed_score: formData.status, // status renamed to speed_score
@@ -3980,10 +3981,10 @@ class FastTrackApp {
             access_code: newCode,
             weekly_score: Math.floor(Math.random() * 40) + 60,
             quality_score: Math.floor(Math.random() * 40) + 60,
-            speed: Math.floor(Math.random() * 30) + 70,
+            status: Math.floor(Math.random() * 30) + 70, // speed renamed to status
             sprint: values.sprint,
-            status: values.status,
-            position: this.teams.length + 1,
+            speed_score: values.status, // status renamed to speed_score
+            weekly_rank: this.teams.length + 1, // position renamed to weekly_rank
             previous_position: this.teams.length + 1,
             graduation: "TBD",
             delay_days: 0,
