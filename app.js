@@ -2560,13 +2560,22 @@ class FastTrackApp {
     }
 
     showClientManagementModal() {
+        console.log('showClientManagementModal called');
+        console.log('Document ready state:', document.readyState);
+        console.log('All elements with id containing "clientManagement":', document.querySelectorAll('[id*="clientManagement"]'));
+        
         const modal = document.getElementById('clientManagementModal');
         console.log('Looking for modal:', modal);
+        console.log('Modal element:', modal);
+        
         if (modal) {
+            console.log('Modal found, showing...');
             modal.classList.remove('hidden');
             this.populateClientManagementForm();
         } else {
             console.error('Client management modal not found!');
+            console.log('Available modals:', document.querySelectorAll('.modal'));
+            console.log('All elements with id:', document.querySelectorAll('[id]'));
             alert('Modal not found. Please refresh the page and try again.');
         }
     }
