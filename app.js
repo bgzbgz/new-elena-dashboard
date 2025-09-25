@@ -2763,7 +2763,7 @@ class FastTrackApp {
 
         console.log('Populating form for client:', client);
 
-        // Populate form fields
+        // Populate form fields with status-based logic
         const fields = {
             'clientName': client.name,
             'clientCountry': client.countryCode || 'MU',
@@ -2776,8 +2776,8 @@ class FastTrackApp {
             'clientWebsite': client.website || '',
             'clientModule': client.currentModule || 0,
             'clientSprint': client.currentSprint || '',
-            'clientSpeed': client.speed || 0,
-            'clientQuality': client.qualityScore || 0,
+            'clientSpeed': this.getScoreDisplay(client, 'speed'),
+            'clientQuality': this.getScoreDisplay(client, 'quality'),
             'clientStatus': client.status || 'starting-soon',
             'clientIndustry': client.industryType || '',
             'clientSize': client.companySize || '',
