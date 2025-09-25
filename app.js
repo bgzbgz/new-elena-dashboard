@@ -525,6 +525,9 @@ class FastTrackApp {
         this.associates = [];
         this.currentAssociate = null;
         this.isAssociate = false;
+        
+        // Restore associate session from localStorage
+        this.restoreAssociateSession();
 
         this.adminCodes = ['ADMIN001', 'FASTTRACK_ADMIN', 'FT_SUPER_ADMIN'];
         this.currentUser = null;
@@ -1904,6 +1907,33 @@ class FastTrackApp {
         }
     }
 
+    // Restore associate session from localStorage
+    restoreAssociateSession() {
+        try {
+            const savedAssociate = localStorage.getItem('currentAssociate');
+            const savedIsAssociate = localStorage.getItem('isAssociate');
+            
+            if (savedAssociate && savedIsAssociate === 'true') {
+                this.currentAssociate = JSON.parse(savedAssociate);
+                this.isAssociate = true;
+                this.isAdmin = false;
+                this.currentUser = null;
+                console.log('Associate session restored:', this.currentAssociate.name);
+                
+                // Show associate dashboard if we're on the associate login page
+                if (window.location.pathname.includes('associate-login.html') || 
+                    document.getElementById('associateDashboard')) {
+                    this.showAssociateDashboard();
+                }
+            }
+        } catch (error) {
+            console.error('Error restoring associate session:', error);
+            // Clear invalid session data
+            localStorage.removeItem('currentAssociate');
+            localStorage.removeItem('isAssociate');
+        }
+    }
+
     // Associate authentication methods
     async handleAssociateLogin() {
         const associateCodeInput = document.getElementById('associateCode');
@@ -1935,6 +1965,10 @@ class FastTrackApp {
             this.isAdmin = false;
             this.currentUser = null;
             this.clearError('associateError');
+            
+            // Save associate session to localStorage
+            localStorage.setItem('currentAssociate', JSON.stringify(associate));
+            localStorage.setItem('isAssociate', 'true');
             
             // Log associate activity (only if not temporary)
             if (!associate.id.includes('temp-id')) {
@@ -4200,6 +4234,10 @@ class FastTrackApp {
         this.isAssociate = false;
         this.currentAssociate = null;
         this.selectedTeamForModal = null;
+        
+        // Clear localStorage
+        localStorage.removeItem('currentAssociate');
+        localStorage.removeItem('isAssociate');
         
         // Clear inputs
         const inputs = ['accessCode', 'adminCode', 'associateCode', 'newTeamName', 'newTeamSprint', 'newTeamGuru'];
