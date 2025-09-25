@@ -884,9 +884,9 @@ class FastTrackApp {
                     accessCode: team.access_code,
                     weeklyScore: team.weekly_score, // weekly_score unchanged
                     qualityScore: team.quality_score, // quality_score unchanged
-                    speed: team.status, // speed renamed to status
+                    speed: team.status, // speed renamed to status (integer)
                     sprint: team.sprint,
-                    status: team.speed_score, // status renamed to speed_score
+                    status: team.speed_score || 'on-time', // status renamed to speed_score (text)
                     position: team.weekly_rank, // position renamed to weekly_rank
                     previousPosition: team.previous_position,
                     graduation: team.graduation,
@@ -4170,6 +4170,9 @@ class FastTrackApp {
     }
 
     formatStatus(status) {
+        if (!status || typeof status !== 'string') {
+            return 'Unknown';
+        }
         return status.split('-').map(word => 
             word.charAt(0).toUpperCase() + word.slice(1)
         ).join(' ');
