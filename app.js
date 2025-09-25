@@ -3183,7 +3183,9 @@ class FastTrackApp {
                         weekly_rank: this.teams.length + 1, // position renamed to weekly_rank
                         previous_position: this.teams.length + 1,
                         graduation: "TBD",
+                        graduation_date: formData.startingDate || null,
                         delay_days: 0,
+                        starting_date: formData.startingDate || null,
                         current_module: formData.currentModule,
                         current_sprint: formData.currentSprint,
                         completed_sprints: [],
@@ -3192,7 +3194,6 @@ class FastTrackApp {
                         country: countryName,
                         country_code: countryCode,
                         ceo_name: formData.ceoName,
-                        starting_date: formData.startingDate || null,
                         main_contact: formData.mainContact,
                         website: formData.website,
                         industry_type: "Not specified",
