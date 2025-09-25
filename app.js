@@ -1907,6 +1907,37 @@ class FastTrackApp {
         }
     }
 
+    // Set personal greeting for associate
+    setPersonalGreeting() {
+        const greetingElement = document.getElementById('personalGreeting');
+        if (!greetingElement || !this.currentAssociate) return;
+
+        const name = this.currentAssociate.name;
+        const greetings = {
+            'Elena': [
+                '👋🏻 Hello Elena, have you been kicking ass today?',
+                '👋🏻 Hey Elena, ready to crush some goals?',
+                '👋🏻 Hello Elena, let\'s make today amazing!'
+            ],
+            'Vasil': [
+                '👋🏻 Hey Vasko, love the shirt today!',
+                '👋🏻 Hello Vasil, looking sharp as always!',
+                '👋🏻 Hey Vasko, ready to dominate today?'
+            ],
+            'Ana-Maria': [
+                '👋🏻 Hello Ani, happy you are here!',
+                '👋🏻 Hey Ana-Maria, great to see you!',
+                '👋🏻 Hello Ani, let\'s make magic happen!'
+            ]
+        };
+
+        // Get random greeting for the associate
+        const associateGreetings = greetings[name] || [`👋🏻 Hello ${name}, great to see you!`];
+        const randomGreeting = associateGreetings[Math.floor(Math.random() * associateGreetings.length)];
+        
+        greetingElement.textContent = randomGreeting;
+    }
+
     // Restore associate session from localStorage
     restoreAssociateSession() {
         try {
@@ -2188,6 +2219,9 @@ class FastTrackApp {
         if (associateNameElement) {
             associateNameElement.textContent = this.currentAssociate.name;
         }
+
+        // Set personal greeting
+        this.setPersonalGreeting();
 
         // Always ensure teams have associate IDs
         console.log('Ensuring teams have associate IDs...');

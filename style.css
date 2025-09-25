@@ -2259,6 +2259,23 @@ body {
 }
 
 /* Associate Dashboard Styles */
+.greeting-section {
+  margin-bottom: var(--space-24);
+  text-align: center;
+}
+
+.greeting-section h1 {
+  color: var(--ft-black);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  padding: var(--space-16) 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .clients-section {
   margin-bottom: var(--space-32);
 }
