@@ -511,7 +511,7 @@ class FastTrackApp {
             },
             {
                 number: 9,
-                title: "Closing Sprint",
+                title: "Closing Module",
                 description: "Program overview and next steps",
                 sprints: [
                     "Program Overview & Next 12 months Plan"
@@ -2342,26 +2342,37 @@ class FastTrackApp {
             return;
         }
 
-        leaderboardContainer.innerHTML = sortedClients.map(client => `
-            <tr>
-                <td class="position-cell">${client.position}</td>
-                <td><strong>${client.name}</strong></td>
-                <td>${this.getCountryName(client.countryCode || client.country)}</td>
-                <td>${client.currentSprint || client.sprint || 'Not specified'}</td>
-                <td>
-                    <div class="speed-score">${client.speed}</div>
-                </td>
-                <td>${client.qualityScore}</td>
-                <td>
-                    <span class="status-badge status-${String(client.status || '').replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
-                </td>
-                <td>
-                    <button class="btn btn--outline btn--sm" onclick="app.viewClientDetails('${client.id}')">
-                        VIEW
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        leaderboardContainer.innerHTML = sortedClients.map(client => {
+            // Get sprint display and scores using helper functions
+            const sprintDisplay = this.getSprintDisplay(client);
+            const speedScore = this.getScoreDisplay(client, 'speed');
+            const qualityScore = this.getScoreDisplay(client, 'quality');
+
+            return `
+                <tr>
+                    <td class="position-cell">${client.position}</td>
+                    <td><strong>${client.name}</strong></td>
+                    <td>${this.getCountryName(client.countryCode || client.country)}</td>
+                    <td>
+                        <div class="sprint-progress sprint-${sprintDisplay.color}">
+                            ${sprintDisplay.display}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="speed-score">${speedScore}</div>
+                    </td>
+                    <td>${qualityScore}</td>
+                    <td>
+                        <span class="status-badge status-${String(client.status || '').replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn--outline btn--sm" onclick="app.viewClientDetails('${client.id}')">
+                            VIEW
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     populateAssociateCodeManagement(clients) {
@@ -2649,7 +2660,7 @@ class FastTrackApp {
         // Update modal title
         const titleElement = document.querySelector('#teamSprintModal h3');
         if (titleElement) {
-            titleElement.textContent = `${team.name} - Sprint Progress Details`;
+            titleElement.textContent = `${team.name} - Module Progress Details`;
         }
 
         // Update top metrics
@@ -2692,7 +2703,7 @@ class FastTrackApp {
         if (!journeyContainer) return;
 
         const modules = [
-            { id: 0, name: 'Intro Sprint', description: 'Program WOOP - Welcome, Outcomes, Obstacles, Plan', sprints: ['Program WOOP'] },
+            { id: 0, name: 'Intro Module', description: 'Program WOOP - Welcome, Outcomes, Obstacles, Plan', sprints: ['Program WOOP'] },
             { id: 1, name: 'Individual and Company Identity', description: 'Building foundation of self and team understanding', sprints: ['Know Thyself', 'Dream', 'Values', 'Team', 'FIT'] },
             { id: 2, name: 'Core Performance Elements', description: 'Understanding and implementing performance fundamentals', sprints: ['Current Cash Position', 'Goals, Priorities and Planning', 'Focus, Discipline & Productivity', 'Performance & Accountability', 'Meeting Rhythm'] },
             { id: 3, name: 'Strategy - Market Understanding', description: 'Understanding your market and competition', sprints: ['Market Size', 'Segmentation & Target Market'] },
@@ -2701,7 +2712,7 @@ class FastTrackApp {
             { id: 6, name: 'Organization & People - Structure', description: 'Building organizational structure', sprints: ['Define Core Activities', 'Define core processes', 'FIT & ABC Analysis'] },
             { id: 7, name: 'Organization & People - Leadership', description: 'Developing people and leadership', sprints: ['Organizational redesign', 'Employer Branding', 'Set Agile Teams'] },
             { id: 8, name: 'Organization & People - Tech & AI', description: 'Leveraging technology and AI', sprints: ['Tech and AI Options', 'Digitalization Decisions', 'AI Transformation'] },
-            { id: 9, name: 'Closing Sprint', description: 'Program overview and next steps', sprints: ['Program Overview', 'Next 12 months Plan'] }
+            { id: 9, name: 'Closing Module', description: 'Program overview and next steps', sprints: ['Program Overview', 'Next 12 months Plan'] }
         ];
 
         const currentModule = team.currentModule || 0;
@@ -2813,7 +2824,7 @@ class FastTrackApp {
         if (!timelineContainer) return;
 
         const modules = [
-            { id: 0, name: 'Intro Sprint', sprints: ['Program WOOP'] },
+            { id: 0, name: 'Intro Module', sprints: ['Program WOOP'] },
             { id: 1, name: 'Individual and Company Identity', sprints: ['Know Thyself', 'Company Identity', 'Vision & Mission'] },
             { id: 2, name: 'Core Performance Elements', sprints: ['Performance Metrics', 'KPI Dashboard', 'Goal Setting'] },
             { id: 3, name: 'Strategy - Understanding the Market', sprints: ['Market Analysis', 'Competitor Research', 'SWOT Analysis'] },
@@ -2822,7 +2833,7 @@ class FastTrackApp {
             { id: 6, name: 'Organization & People - Structure', sprints: ['Org Chart', 'Roles & Responsibilities', 'Processes'] },
             { id: 7, name: 'Organization & People - Leadership', sprints: ['Leadership Development', 'Team Building', 'Communication'] },
             { id: 8, name: 'Organization & People - Tech & AI', sprints: ['Digital Transformation', 'AI Integration', 'Automation'] },
-            { id: 9, name: 'Closing Sprint', sprints: ['Final Review', 'Graduation', 'Next Steps'] }
+            { id: 9, name: 'Closing Module', sprints: ['Final Review', 'Graduation', 'Next Steps'] }
         ];
 
         const currentModule = client.currentModule || 0;
@@ -3820,6 +3831,11 @@ class FastTrackApp {
             const trendSymbol = team.position < team.previousPosition ? '↑' : 
                                team.position > team.previousPosition ? '↓' : '→';
 
+            // Get sprint display and scores using helper functions
+            const sprintDisplay = this.getSprintDisplay(team);
+            const speedScore = this.getScoreDisplay(team, 'speed');
+            const qualityScore = this.getScoreDisplay(team, 'quality');
+
             return `
                 <tr>
                     <td class="position-cell ${trendClass}">
@@ -3829,13 +3845,17 @@ class FastTrackApp {
                         <strong>${team.name}</strong>
                     </td>
                     <td>${this.getCountryName(team.countryCode || team.country)}</td>
-                    <td>${team.sprint}</td>
                     <td>
-                        <div class="speed-score">${team.speed}</div>
+                        <div class="sprint-progress sprint-${sprintDisplay.color}">
+                            ${sprintDisplay.display}
+                        </div>
                     </td>
-                    <td>${team.qualityScore}</td>
                     <td>
-                        <span class="status-badge status-${team.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(team.status)}</span>
+                        <div class="speed-score">${speedScore}</div>
+                    </td>
+                    <td>${qualityScore}</td>
+                    <td>
+                        <span class="status-badge status-${String(team.status || '').replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(team.status)}</span>
                     </td>
                     <td>
                         <button class="btn btn--outline btn--sm" onclick="app.viewTeamDetails('${team.accessCode}')">
@@ -4210,6 +4230,35 @@ class FastTrackApp {
         return status.split('-').map(word => 
             word.charAt(0).toUpperCase() + word.slice(1)
         ).join(' ');
+    }
+
+    // Helper function for sprint display logic
+    getSprintDisplay(team) {
+        const status = team.status || 'starting-soon';
+        const currentSprint = parseInt(team.sprint) || 0;
+        
+        if (status === 'graduated') {
+            return { display: '30/30', color: 'green' };
+        } else if (status === 'starting-soon') {
+            return { display: '0/30', color: 'grey' };
+        } else if (status === 'in-delay') {
+            const cappedSprint = Math.min(currentSprint, 30);
+            return { display: `${cappedSprint}/30`, color: 'red' };
+        } else {
+            const cappedSprint = Math.min(currentSprint, 30);
+            return { display: `${cappedSprint}/30`, color: 'green' };
+        }
+    }
+
+    // Helper function for score display logic
+    getScoreDisplay(team, scoreType) {
+        const status = team.status || 'starting-soon';
+        
+        if (status === 'starting-soon') {
+            return 0;
+        } else {
+            return scoreType === 'speed' ? (team.speed || 0) : (team.qualityScore || 0);
+        }
     }
 
     showError(elementId, message) {
