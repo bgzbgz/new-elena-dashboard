@@ -2261,19 +2261,19 @@ body {
 /* Associate Dashboard Styles */
 .greeting-section {
   margin-bottom: var(--space-24);
-  text-align: center;
 }
 
 .greeting-section h1 {
-  color: var(--ft-black);
-  font-size: 1.5rem;
-  font-weight: 600;
+  background: var(--color-bg-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
   margin: 0;
-  padding: var(--space-16) 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  text-align: center;
+  color: var(--ft-black);
+  font-size: 2rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .clients-section {
