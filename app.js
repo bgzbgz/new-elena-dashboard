@@ -2896,6 +2896,16 @@ class FastTrackApp {
             console.log('No client selected for modal');
             return;
         }
+        if (!this.currentAssociate) {
+            console.error('No associate logged in');
+            console.log('Current state:', {
+                isAssociate: this.isAssociate,
+                currentAssociate: this.currentAssociate,
+                currentUser: this.currentUser
+            });
+            alert('Error: No associate logged in. Please log in again.');
+            return;
+        }
         console.log('Saving changes for client:', client.name);
 
         const formData = {
@@ -2961,7 +2971,7 @@ class FastTrackApp {
             }
 
             // Log activity (only if not temporary)
-            if (!this.currentAssociate.id.includes('temp-id')) {
+            if (this.currentAssociate && !this.currentAssociate.id.includes('temp-id')) {
                 const logMessage = speedChanged || qualityChanged ? 
                     `Updated client ${client.name} - Scores changed, new position: ${client.position}` :
                     `Updated client ${client.name}`;
