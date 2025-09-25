@@ -2220,7 +2220,13 @@ class FastTrackApp {
 
     populateAssociateClients(clients) {
         const clientsContainer = document.getElementById('associateClientsContainer');
+        const clientsHeader = document.getElementById('clientsHeader');
         if (!clientsContainer) return;
+
+        // Update header with client count
+        if (clientsHeader) {
+            clientsHeader.textContent = `Your Clients (${clients.length})`;
+        }
 
         if (clients.length === 0) {
             clientsContainer.innerHTML = `
@@ -2235,12 +2241,6 @@ class FastTrackApp {
         }
 
         clientsContainer.innerHTML = `
-            <div class="clients-header">
-                <h3>Your Clients (${clients.length})</h3>
-                <button class="btn btn--primary" onclick="app.showAddClientModal()">
-                    + Add New Client
-                </button>
-            </div>
             <div class="clients-grid">
                 ${clients.map(client => `
                     <div class="client-card">
