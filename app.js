@@ -4268,13 +4268,19 @@ class FastTrackApp {
 
     // Helper function for sprint display logic
     getSprintDisplay(team) {
-        const status = team.status || 'starting-soon';
+        // Normalize status to handle different formats
+        let status = team.status || 'starting-soon';
+        if (typeof status === 'string') {
+            status = status.toLowerCase().replace(/\s+/g, '-');
+        }
         const currentSprint = parseInt(team.sprint) || 0;
         
         console.log(`getSprintDisplay for ${team.name}:`, {
             status: status,
             currentSprint: currentSprint,
-            teamSprint: team.sprint
+            teamSprint: team.sprint,
+            rawStatus: team.status,
+            rawSpeedScore: team.speed_score
         });
         
         if (status === 'graduated') {
