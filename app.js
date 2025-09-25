@@ -2217,7 +2217,7 @@ class FastTrackApp {
                                 <p class="client-ceo">CEO: ${client.ceoName || 'Not specified'}</p>
                             </div>
                             <div class="client-status">
-                                <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
+                                <span class="status-badge status-${String(client.status || '').replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
                             </div>
                         </div>
                         <div class="client-details">
@@ -2319,7 +2319,7 @@ class FastTrackApp {
                 </td>
                 <td>${client.qualityScore}</td>
                 <td>
-                    <span class="status-badge status-${client.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
+                    <span class="status-badge status-${String(client.status || '').replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(client.status)}</span>
                 </td>
                 <td>
                     <button class="btn btn--outline btn--sm" onclick="app.viewClientDetails('${client.id}')">
@@ -2834,7 +2834,7 @@ class FastTrackApp {
             </div>
             <div class="sprint-detail-card">
                 <h5>Status</h5>
-                <span class="status-badge status-${client.status}">${client.status.replace('-', ' ').toUpperCase()}</span>
+                <span class="status-badge status-${client.status}">${String(client.status || '').replace('-', ' ').toUpperCase()}</span>
             </div>
             <div class="sprint-detail-card">
                 <h5>Speed Score</h5>
@@ -2911,9 +2911,9 @@ class FastTrackApp {
             website: document.getElementById('clientWebsite').value,
             current_module: parseInt(document.getElementById('clientModule').value),
             current_sprint: document.getElementById('clientSprint').value,
-            status: parseInt(document.getElementById('clientSpeed').value), // speed renamed to status
+            status: parseInt(document.getElementById('clientSpeed').value) || 0, // speed score (numeric)
             quality_score: parseInt(document.getElementById('clientQuality').value) || 0,
-            speed_score: document.getElementById('clientStatus').value, // status renamed to speed_score
+            speed_score: document.getElementById('clientStatus').value, // status text (like "on-time")
             // Enhanced client profile fields
             industry_type: document.getElementById('clientIndustry').value,
             company_size: document.getElementById('clientSize').value,
@@ -2940,7 +2940,7 @@ class FastTrackApp {
             Object.assign(client, formData);
 
             // Check if speed or quality scores were updated
-            const speedChanged = formData.speed !== undefined;
+            const speedChanged = formData.status !== undefined;
             const qualityChanged = formData.quality_score !== undefined;
             
             if (speedChanged || qualityChanged) {
@@ -2953,7 +2953,7 @@ class FastTrackApp {
                     await this.supabase
                         .from('teams')
                         .update({ 
-                            position: updatedClient.position,
+                            weekly_rank: updatedClient.position,
                             previous_position: updatedClient.previousPosition
                         })
                         .eq('id', client.id);
