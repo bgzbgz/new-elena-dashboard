@@ -4237,6 +4237,12 @@ class FastTrackApp {
         const status = team.status || 'starting-soon';
         const currentSprint = parseInt(team.sprint) || 0;
         
+        console.log(`getSprintDisplay for ${team.name}:`, {
+            status: status,
+            currentSprint: currentSprint,
+            teamSprint: team.sprint
+        });
+        
         if (status === 'graduated') {
             return { display: '30/30', color: 'green' };
         } else if (status === 'starting-soon') {
@@ -4253,6 +4259,12 @@ class FastTrackApp {
     // Helper function for score display logic
     getScoreDisplay(team, scoreType) {
         const status = team.status || 'starting-soon';
+        
+        console.log(`getScoreDisplay for ${team.name} (${scoreType}):`, {
+            status: status,
+            speed: team.speed,
+            qualityScore: team.qualityScore
+        });
         
         if (status === 'starting-soon') {
             return 0;
