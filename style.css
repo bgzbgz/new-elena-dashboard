@@ -1333,6 +1333,23 @@ body {
   background: conic-gradient(var(--status-starting) 0deg, var(--status-starting) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
 }
 
+/* Additional classes for sprint-progress with sprint- prefix */
+.sprint-progress.sprint-graduated .sprint-progress-circle {
+  background: conic-gradient(var(--status-on-time) 0deg, var(--status-on-time) 360deg);
+}
+
+.sprint-progress.sprint-on-time .sprint-progress-circle {
+  background: conic-gradient(var(--status-on-time) 0deg, var(--status-on-time) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
+}
+
+.sprint-progress.sprint-in-delay .sprint-progress-circle {
+  background: conic-gradient(var(--status-delay) 0deg, var(--status-delay) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
+}
+
+.sprint-progress.sprint-starting-soon .sprint-progress-circle {
+  background: conic-gradient(var(--status-starting) 0deg, var(--status-starting) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
+}
+
 /* Status badges */
 .status-badge {
   display: inline-flex;
