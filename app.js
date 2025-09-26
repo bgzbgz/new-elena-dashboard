@@ -882,39 +882,42 @@ class FastTrackApp {
             }
 
             if (teamsData && teamsData.length > 0) {
-                this.teams = teamsData.map(team => ({
-                    id: team.id,
-                    name: team.name,
-                    accessCode: team.access_code,
-                    weeklyScore: team.weekly_score, // weekly_score unchanged
-                    qualityScore: team.quality_score, // quality_score unchanged
-                    speed: team.status, // speed renamed to status (integer)
-                    sprint: team.sprint,
-                    status: team.speed_score || 'on-time', // status renamed to speed_score (text)
-                    position: team.weekly_rank, // position renamed to weekly_rank
-                    previousPosition: team.previous_position,
-                    graduation: team.graduation,
-                    delay: team.delay_days,
-                    startingDate: team.starting_date,
-                    currentModule: team.current_module,
-                    currentSprint: team.current_sprint,
-                    completedSprints: team.completed_sprints || [],
-                    guru: team.guru,
-                    lastLogin: team.last_login,
-                    associateId: team.associate_id,
-                    associateName: team.associates?.name || team.guru,
-                    // Enhanced client profile fields
-                    country: team.country || 'Not specified',
-                    countryCode: team.country_code || 'US',
-                    ceoName: team.ceo_name || 'Not specified',
-                    mainContact: team.main_contact || 'Not specified',
-                    website: team.website || 'Not specified',
-                    industryType: team.industry_type || 'Not specified',
-                    companySize: team.company_size || 'Not specified',
-                    priorityLevel: team.priority_level || 'Medium',
-                    notes: team.notes || '',
-                    fastTrackInstructions: []
-                }));
+                this.teams = teamsData.map(team => {
+                    console.log(`Database team ${team.name}: sprint="${team.sprint}", status="${team.speed_score}"`);
+                    return {
+                        id: team.id,
+                        name: team.name,
+                        accessCode: team.access_code,
+                        weeklyScore: team.weekly_score, // weekly_score unchanged
+                        qualityScore: team.quality_score, // quality_score unchanged
+                        speed: team.status, // speed renamed to status (integer)
+                        sprint: team.sprint,
+                        status: team.speed_score || 'on-time', // status renamed to speed_score (text)
+                        position: team.weekly_rank, // position renamed to weekly_rank
+                        previousPosition: team.previous_position,
+                        graduation: team.graduation,
+                        delay: team.delay_days,
+                        startingDate: team.starting_date,
+                        currentModule: team.current_module,
+                        currentSprint: team.current_sprint,
+                        completedSprints: team.completed_sprints || [],
+                        guru: team.guru,
+                        lastLogin: team.last_login,
+                        associateId: team.associate_id,
+                        associateName: team.associates?.name || team.guru,
+                        // Enhanced client profile fields
+                        country: team.country || 'Not specified',
+                        countryCode: team.country_code || 'US',
+                        ceoName: team.ceo_name || 'Not specified',
+                        mainContact: team.main_contact || 'Not specified',
+                        website: team.website || 'Not specified',
+                        industryType: team.industry_type || 'Not specified',
+                        companySize: team.company_size || 'Not specified',
+                        priorityLevel: team.priority_level || 'Medium',
+                        notes: team.notes || '',
+                        fastTrackInstructions: []
+                    };
+                });
                 console.log('Loaded teams from Supabase:', this.teams.length);
                 
                 // Recalculate positions to ensure they're accurate based on current scores
@@ -4489,6 +4492,7 @@ class FastTrackApp {
                 // Extract number from "Week X" format
                 const match = team.sprint.match(/\d+/);
                 currentSprint = match ? parseInt(match[0]) : 0;
+                console.log(`Parsed sprint for ${team.name}: "${team.sprint}" -> ${currentSprint}`);
             } else {
                 currentSprint = parseInt(team.sprint) || 0;
             }
