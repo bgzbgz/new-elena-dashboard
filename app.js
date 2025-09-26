@@ -3182,6 +3182,40 @@ class FastTrackApp {
 
             // Delete from database if client has an ID
             if (client.id && !client.id.includes('temp-id')) {
+                // First, delete all related records to avoid foreign key constraints
+                console.log('Deleting related records for client:', client.id);
+                
+                // Delete team activities
+                const { error: activitiesError } = await this.supabase
+                    .from('team_activities')
+                    .delete()
+                    .eq('team_id', client.id);
+                
+                if (activitiesError) {
+                    console.warn('Warning deleting team activities:', activitiesError);
+                }
+
+                // Delete subtasks
+                const { error: subtasksError } = await this.supabase
+                    .from('subtasks')
+                    .delete()
+                    .eq('team_id', client.id);
+                
+                if (subtasksError) {
+                    console.warn('Warning deleting subtasks:', subtasksError);
+                }
+
+                // Delete fast track tools
+                const { error: toolsError } = await this.supabase
+                    .from('fast_track_tools')
+                    .delete()
+                    .eq('team_id', client.id);
+                
+                if (toolsError) {
+                    console.warn('Warning deleting fast track tools:', toolsError);
+                }
+
+                // Now delete the team itself
                 const { error } = await this.supabase
                     .from('teams')
                     .delete()
