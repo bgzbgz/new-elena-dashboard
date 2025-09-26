@@ -1,9 +1,9 @@
 // Fast Track Team Leaderboard Application - Supabase Integration
 class FastTrackApp {
     constructor() {
-        // Initialize Supabase
-        this.supabaseUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co';
-        this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYXB4bmh3dWJoZmJhdGVrcWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDE1MTEsImV4cCI6MjA3MzkxNzUxMX0.8GWh7P8ENNZqbH4P0ho6tVspG9tkonS559LoB0t0yjQ';
+        // Initialize Supabase with environment variables (fallback to hardcoded for development)
+        this.supabaseUrl = window.SUPABASE_DATABASE_URL || 'https://xkapxnhwubhfbatekqhz.supabase.co';
+        this.supabaseKey = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYXB4bmh3dWJoZmJhdGVrcWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNDE1MTEsImV4cCI6MjA3MzkxNzUxMX0.8GWh7P8ENNZqbH4P0ho6tVspG9tkonS559LoB0t0yjQ';
         this.corsProxyUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co/functions/v1/cors-proxy';
         this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
         
