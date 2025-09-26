@@ -2111,6 +2111,17 @@ class FastTrackApp {
             `;
         }
 
+        // Populate signature tool card
+        const signatureToolCard = document.getElementById('signatureToolCard');
+        if (signatureToolCard) {
+            signatureToolCard.innerHTML = `
+                <div class="signature-tool-content">
+                    <div class="signature-tool-text">Insights Coming Soon</div>
+                    <div class="signature-tool-subtitle">Recommended tool for your team</div>
+                </div>
+            `;
+        }
+
         // Populate team leaderboard
         this.populateClientLeaderboard();
         
