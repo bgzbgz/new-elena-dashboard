@@ -2093,25 +2093,20 @@ class FastTrackApp {
         const cardsContainer = document.getElementById('teamProgressCards');
         if (cardsContainer) {
             cardsContainer.innerHTML = `
-                <div class="progress-card">
-                    <div class="progress-card-label">Weekly Rank</div>
-                    <div class="progress-card-value">${this.currentUser.weeklyScore}</div>
-                    <div class="progress-card-subtitle">Current ranking: #${this.currentUser.position}</div>
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Start</div>
+                    <div class="progress-card-value">Insights Coming Soon</div>
+                    <div class="progress-card-subtitle">What to start doing</div>
                 </div>
-                <div class="progress-card">
-                    <div class="progress-card-label">Starting Date</div>
-                    <div class="progress-card-value">${this.currentUser.speed}</div>
-                    <div class="progress-card-subtitle">Performance metric</div>
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Stop</div>
+                    <div class="progress-card-value">Insights Coming Soon</div>
+                    <div class="progress-card-subtitle">What to stop doing</div>
                 </div>
-                <div class="progress-card">
-                    <div class="progress-card-label">Quality Score</div>
-                    <div class="progress-card-value">${this.currentUser.qualityScore}</div>
-                    <div class="progress-card-subtitle">Execution quality</div>
-                </div>
-                <div class="progress-card">
-                    <div class="progress-card-label">Current Module</div>
-                    <div class="progress-card-value">${this.currentUser.currentSprint}</div>
-                    <div class="progress-card-subtitle">Module ${this.currentUser.currentModule}</div>
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Do Better</div>
+                    <div class="progress-card-value">Insights Coming Soon</div>
+                    <div class="progress-card-subtitle">What to improve</div>
                 </div>
             `;
         }

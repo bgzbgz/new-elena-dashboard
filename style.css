@@ -2700,3 +2700,27 @@ body {
     width: var(--space-24);
     display: inline-block;
 }
+
+/* Blurred card effect for Start, Stop, Do Better section */
+.blurred-card {
+    filter: blur(2px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.blurred-card .progress-card-value {
+    color: #000;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.blurred-card .progress-card-label {
+    color: #000;
+    font-weight: 500;
+}
+
+.blurred-card .progress-card-subtitle {
+    color: #666;
+}
