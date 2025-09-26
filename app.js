@@ -4485,7 +4485,7 @@ class FastTrackApp {
             { name: 'CAL Capital Alliance', sprint: 'Week 3', status: 'on-time' },
             { name: 'PHARMACIE NOUVELLE', sprint: 'Week 2', status: 'on-time' },
             { name: 'Capital Alliance', sprint: 'Week 1', status: 'on-time' },
-            { name: 'LEAL GROUP (AUTO)', sprint: 'Week 5', status: 'on-time' },
+            { name: 'LEAL GROUP (AUTO)', sprint: 'Week 5', status: 'in-delay' },
             { name: 'MAX CITY', sprint: 'Week 1', status: 'on-time' },
             // Add more teams from the original hardcoded data
             { name: 'TechCorp Solutions', sprint: 'Week 2', status: 'on-time' },
@@ -4509,14 +4509,6 @@ class FastTrackApp {
 
     // Helper function for sprint display logic
     getSprintDisplay(team) {
-        // Normalize status to handle different formats
-        let status = team.status || 'starting-soon';
-        if (typeof status === 'string') {
-            status = status.toLowerCase().replace(/\s+/g, '-');
-        }
-        // Parse sprint value - handle both "Week X" format and numeric values
-        let currentSprint = 0;
-        
         // Always try to get from hardcoded data first for known teams
         const hardcodedTeam = this.getHardcodedTeamData(team.name);
         if (hardcodedTeam && hardcodedTeam.sprint) {
@@ -4524,6 +4516,18 @@ class FastTrackApp {
             team.status = hardcodedTeam.status;
             console.log(`Using hardcoded data for ${team.name}: sprint="${team.sprint}", status="${team.status}"`);
         }
+        
+        // Normalize status to handle different formats
+        let status = team.status || 'starting-soon';
+        if (typeof status === 'string') {
+            status = status.toLowerCase().replace(/\s+/g, '-');
+        }
+        
+        // Debug status values
+        console.log(`Status for ${team.name}: original="${team.status}", normalized="${status}"`);
+        
+        // Parse sprint value - handle both "Week X" format and numeric values
+        let currentSprint = 0;
         
         if (team.sprint) {
             if (typeof team.sprint === 'string' && team.sprint.toLowerCase().includes('week')) {
