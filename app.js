@@ -4482,7 +4482,17 @@ class FastTrackApp {
         if (typeof status === 'string') {
             status = status.toLowerCase().replace(/\s+/g, '-');
         }
-        const currentSprint = parseInt(team.sprint) || 0;
+        // Parse sprint value - handle both "Week X" format and numeric values
+        let currentSprint = 0;
+        if (team.sprint) {
+            if (typeof team.sprint === 'string' && team.sprint.toLowerCase().includes('week')) {
+                // Extract number from "Week X" format
+                const match = team.sprint.match(/\d+/);
+                currentSprint = match ? parseInt(match[0]) : 0;
+            } else {
+                currentSprint = parseInt(team.sprint) || 0;
+            }
+        }
         
         console.log(`getSprintDisplay for ${team.name}:`, {
             status: status,
