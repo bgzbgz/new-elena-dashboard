@@ -4478,6 +4478,20 @@ class FastTrackApp {
         ).join(' ');
     }
 
+    // Helper function to get hardcoded team data
+    getHardcodedTeamData(teamName) {
+        const hardcodedTeams = [
+            { name: 'Hemas', sprint: 'Week 4', status: 'graduated' },
+            { name: 'CAL Capital Alliance', sprint: 'Week 3', status: 'on-time' },
+            { name: 'PHARMACIE NOUVELLE', sprint: 'Week 2', status: 'on-time' },
+            { name: 'Capital Alliance', sprint: 'Week 1', status: 'on-time' },
+            { name: 'LEAL GROUP (AUTO)', sprint: 'Week 5', status: 'on-time' },
+            { name: 'MAX CITY', sprint: 'Week 1', status: 'on-time' }
+        ];
+        
+        return hardcodedTeams.find(t => t.name === teamName);
+    }
+
     // Helper function for sprint display logic
     getSprintDisplay(team) {
         // Normalize status to handle different formats
@@ -4487,6 +4501,17 @@ class FastTrackApp {
         }
         // Parse sprint value - handle both "Week X" format and numeric values
         let currentSprint = 0;
+        
+        // If sprint is empty or null, try to get from hardcoded data
+        if (!team.sprint || team.sprint === null || team.sprint === '') {
+            // Try to find in hardcoded data
+            const hardcodedTeam = this.getHardcodedTeamData(team.name);
+            if (hardcodedTeam && hardcodedTeam.sprint) {
+                team.sprint = hardcodedTeam.sprint;
+                console.log(`Using hardcoded sprint for ${team.name}: ${team.sprint}`);
+            }
+        }
+        
         if (team.sprint) {
             if (typeof team.sprint === 'string' && team.sprint.toLowerCase().includes('week')) {
                 // Extract number from "Week X" format
