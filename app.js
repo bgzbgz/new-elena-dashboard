@@ -525,6 +525,7 @@ class FastTrackApp {
         this.associates = [];
         this.currentAssociate = null;
         this.isAssociate = false;
+        this.isTeam = false;
         
         // Restore associate session from localStorage
         this.restoreAssociateSession();
@@ -1515,6 +1516,10 @@ class FastTrackApp {
         await this.initializeDatabase();
         this.bindEvents();
         
+        // Restore sessions after data is loaded
+        this.restoreAssociateSession();
+        this.restoreTeamSession();
+        
         // Only show login page if we're on the original single-page app
         const isOriginalPage = document.getElementById('loginPage') && 
                               document.getElementById('teamDashboard') && 
@@ -1794,7 +1799,10 @@ class FastTrackApp {
         const associateDashboard = document.getElementById('associateDashboard');
         if (associateDashboard) {
             associateDashboard.classList.remove('hidden');
-            this.populateAssociateDashboard();
+            // Add a small delay to ensure data is fully loaded
+            setTimeout(() => {
+                this.populateAssociateDashboard();
+            }, 100);
         }
     }
 
@@ -1873,8 +1881,14 @@ class FastTrackApp {
         
         if (team) {
             this.currentUser = team;
+            this.isTeam = true;
             this.isAdmin = false;
+            this.isAssociate = false;
             this.clearError('loginError');
+            
+            // Save team session to localStorage
+            localStorage.setItem('currentUser', JSON.stringify(team));
+            localStorage.setItem('isTeam', 'true');
             
             // Log team activity and update last login
             await this.logTeamActivity(team.id, 'login', 'Team logged in');
@@ -1962,6 +1976,33 @@ class FastTrackApp {
             // Clear invalid session data
             localStorage.removeItem('currentAssociate');
             localStorage.removeItem('isAssociate');
+        }
+    }
+
+    // Restore team session from localStorage
+    restoreTeamSession() {
+        try {
+            const savedUser = localStorage.getItem('currentUser');
+            const savedIsTeam = localStorage.getItem('isTeam');
+            
+            if (savedUser && savedIsTeam === 'true') {
+                this.currentUser = JSON.parse(savedUser);
+                this.isTeam = true;
+                this.isAdmin = false;
+                this.isAssociate = false;
+                console.log('Team session restored:', this.currentUser.name);
+                
+                // Show team dashboard if we're on the team login page
+                if (window.location.pathname.includes('team-login.html') || 
+                    document.getElementById('teamDashboard')) {
+                    this.showTeamDashboard();
+                }
+            }
+        } catch (error) {
+            console.error('Error restoring team session:', error);
+            // Clear invalid session data
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('isTeam');
         }
     }
 
@@ -2212,7 +2253,10 @@ class FastTrackApp {
     }
 
     populateAssociateDashboard() {
-        if (!this.isAssociate || !this.currentAssociate) return;
+        if (!this.isAssociate || !this.currentAssociate) {
+            console.log('Cannot populate associate dashboard - not logged in as associate');
+            return;
+        }
 
         // Set associate name
         const associateNameElement = document.getElementById('associateName');
@@ -2232,6 +2276,26 @@ class FastTrackApp {
         console.log('Current associate:', this.currentAssociate);
         console.log('All teams with associate IDs:', this.teams.map(t => ({ name: t.name, associateId: t.associateId })));
         console.log('Filtered clients for', this.currentAssociate.name, ':', associateClients);
+        
+        // If no clients found, try to refresh data and try again
+        if (associateClients.length === 0) {
+            console.log('No clients found, attempting to refresh data...');
+            // Force refresh the teams data
+            this.addIdsToHardcodedTeams();
+            const retryClients = this.teams.filter(team => team.associateId === this.currentAssociate.id);
+            console.log('Retry clients:', retryClients);
+            
+            if (retryClients.length > 0) {
+                console.log('Found clients on retry, proceeding...');
+                this.populateAssociateClients(retryClients);
+                this.populateAssociateAnalytics(retryClients);
+                this.populateAssociateLeaderboard(retryClients);
+                this.populateAssociateCodeManagement(retryClients);
+                this.populateAssociateSubtasks(retryClients);
+                this.populateAssociateActivityLog(retryClients);
+                return;
+            }
+        }
         
         // Populate associate's client list
         this.populateAssociateClients(associateClients);
@@ -3087,6 +3151,70 @@ class FastTrackApp {
         }
     }
 
+    async deleteClient() {
+        const client = this.selectedTeamForModal;
+        if (!client) {
+            console.log('No client selected for deletion');
+            return;
+        }
+        
+        if (!this.currentAssociate) {
+            console.error('No associate logged in');
+            alert('Error: No associate logged in. Please log in again.');
+            return;
+        }
+
+        // Double confirmation for safety
+        const confirmMessage = `Are you sure you want to delete "${client.name}"? This action cannot be undone.`;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        const finalConfirm = `FINAL WARNING: This will permanently delete "${client.name}" and all associated data. Type "DELETE" to confirm:`;
+        const userInput = prompt(finalConfirm);
+        if (userInput !== "DELETE") {
+            alert('Deletion cancelled.');
+            return;
+        }
+
+        try {
+            console.log('Deleting client:', client.name);
+
+            // Delete from database if client has an ID
+            if (client.id && !client.id.includes('temp-id')) {
+                const { error } = await this.supabase
+                    .from('teams')
+                    .delete()
+                    .eq('id', client.id);
+
+                if (error) {
+                    console.error('Error deleting client from database:', error);
+                    alert('Error deleting client from database. Please try again.');
+                    return;
+                }
+            }
+
+            // Remove from local teams array
+            const clientIndex = this.teams.findIndex(t => t.id === client.id || t.name === client.name);
+            if (clientIndex !== -1) {
+                this.teams.splice(clientIndex, 1);
+            }
+
+            // Log activity
+            await this.logAssociateActivity(this.currentAssociate.id, 'client_deleted', 
+                `Deleted client: ${client.name}`, { clientId: client.id, clientName: client.name });
+
+            // Close modal and refresh dashboard
+            this.hideAllModals();
+            this.populateAssociateDashboard();
+            
+            alert(`Client "${client.name}" has been deleted successfully.`);
+        } catch (error) {
+            console.error('Error deleting client:', error);
+            alert('Error deleting client. Please try again.');
+        }
+    }
+
     async addFastTrackTool() {
         const client = this.selectedTeamForModal;
         if (!client) return;
@@ -3817,13 +3945,34 @@ class FastTrackApp {
         const tbody = document.getElementById('clientLeaderboardBody');
         if (!tbody) return;
         
-        const sortedTeams = [...this.teams].sort((a, b) => a.position - b.position);
+        // Sort teams: active teams by position, then starting-soon teams at bottom
+        const sortedTeams = [...this.teams].sort((a, b) => {
+            // If both are starting-soon, sort by position
+            if (a.status === 'starting-soon' && b.status === 'starting-soon') {
+                return a.position - b.position;
+            }
+            // If only a is starting-soon, put it at bottom
+            if (a.status === 'starting-soon') {
+                return 1;
+            }
+            // If only b is starting-soon, put it at bottom
+            if (b.status === 'starting-soon') {
+                return -1;
+            }
+            // Both are active teams, sort by position
+            return a.position - b.position;
+        });
 
         tbody.innerHTML = sortedTeams.map(team => {
             const trendClass = team.position < team.previousPosition ? 'position-trend-up' : 
                               team.position > team.previousPosition ? 'position-trend-down' : 'position-trend-same';
             const trendSymbol = team.position < team.previousPosition ? '↑' : 
                                team.position > team.previousPosition ? '↓' : '→';
+
+            // Get sprint display and scores using helper functions
+            const sprintDisplay = this.getSprintDisplay(team);
+            const speedScore = this.getScoreDisplay(team, 'speed');
+            const qualityScore = this.getScoreDisplay(team, 'quality');
 
             return `
                 <tr>
@@ -3834,11 +3983,15 @@ class FastTrackApp {
                         <strong>${team.name}</strong>
                     </td>
                     <td>${this.getCountryName(team.countryCode)}</td>
-                    <td>${this.generateSprintProgressHTML(team)}</td>
                     <td>
-                        <div class="speed-score">${team.speed}</div>
+                        <div class="sprint-progress sprint-${sprintDisplay.color}">
+                            ${sprintDisplay.display}
+                        </div>
                     </td>
-                    <td>${team.qualityScore}</td>
+                    <td>
+                        <div class="speed-score">${speedScore}</div>
+                    </td>
+                    <td>${qualityScore}</td>
                     <td>
                         <span class="status-badge status-${team.status.replace(/[^a-zA-Z0-9]/g, '-')}">${this.formatStatus(team.status)}</span>
                     </td>
@@ -3857,7 +4010,23 @@ class FastTrackApp {
         const tbody = document.getElementById('leaderboardBody');
         if (!tbody) return;
         
-        const sortedTeams = [...this.teams].sort((a, b) => a.position - b.position);
+        // Sort teams: active teams by position, then starting-soon teams at bottom
+        const sortedTeams = [...this.teams].sort((a, b) => {
+            // If both are starting-soon, sort by position
+            if (a.status === 'starting-soon' && b.status === 'starting-soon') {
+                return a.position - b.position;
+            }
+            // If only a is starting-soon, put it at bottom
+            if (a.status === 'starting-soon') {
+                return 1;
+            }
+            // If only b is starting-soon, put it at bottom
+            if (b.status === 'starting-soon') {
+                return -1;
+            }
+            // Both are active teams, sort by position
+            return a.position - b.position;
+        });
 
         tbody.innerHTML = sortedTeams.map(team => {
             const trendClass = team.position < team.previousPosition ? 'position-trend-up' : 
@@ -4333,12 +4502,15 @@ class FastTrackApp {
         this.currentUser = null;
         this.isAdmin = false;
         this.isAssociate = false;
+        this.isTeam = false;
         this.currentAssociate = null;
         this.selectedTeamForModal = null;
         
         // Clear localStorage
         localStorage.removeItem('currentAssociate');
         localStorage.removeItem('isAssociate');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('isTeam');
         
         // Clear inputs
         const inputs = ['accessCode', 'adminCode', 'associateCode', 'newTeamName', 'newTeamSprint', 'newTeamGuru'];

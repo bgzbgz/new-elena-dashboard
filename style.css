@@ -425,6 +425,22 @@ pre code {
   background: var(--color-primary-active);
 }
 
+.btn--danger {
+  background: #EF4444;
+  color: white;
+  border-color: #EF4444;
+}
+
+.btn--danger:hover {
+  background: #DC2626;
+  border-color: #DC2626;
+}
+
+.btn--danger:active {
+  background: #B91C1C;
+  border-color: #B91C1C;
+}
+
 .btn--secondary {
   background: var(--color-secondary);
   color: var(--color-text);
@@ -1351,9 +1367,9 @@ body {
 }
 
 .status-progress-meeting {
-  background: #6B7280; /* Gray */
+  background: #F59E0B; /* Yellow */
   color: white;
-  border: 1px solid #6B7280;
+  border: 1px solid #F59E0B;
 }
 
 /* Code Management */

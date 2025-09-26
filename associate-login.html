@@ -431,7 +431,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="newClientSprint" class="form-label">Current Module</label>
+                            <label for="newClientSprint" class="form-label">Sprint</label>
                             <input type="text" id="newClientSprint" class="form-control" value="Program WOOP">
                         </div>
                         <div class="form-group">
@@ -504,22 +504,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="clientAssignedGuru" class="form-label">Assigned GURU for Current Sprint</label>
-                                <select id="clientAssignedGuru" class="form-control">
-                                    <option value="Elena">Elena</option>
-                                    <option value="Ana-Maria">Ana-Maria</option>
-                                    <option value="Vasil">Vasil</option>
-                                    <option value="Diliara">Diliara</option>
-                                    <option value="Jurijs">Jurijs</option>
-                                    <option value="Mihails">Mihails</option>
-                                    <option value="Janis">Janis</option>
-                                    <option value="Olga">Olga</option>
-                                    <option value="Strategy Team">Strategy Team</option>
-                                    <option value="Execution Team">Execution Team</option>
-                                    <option value="Operations Team">Operations Team</option>
-                                    <option value="Leadership Team">Leadership Team</option>
-                                    <option value="Tech Team">Tech Team</option>
-                                    <option value="Program Team">Program Team</option>
-                                </select>
+                                <input type="text" id="clientAssignedGuru" class="form-control" placeholder="Enter guru name">
                             </div>
                             <div class="form-group">
                                 <label for="clientContact" class="form-label">Main Contact</label>
@@ -527,7 +512,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="clientWebsite" class="form-label">Website</label>
-                                <input type="url" id="clientWebsite" class="form-control">
+                                <input type="text" id="clientWebsite" class="form-control" placeholder="https://example.com">
                             </div>
                             <div class="form-group">
                                 <label for="clientStatus" class="form-label">Status</label>
@@ -536,6 +521,7 @@
                                     <option value="on-time">On Time (Green)</option>
                                     <option value="in-delay">In Delay (Red)</option>
                                     <option value="graduated">Graduated (Blue)</option>
+                                    <option value="progress-meeting">Progress Meeting (Yellow)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -554,7 +540,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="clientSprint" class="form-label">Current Module</label>
+                                <label for="clientSprint" class="form-label">Sprint</label>
                                 <input type="text" id="clientSprint" class="form-control">
                             </div>
                             <div class="form-group">
@@ -644,6 +630,7 @@
             </div>
             <div class="modal-footer">
                 <button onclick="console.log('Close button clicked'); app.hideAllModals()" class="btn btn--outline">Close</button>
+                <button onclick="console.log('Delete Client button clicked'); app.deleteClient()" class="btn btn--danger">Delete Client</button>
                 <button onclick="console.log('Save Changes button clicked'); app.saveClientChanges()" class="btn btn--primary">Save Changes</button>
             </div>
         </div>
