@@ -1330,7 +1330,7 @@ body {
 }
 
 .sprint-progress.starting-soon .sprint-progress-circle {
-  background: conic-gradient(var(--status-starting-soon) 0deg, var(--status-starting-soon) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
+  background: conic-gradient(var(--status-starting) 0deg, var(--status-starting) var(--progress-angle, 0deg), #e5e7eb var(--progress-angle, 0deg));
 }
 
 /* Status badges */

@@ -4492,17 +4492,36 @@ class FastTrackApp {
             rawSpeedScore: team.speed_score
         });
         
+        let displayText, progressAngle, statusClass;
+        
         if (status === 'graduated') {
-            return { display: '30/30', color: 'green' };
+            displayText = '30/30';
+            progressAngle = '360deg';
+            statusClass = 'graduated';
         } else if (status === 'starting-soon') {
-            return { display: '0/30', color: 'grey' };
+            displayText = '0/30';
+            progressAngle = '0deg';
+            statusClass = 'starting-soon';
         } else if (status === 'in-delay') {
             const cappedSprint = Math.min(currentSprint, 30);
-            return { display: `${cappedSprint}/30`, color: 'red' };
+            displayText = `${cappedSprint}/30`;
+            progressAngle = `${(cappedSprint / 30) * 360}deg`;
+            statusClass = 'in-delay';
         } else {
             const cappedSprint = Math.min(currentSprint, 30);
-            return { display: `${cappedSprint}/30`, color: 'green' };
+            displayText = `${cappedSprint}/30`;
+            progressAngle = `${(cappedSprint / 30) * 360}deg`;
+            statusClass = 'on-time';
         }
+        
+        return {
+            display: `
+                <div class="sprint-progress-circle" style="--progress-angle: ${progressAngle}">
+                    <div class="sprint-progress-text">${displayText}</div>
+                </div>
+            `,
+            color: statusClass
+        };
     }
 
     // Helper function for score display logic
