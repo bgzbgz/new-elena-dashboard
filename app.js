@@ -4486,7 +4486,22 @@ class FastTrackApp {
             { name: 'PHARMACIE NOUVELLE', sprint: 'Week 2', status: 'on-time' },
             { name: 'Capital Alliance', sprint: 'Week 1', status: 'on-time' },
             { name: 'LEAL GROUP (AUTO)', sprint: 'Week 5', status: 'on-time' },
-            { name: 'MAX CITY', sprint: 'Week 1', status: 'on-time' }
+            { name: 'MAX CITY', sprint: 'Week 1', status: 'on-time' },
+            // Add more teams from the original hardcoded data
+            { name: 'TechCorp Solutions', sprint: 'Week 2', status: 'on-time' },
+            { name: 'Global Dynamics', sprint: 'Week 1', status: 'on-time' },
+            { name: 'Innovation Hub', sprint: 'Week 0', status: 'starting-soon' },
+            { name: 'Future Systems', sprint: 'Week 0', status: 'starting-soon' },
+            { name: 'Digital Ventures', sprint: 'Week 4', status: 'graduated' },
+            { name: 'Smart Solutions', sprint: 'Week 0', status: 'starting-soon' },
+            { name: 'NextGen Corp', sprint: 'Week 3', status: 'on-time' },
+            { name: 'Advanced Tech', sprint: 'Week 3', status: 'on-time' },
+            { name: 'Modern Systems', sprint: 'Week 3', status: 'on-time' },
+            { name: 'Tech Leaders', sprint: 'Week 3', status: 'on-time' },
+            { name: 'Innovation Labs', sprint: 'Week 3', status: 'on-time' },
+            { name: 'Digital Leaders', sprint: 'Week 5', status: 'graduated' },
+            { name: 'Future Tech', sprint: 'Week 5', status: 'graduated' },
+            { name: 'Smart Systems', sprint: 'Week 5', status: 'graduated' }
         ];
         
         return hardcodedTeams.find(t => t.name === teamName);
@@ -4502,14 +4517,12 @@ class FastTrackApp {
         // Parse sprint value - handle both "Week X" format and numeric values
         let currentSprint = 0;
         
-        // If sprint is empty or null, try to get from hardcoded data
-        if (!team.sprint || team.sprint === null || team.sprint === '') {
-            // Try to find in hardcoded data
-            const hardcodedTeam = this.getHardcodedTeamData(team.name);
-            if (hardcodedTeam && hardcodedTeam.sprint) {
-                team.sprint = hardcodedTeam.sprint;
-                console.log(`Using hardcoded sprint for ${team.name}: ${team.sprint}`);
-            }
+        // Always try to get from hardcoded data first for known teams
+        const hardcodedTeam = this.getHardcodedTeamData(team.name);
+        if (hardcodedTeam && hardcodedTeam.sprint) {
+            team.sprint = hardcodedTeam.sprint;
+            team.status = hardcodedTeam.status;
+            console.log(`Using hardcoded data for ${team.name}: sprint="${team.sprint}", status="${team.status}"`);
         }
         
         if (team.sprint) {
