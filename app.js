@@ -84,12 +84,6 @@ class FastTrackApp {
                     "Top 3 Decisions and Top 3 Processes to Digitalize",
                     "Mastering Departmental AI Transformation"
                 ]
-            },
-            9: {
-                name: "Closing",
-                sprints: [
-                    "Program Overview & Next 12 months Plan"
-                ]
             }
         };
 
