@@ -7,6 +7,92 @@ class FastTrackApp {
         this.corsProxyUrl = 'https://xkapxnhwubhfbatekqhz.supabase.co/functions/v1/cors-proxy';
         this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
         
+        // Module and Sprint data structure
+        this.modules = {
+            0: {
+                name: "Get Ready for the Journey",
+                sprints: [
+                    "Program WOOP: Establish a Clear Mission and Objectives for the Entire Program"
+                ]
+            },
+            1: {
+                name: "Individual and Company Identity",
+                sprints: [
+                    "Know Thyself",
+                    "Dream", 
+                    "Values",
+                    "Team",
+                    "FIT"
+                ]
+            },
+            2: {
+                name: "Understand and Implement the Core Elements of Performance",
+                sprints: [
+                    "Current Cash Position",
+                    "[optional] - Creating Energy in the Body and Mind",
+                    "Goals, Priorities and Planning",
+                    "Focus, Discipline & Productivity",
+                    "Performance & Accountability",
+                    "Meeting Rhythm"
+                ]
+            },
+            3: {
+                name: "Strategy: Understanding the Market",
+                sprints: [
+                    "Market Size",
+                    "Segmentation & Target Market"
+                ]
+            },
+            4: {
+                name: "Strategy: Strategy Development",
+                sprints: [
+                    "Target Segment Deep Dive - Pains, Needs, Gains (+ 1 week for client interviews)",
+                    "Value Proposition",
+                    "Value Proposition Testing (+ 1 week for client interviews)"
+                ]
+            },
+            5: {
+                name: "Strategy: Execution",
+                sprints: [
+                    "Product Development (+1 week for client testing)",
+                    "Strategy Driven Pricing",
+                    "Brand and Marketing",
+                    "[optional] Customer Service Strategy and Execution",
+                    "Route to Market - Market Penetration"
+                ]
+            },
+            6: {
+                name: "Organization & People: Organizational Structure",
+                sprints: [
+                    "Define Core Activities",
+                    "Define core processes, Decisions, and Capabilities",
+                    "FIT & ABC Analysis (Current team analyses and change)"
+                ]
+            },
+            7: {
+                name: "Organization & People: People and Leadership",
+                sprints: [
+                    "[optional] Organizational redesign & Personal Development Plan for A-Players",
+                    "Employer Branding and Recruitment Strategy",
+                    "[optional] Set Agile Teams"
+                ]
+            },
+            8: {
+                name: "Organization & People: Apply Aggressively Tech and AI",
+                sprints: [
+                    "Potential Tech and AI-Low hanging options",
+                    "Top 3 Decisions and Top 3 Processes to Digitalize",
+                    "Mastering Departmental AI Transformation"
+                ]
+            },
+            9: {
+                name: "Closing",
+                sprints: [
+                    "Program Overview & Next 12 months Plan"
+                ]
+            }
+        };
+
         // Enhanced team data with detailed sprint information - Based on roadmap analysis
         this.teams = [
             // Elena's Clients (10) - Based on roadmap analysis
@@ -1518,6 +1604,7 @@ class FastTrackApp {
         // Initialize database and load data
         await this.initializeDatabase();
         this.bindEvents();
+        this.populateModuleDropdowns();
         
         // Restore sessions after data is loaded
         this.restoreAssociateSession();
@@ -1766,6 +1853,21 @@ class FastTrackApp {
                 this.hideAllModals();
             }
         };
+
+        // Module dropdown change events for dynamic sprint updates
+        const clientModuleSelect = document.getElementById('clientModule');
+        if (clientModuleSelect) {
+            clientModuleSelect.addEventListener('change', () => {
+                this.updateSprintDropdown('clientModule', 'clientSprint');
+            });
+        }
+
+        const newClientModuleSelect = document.getElementById('newClientModule');
+        if (newClientModuleSelect) {
+            newClientModuleSelect.addEventListener('change', () => {
+                this.updateSprintDropdown('newClientModule', 'newClientSprint');
+            });
+        }
     }
 
     showLoginPage() {
@@ -2898,6 +3000,11 @@ class FastTrackApp {
                 element.value = value;
             }
         });
+
+        // Update sprint dropdown based on selected module
+        if (client.currentModule !== undefined) {
+            this.updateSprintDropdown('clientModule', 'clientSprint');
+        }
 
         // Populate sprint details
         this.populateSprintDetails(client);
@@ -4476,6 +4583,50 @@ class FastTrackApp {
         return status.split('-').map(word => 
             word.charAt(0).toUpperCase() + word.slice(1)
         ).join(' ');
+    }
+
+    // Function to update sprint dropdown based on selected module
+    updateSprintDropdown(moduleSelectId, sprintSelectId) {
+        const moduleSelect = document.getElementById(moduleSelectId);
+        const sprintSelect = document.getElementById(sprintSelectId);
+        
+        if (!moduleSelect || !sprintSelect) return;
+        
+        const selectedModule = moduleSelect.value;
+        
+        // Clear existing options
+        sprintSelect.innerHTML = '<option value="">Select a sprint...</option>';
+        
+        if (selectedModule && this.modules[selectedModule]) {
+            const module = this.modules[selectedModule];
+            module.sprints.forEach((sprint, index) => {
+                const option = document.createElement('option');
+                option.value = sprint;
+                option.textContent = `${index + 1}. ${sprint}`;
+                sprintSelect.appendChild(option);
+            });
+        }
+    }
+
+    // Function to populate module dropdowns
+    populateModuleDropdowns() {
+        const moduleSelects = ['clientModule', 'newClientModule'];
+        
+        moduleSelects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                // Clear existing options except the first one
+                select.innerHTML = '<option value="">Select a module...</option>';
+                
+                // Add module options
+                Object.keys(this.modules).forEach(moduleId => {
+                    const option = document.createElement('option');
+                    option.value = moduleId;
+                    option.textContent = `${moduleId} - ${this.modules[moduleId].name}`;
+                    select.appendChild(option);
+                });
+            }
+        });
     }
 
     // Helper function to get hardcoded team data
