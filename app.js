@@ -2210,9 +2210,52 @@ class FastTrackApp {
             `;
         }
 
-        // Populate signature tool card
+        // Load Fast Track tools for this team
+        this.loadTeamFastTrackTools();
+
+        // Populate team leaderboard
+        this.populateClientLeaderboard();
+        
+        // Populate team ranking
+        this.populateTeamRanking();
+    }
+
+    async loadTeamFastTrackTools() {
+        if (!this.currentUser || this.isAdmin) return;
+        
+        try {
+            const { data: tools, error } = await this.supabase
+                .from('fast_track_tools')
+                .select('*')
+                .eq('team_id', this.currentUser.id)
+                .order('created_at', { ascending: false })
+                .limit(1); // Get the latest tool
+
+            if (error) {
+                console.error('Error loading team Fast Track tools:', error);
+                this.populateTeamSignatureTool(null);
+                return;
+            }
+
+            this.populateTeamSignatureTool(tools && tools.length > 0 ? tools[0] : null);
+        } catch (error) {
+            console.error('Error loading team Fast Track tools:', error);
+            this.populateTeamSignatureTool(null);
+        }
+    }
+
+    populateTeamSignatureTool(tool) {
         const signatureToolCard = document.getElementById('signatureToolCard');
-        if (signatureToolCard) {
+        if (!signatureToolCard) return;
+
+        if (tool) {
+            signatureToolCard.innerHTML = `
+                <div class="signature-tool-content">
+                    <div class="signature-tool-text">${tool.sprint_name}</div>
+                    <div class="signature-tool-subtitle">${tool.tool_instructions}</div>
+                </div>
+            `;
+        } else {
             signatureToolCard.innerHTML = `
                 <div class="signature-tool-content">
                     <div class="signature-tool-text">Insights Coming Soon</div>
@@ -2220,12 +2263,6 @@ class FastTrackApp {
                 </div>
             `;
         }
-
-        // Populate team leaderboard
-        this.populateClientLeaderboard();
-        
-        // Populate team ranking
-        this.populateTeamRanking();
     }
 
     populateTeamSubtasks() {
