@@ -3157,11 +3157,11 @@ class FastTrackApp {
     }
 
     populateFastTrackTools(tools) {
-        const container = document.getElementById('fastTrackToolsContainer');
+        const container = document.getElementById('fastTrackToolsList');
         if (!container) return;
 
         if (tools.length === 0) {
-            container.innerHTML = '<p>No Fast Track tools added yet. Click "Add New Tool" to get started.</p>';
+            container.innerHTML = '<p>No Fast Track tools added yet. Add a tool below to get started.</p>';
             return;
         }
 
@@ -3470,6 +3470,11 @@ class FastTrackApp {
         }
     }
 
+    async editFastTrackTool(toolId) {
+        // For now, just show an alert - can be enhanced later with a proper edit modal
+        alert('Edit functionality coming soon! For now, you can delete and re-add the tool.');
+    }
+
     async deleteFastTrackTool(toolId) {
         if (!confirm('Are you sure you want to delete this Fast Track tool?')) return;
 
@@ -3506,6 +3511,11 @@ class FastTrackApp {
         // Add active class to selected tab and button
         document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         document.getElementById(`${tabName}Tab`).classList.add('active');
+        
+        // Load Fast Track tools when tools tab is selected
+        if (tabName === 'tools' && this.selectedTeamForModal) {
+            this.loadFastTrackTools(this.selectedTeamForModal.id);
+        }
     }
 
     // Add Client Modal Methods
