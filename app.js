@@ -2188,30 +2188,13 @@ class FastTrackApp {
 
         // Performance chart removed from client panels
 
-        // Populate progress cards
-        const cardsContainer = document.getElementById('teamProgressCards');
-        if (cardsContainer) {
-            cardsContainer.innerHTML = `
-                <div class="progress-card blurred-card">
-                    <div class="progress-card-label">Start</div>
-                    <div class="progress-card-value">Insights Coming Soon</div>
-                    <div class="progress-card-subtitle">What to start doing</div>
-                </div>
-                <div class="progress-card blurred-card">
-                    <div class="progress-card-label">Stop</div>
-                    <div class="progress-card-value">Insights Coming Soon</div>
-                    <div class="progress-card-subtitle">What to stop doing</div>
-                </div>
-                <div class="progress-card blurred-card">
-                    <div class="progress-card-label">Do Better</div>
-                    <div class="progress-card-value">Insights Coming Soon</div>
-                    <div class="progress-card-subtitle">What to improve</div>
-                </div>
-            `;
-        }
+        // SSDB cards will be populated by loadTeamSSDBInsights()
 
         // Load Fast Track tools for this team
         this.loadTeamFastTrackTools();
+
+        // Load SSDB insights for this team
+        this.loadTeamSSDBInsights();
 
         // Populate team leaderboard
         this.populateClientLeaderboard();
@@ -2260,6 +2243,73 @@ class FastTrackApp {
                 <div class="signature-tool-content">
                     <div class="signature-tool-text">Insights Coming Soon</div>
                     <div class="signature-tool-subtitle">Recommended tool for your team</div>
+                </div>
+            `;
+        }
+    }
+
+    async loadTeamSSDBInsights() {
+        if (!this.currentUser || this.isAdmin) return;
+        
+        try {
+            const { data: insights, error } = await this.supabase
+                .from('ssdb_insights')
+                .select('*')
+                .eq('team_id', this.currentUser.id)
+                .order('created_at', { ascending: false })
+                .limit(1); // Get the latest insight
+
+            if (error) {
+                console.error('Error loading team SSDB insights:', error);
+                this.populateTeamSSDBCards(null);
+                return;
+            }
+
+            this.populateTeamSSDBCards(insights && insights.length > 0 ? insights[0] : null);
+        } catch (error) {
+            console.error('Error loading team SSDB insights:', error);
+            this.populateTeamSSDBCards(null);
+        }
+    }
+
+    populateTeamSSDBCards(insight) {
+        const cardsContainer = document.getElementById('teamProgressCards');
+        if (!cardsContainer) return;
+
+        if (insight) {
+            cardsContainer.innerHTML = `
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Start</div>
+                    <div class="progress-card-value">${insight.start_insight || 'Insights Coming Soon'}</div>
+                    <div class="progress-card-subtitle">What to start doing</div>
+                </div>
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Stop</div>
+                    <div class="progress-card-value">${insight.stop_insight || 'Insights Coming Soon'}</div>
+                    <div class="progress-card-subtitle">What to stop doing</div>
+                </div>
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Do Better</div>
+                    <div class="progress-card-value">${insight.do_better_insight || 'Insights Coming Soon'}</div>
+                    <div class="progress-card-subtitle">What to improve</div>
+                </div>
+            `;
+        } else {
+            cardsContainer.innerHTML = `
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Start</div>
+                    <div class="progress-card-value">Insights Coming Soon</div>
+                    <div class="progress-card-subtitle">What to start doing</div>
+                </div>
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Stop</div>
+                    <div class="progress-card-value">Insights Coming Soon</div>
+                    <div class="progress-card-subtitle">What to stop doing</div>
+                </div>
+                <div class="progress-card blurred-card">
+                    <div class="progress-card-label">Do Better</div>
+                    <div class="progress-card-value">Insights Coming Soon</div>
+                    <div class="progress-card-subtitle">What to improve</div>
                 </div>
             `;
         }
@@ -3515,6 +3565,179 @@ class FastTrackApp {
         // Load Fast Track tools when tools tab is selected
         if (tabName === 'tools' && this.selectedTeamForModal) {
             this.loadFastTrackTools(this.selectedTeamForModal.id);
+        }
+        
+        // Load SSDB insights when SSDB tab is selected
+        if (tabName === 'ssdb' && this.selectedTeamForModal) {
+            this.loadSSDBInsights(this.selectedTeamForModal.id);
+        }
+    }
+
+    // SSDB (Start, Stop, Do Better) Functions
+    async loadSSDBInsights(clientId) {
+        try {
+            const { data: insights, error } = await this.supabase
+                .from('ssdb_insights')
+                .select('*')
+                .eq('team_id', clientId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading SSDB insights:', error);
+                return;
+            }
+
+            this.populateSSDBInsights(insights || []);
+        } catch (error) {
+            console.error('Error loading SSDB insights:', error);
+        }
+    }
+
+    populateSSDBInsights(insights) {
+        const container = document.getElementById('ssdbInsightsList');
+        if (!container) return;
+
+        if (insights.length === 0) {
+            container.innerHTML = '<p>No SSDB insights added yet. Add insights below to get started.</p>';
+            return;
+        }
+
+        container.innerHTML = insights.map(insight => `
+            <div class="ssdb-insight-item">
+                <div class="ssdb-insight-header">
+                    <div class="ssdb-insight-date">${new Date(insight.created_at).toLocaleDateString()}</div>
+                    <div class="ssdb-insight-actions">
+                        <button class="btn btn--outline btn--sm" onclick="app.editSSDBInsight('${insight.id}')">Edit</button>
+                        <button class="btn btn--secondary btn--sm" onclick="app.deleteSSDBInsight('${insight.id}')">Delete</button>
+                    </div>
+                </div>
+                <div class="ssdb-insight-content">
+                    <div class="ssdb-insight-section">
+                        <div class="ssdb-insight-label">START:</div>
+                        <div class="ssdb-insight-text">${insight.start_insight || 'Not specified'}</div>
+                    </div>
+                    <div class="ssdb-insight-section">
+                        <div class="ssdb-insight-label">STOP:</div>
+                        <div class="ssdb-insight-text">${insight.stop_insight || 'Not specified'}</div>
+                    </div>
+                    <div class="ssdb-insight-section">
+                        <div class="ssdb-insight-label">DO BETTER:</div>
+                        <div class="ssdb-insight-text">${insight.do_better_insight || 'Not specified'}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async addSSDBInsight() {
+        const client = this.selectedTeamForModal;
+        if (!client) return;
+
+        const startInsight = document.getElementById('ssdbStart').value.trim();
+        const stopInsight = document.getElementById('ssdbStop').value.trim();
+        const doBetterInsight = document.getElementById('ssdbDoBetter').value.trim();
+
+        if (!startInsight && !stopInsight && !doBetterInsight) {
+            alert('Please enter at least one insight before adding.');
+            return;
+        }
+
+        try {
+            // For hardcoded data, add to local array
+            if (client.id.includes('temp-id') || client.id.includes('temp-client')) {
+                const newInsight = {
+                    id: `ssdb-${Date.now()}`,
+                    start_insight: startInsight,
+                    stop_insight: stopInsight,
+                    do_better_insight: doBetterInsight,
+                    created_at: new Date().toISOString(),
+                    created_by: this.currentAssociate.name
+                };
+
+                if (!client.ssdbInsights) {
+                    client.ssdbInsights = [];
+                }
+                client.ssdbInsights.push(newInsight);
+                
+                // Refresh the insights display
+                this.populateSSDBInsights(client.ssdbInsights);
+                alert('SSDB insight added successfully!');
+                return;
+            }
+
+            // Database operation for real clients
+            const { data, error } = await this.supabase
+                .from('ssdb_insights')
+                .insert([
+                    {
+                        team_id: client.id,
+                        start_insight: startInsight,
+                        stop_insight: stopInsight,
+                        do_better_insight: doBetterInsight,
+                        created_by: this.currentAssociate.id
+                    }
+                ])
+                .select();
+
+            if (error) {
+                console.error('Error adding SSDB insight:', error);
+                alert('Error adding insight. Please try again.');
+                return;
+            }
+
+            // Log activity
+            await this.logAssociateActivity(this.currentAssociate.id, 'ssdb_insight_added', 
+                `Added SSDB insight for ${client.name}`, { 
+                    insightId: data[0].id,
+                    startInsight: startInsight,
+                    stopInsight: stopInsight,
+                    doBetterInsight: doBetterInsight
+                });
+
+            // Clear form
+            document.getElementById('ssdbStart').value = '';
+            document.getElementById('ssdbStop').value = '';
+            document.getElementById('ssdbDoBetter').value = '';
+
+            // Reload insights
+            this.loadSSDBInsights(client.id);
+            alert('SSDB insight added successfully!');
+        } catch (error) {
+            console.error('Error adding SSDB insight:', error);
+            alert('Error adding insight. Please try again.');
+        }
+    }
+
+    async editSSDBInsight(insightId) {
+        // For now, just show an alert - can be enhanced later with a proper edit modal
+        alert('Edit functionality coming soon! For now, you can delete and re-add the insight.');
+    }
+
+    async deleteSSDBInsight(insightId) {
+        if (!confirm('Are you sure you want to delete this SSDB insight?')) return;
+
+        try {
+            const { error } = await this.supabase
+                .from('ssdb_insights')
+                .delete()
+                .eq('id', insightId);
+
+            if (error) {
+                console.error('Error deleting SSDB insight:', error);
+                alert('Error deleting insight. Please try again.');
+                return;
+            }
+
+            // Log activity
+            await this.logAssociateActivity(this.currentAssociate.id, 'ssdb_insight_deleted', 
+                `Deleted SSDB insight`, { insightId });
+
+            // Reload insights
+            this.loadSSDBInsights(this.selectedTeamForModal.id);
+            alert('SSDB insight deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting SSDB insight:', error);
+            alert('Error deleting insight. Please try again.');
         }
     }
 

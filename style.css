@@ -2817,3 +2817,86 @@ body {
     color: #666;
     font-size: 1rem;
 }
+
+/* SSDB Insights Styling */
+.ssdb-insights h4 {
+    margin-bottom: var(--space-8);
+    color: var(--ft-black);
+    font-weight: 600;
+}
+
+.ssdb-insights p {
+    margin-bottom: var(--space-16);
+    color: var(--color-text-2);
+}
+
+.ssdb-form {
+    margin-top: var(--space-24);
+    padding: var(--space-16);
+    background: var(--color-bg-1);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.ssdb-form h5 {
+    margin-bottom: var(--space-16);
+    color: var(--ft-black);
+    font-weight: 600;
+}
+
+.ssdb-insight-item {
+    background: var(--color-bg-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-16);
+    margin-bottom: var(--space-16);
+}
+
+.ssdb-insight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-12);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.ssdb-insight-date {
+    font-size: 0.875rem;
+    color: var(--color-text-2);
+    font-weight: 500;
+}
+
+.ssdb-insight-actions {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.ssdb-insight-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+}
+
+.ssdb-insight-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.ssdb-insight-label {
+    font-weight: 600;
+    color: var(--ft-black);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ssdb-insight-text {
+    color: var(--color-text-1);
+    line-height: 1.5;
+    padding: var(--space-8);
+    background: var(--color-bg-2);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--ft-yellow);
+}

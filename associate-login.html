@@ -453,6 +453,7 @@
                 <div class="client-management-tabs">
                     <button class="tab-btn active" data-tab="profile" onclick="app.switchClientManagementTab('profile')">Profile</button>
                     <button class="tab-btn" data-tab="sprint" onclick="app.switchClientManagementTab('sprint')">Sprint Progress</button>
+                    <button class="tab-btn" data-tab="ssdb" onclick="app.switchClientManagementTab('ssdb')">SSDB</button>
                     <button class="tab-btn" data-tab="tools" onclick="app.switchClientManagementTab('tools')">Fast Track Tools</button>
                 </div>
                 
@@ -588,6 +589,34 @@
                         <h4>Program Progress Details</h4>
                         <div class="sprint-details-grid" id="sprintDetailsGrid">
                             <!-- Sprint details will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ssdbTab" class="tab-content">
+                    <div class="ssdb-insights">
+                        <h4>Start, Stop, Do Better Insights</h4>
+                        <p>Provide personalized insights for this client's development journey.</p>
+                        
+                        <div id="ssdbInsightsList">
+                            <!-- SSDB insights will be populated by JavaScript -->
+                        </div>
+                        
+                        <div class="ssdb-form">
+                            <h5>Add New SSDB Insight</h5>
+                            <div class="form-group">
+                                <label for="ssdbStart" class="form-label">What to START doing</label>
+                                <textarea id="ssdbStart" class="form-control" rows="3" placeholder="Enter what the client should start doing..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="ssdbStop" class="form-label">What to STOP doing</label>
+                                <textarea id="ssdbStop" class="form-control" rows="3" placeholder="Enter what the client should stop doing..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="ssdbDoBetter" class="form-label">What to DO BETTER</label>
+                                <textarea id="ssdbDoBetter" class="form-control" rows="3" placeholder="Enter what the client should do better..."></textarea>
+                            </div>
+                            <button onclick="app.addSSDBInsight()" class="btn btn--primary">Add SSDB Insight</button>
                         </div>
                     </div>
                 </div>
